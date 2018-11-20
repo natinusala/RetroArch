@@ -20,6 +20,7 @@
 #include "ozone.h"
 #include "ozone_texture.h"
 #include "ozone_display.h"
+#include "ozone_metrics.h"
 
 #include <string/stdstring.h>
 #include <encodings/utf.h>
@@ -121,7 +122,7 @@ void ozone_draw_entries(ozone_handle_t *ozone, video_frame_info_t *video_info,
 
    entries_end    = file_list_get_size(selection_buf);
    old_list       = selection_buf == ozone->selection_buf_old;
-   y              = ENTRIES_START_Y;
+   y              = ozone->metrics.entries.start_y;
    sidebar_offset = ozone->sidebar_offset / 2.0f;
    entry_width    = video_info->width - 548;
    button_height  = 52; /* height of the button (entry minus sublabel) */
@@ -163,7 +164,7 @@ void ozone_draw_entries(ozone_handle_t *ozone, video_frame_info_t *video_info,
       if (!node || ozone->empty_playlist)
          goto border_iterate;
 
-      if (y + scroll_y + node->height + 20 < ENTRIES_START_Y)
+      if (y + scroll_y + node->height + 20 < ozone->metrics.entries.start_y)
          goto border_iterate;
       else if (y + scroll_y - node->height - 20 > bottom_boundary)
          goto border_iterate;
@@ -188,7 +189,7 @@ border_iterate:
       ozone_draw_cursor(ozone, video_info, x_offset + 456, entry_width, button_height, old_selection_y + scroll_y, (1-ozone->animations.cursor_alpha) * alpha);
 
    /* Icons + text */
-   y = ENTRIES_START_Y;
+   y = ozone->metrics.entries.start_y;
 
    if (old_list)
       y += ozone->old_list_offset_y;
@@ -219,7 +220,7 @@ border_iterate:
       if (!node)
          continue;
 
-      if (y + scroll_y + node->height + 20 < ENTRIES_START_Y)
+      if (y + scroll_y + node->height + 20 < ozone->metrics.entries.start_y)
          goto icons_iterate;
       else if (y + scroll_y - node->height - 20 > bottom_boundary)
          goto icons_iterate;

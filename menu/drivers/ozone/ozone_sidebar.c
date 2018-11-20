@@ -23,6 +23,7 @@
 #include "ozone_theme.h"
 #include "ozone_display.h"
 #include "ozone_sidebar.h"
+#include "ozone_metrics.h"
 
 #include <string/stdstring.h>
 #include <file/file_path.h>
@@ -135,7 +136,7 @@ void ozone_draw_sidebar(ozone_handle_t *ozone, video_frame_info_t *video_info)
 
    /* Tabs */
    /* y offset computation */
-   y = ENTRIES_START_Y - 10;
+   y = ozone->metrics.sidebar.start_y;
    for (i = 0; i < ozone->system_tab_end + horizontal_list_size + 1; i++)
    {
       if (i == ozone->categories_selection_ptr)
@@ -163,7 +164,7 @@ void ozone_draw_sidebar(ozone_handle_t *ozone, video_frame_info_t *video_info)
       ozone_draw_cursor(ozone, video_info, ozone->sidebar_offset + 41, 408 - 81, 52, selection_old_y-8 + ozone->animations.scroll_y_sidebar, 1-ozone->animations.cursor_alpha);
 
    /* Menu tabs */
-   y = ENTRIES_START_Y - 10;
+   y = ozone->metrics.sidebar.start_y;
    menu_display_blend_begin(video_info);
 
    for (i = 0; i < ozone->system_tab_end+1; i++)
@@ -327,7 +328,7 @@ void ozone_sidebar_goto(ozone_handle_t *ozone, unsigned new_selection)
    /* Scroll animation */
    float new_scroll                             = 0;
    float selected_position_y                    = ozone_get_selected_sidebar_y_position(ozone);
-   float current_selection_middle_onscreen      = ENTRIES_START_Y - 10 + ozone->animations.scroll_y_sidebar + selected_position_y + 65 / 2;
+   float current_selection_middle_onscreen      = ozone->metrics.sidebar.start_y + ozone->animations.scroll_y_sidebar + selected_position_y + 65 / 2;
    float bottom_boundary                        = video_info_height - 87 - 78;
    float entries_middle                         = video_info_height/2;
    float entries_height                         = ozone_get_sidebar_height(ozone);

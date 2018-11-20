@@ -20,6 +20,7 @@
 #include "ozone.h"
 #include "ozone_display.h"
 #include "ozone_theme.h"
+#include "ozone_metrics.h"
 
 #include <string/stdstring.h>
 #include <file/file_path.h>

@@ -20,24 +20,16 @@ typedef struct ozone_handle ozone_handle_t;
 
 #include "ozone_theme.h"
 #include "ozone_sidebar.h"
+#include "ozone_metrics.h"
 
 #include <retro_miscellaneous.h>
 
 #include "../../menu_driver.h"
 #include "../../../retroarch.h"
 
-#define FONT_SIZE_FOOTER 18
-#define FONT_SIZE_TITLE 36
-#define FONT_SIZE_TIME 22
-#define FONT_SIZE_ENTRIES_LABEL 24
-#define FONT_SIZE_ENTRIES_SUBLABEL 18
-#define FONT_SIZE_SIDEBAR 24
-
 #define ANIMATION_PUSH_ENTRY_DURATION 10
 #define ANIMATION_CURSOR_DURATION 8
 #define ANIMATION_CURSOR_PULSE 30
-
-#define ENTRIES_START_Y 127
 
 #define INTERVAL_BATTERY_LEVEL_CHECK (30 * 1000000)
 #define INTERVAL_OSK_CURSOR (0.5f * 1000000)
@@ -152,6 +144,8 @@ typedef struct ozone_handle
    unsigned old_list_offset_y;
 
    file_list_t *horizontal_list; /* console tabs */
+
+   ozone_metrics_t metrics;
 } ozone_handle_t;
 
 /* If you change this struct, also
