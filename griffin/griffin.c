@@ -1281,6 +1281,7 @@ MENU
 #include "../menu/drivers/ozone/ozone_sidebar.c"
 #include "../menu/drivers/ozone/ozone_texture.c"
 #include "../menu/drivers/ozone/ozone_theme.c"
+#include "../menu/drivers/ozone/ozone_metrics.c"
 #endif
 
 #ifdef HAVE_STRIPES
