@@ -956,11 +956,10 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
    unsigned title_x         = ozone->metrics.header.horizontal_padding + ozone->metrics.header.horizontal_padding/2 + ozone->metrics.header.icon_size;
 
    /* Separator */
-   menu_display_draw_quad(video_info, 
+   ozone_draw_quad(video_info, 
       ozone->metrics.header.separator_padding, 
       ozone->metrics.header.height, 
       video_info->width - ozone->metrics.header.separator_padding*2, 1, 
-      video_info->width, video_info->height, 
       ozone->theme->header_footer_separator
    );
 
@@ -970,7 +969,6 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
       ozone->metrics.header.icon_size, ozone->metrics.header.icon_size, 
       ozone->textures[OZONE_TEXTURE_RETROARCH],
       ozone->metrics.header.horizontal_padding, ozone->metrics.header.icon_y,
-      video_info->width, video_info->height,
       0, 1, 
       ozone->theme->entries_icon
    );
@@ -1007,7 +1005,6 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
             video_info->width - ozone->metrics.header.time_icon_offset + ozone->metrics.header.time_icon_size/2 - ozone->metrics.header.time_icon_spacing,
             ozone->metrics.header.time_y + FONT_SIZE_TIME,
             TEXT_ALIGN_RIGHT,
-            video_info->width, video_info->height,
             ozone->fonts.time, ozone->theme->text_rgba, false);
 
          menu_display_blend_begin(video_info);
@@ -1016,7 +1013,6 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
             ozone->icons_textures[charging ? OZONE_ENTRIES_ICONS_TEXTURE_BATTERY_CHARGING : OZONE_ENTRIES_ICONS_TEXTURE_BATTERY_FULL],
             video_info->width - ozone->metrics.header.time_icon_offset, 
             ozone->metrics.header.time_icon_y, 
-            video_info->width, video_info->height, 
             0, 1, 
             ozone->theme->entries_icon
          );
@@ -1042,7 +1038,6 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
          video_info->width - ozone->metrics.header.time_icon_offset + ozone->metrics.header.time_icon_size/2 - ozone->metrics.header.time_icon_spacing - timedate_offset,
          ozone->metrics.header.time_y + FONT_SIZE_TIME,
          TEXT_ALIGN_RIGHT,
-         video_info->width, video_info->height,
          ozone->fonts.time, ozone->theme->text_rgba, false);
 
       menu_display_blend_begin(video_info);
@@ -1051,7 +1046,6 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
          ozone->icons_textures[OZONE_ENTRIES_ICONS_TEXTURE_CLOCK],
          video_info->width - ozone->metrics.header.time_icon_offset - timedate_offset,
          ozone->metrics.header.time_icon_y,
-         video_info->width, video_info->height,
          0, 1,
          ozone->theme->entries_icon
       );
@@ -1067,20 +1061,20 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
 
    menu_animation_ticker(&ticker);
 
-   ozone_draw_text(video_info, ozone, title, title_x, ozone->metrics.header.title_y + FONT_SIZE_TITLE, TEXT_ALIGN_LEFT, video_info->width, video_info->height, ozone->fonts.title, ozone->theme->text_rgba, false);
+   ozone_draw_text(video_info, ozone, title, title_x, ozone->metrics.header.title_y + FONT_SIZE_TITLE, TEXT_ALIGN_LEFT, ozone->fonts.title, ozone->theme->text_rgba, false);
 }
 
 static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_info, settings_t *settings)
 {
    char core_title[255];
    /* Separator */
-   menu_display_draw_quad(video_info, 23, video_info->height - 78, video_info->width - 60, 1, video_info->width, video_info->height, ozone->theme->header_footer_separator);
+   ozone_draw_quad(video_info, 23, video_info->height - 78, video_info->width - 60, 1, ozone->theme->header_footer_separator);
 
    /* Core title or Switch icon */
    if (settings->bools.menu_core_enable && menu_entries_get_core_title(core_title, sizeof(core_title)) == 0)
-      ozone_draw_text(video_info, ozone, core_title, 59, video_info->height - 49 + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, video_info->width, video_info->height, ozone->fonts.footer, ozone->theme->text_rgba, false);
+      ozone_draw_text(video_info, ozone, core_title, 59, video_info->height - 49 + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, ozone->fonts.footer, ozone->theme->text_rgba, false);
    else
-      ozone_draw_icon(video_info, 69, 30, ozone->theme->textures[OZONE_THEME_TEXTURE_SWITCH], 59, video_info->height - 52, video_info->width,video_info->height, 0, 1, NULL);
+      ozone_draw_icon(video_info, 69, 30, ozone->theme->textures[OZONE_THEME_TEXTURE_SWITCH], 59, video_info->height - 52, 0, 1, NULL);
 
    /* Buttons */
 
@@ -1103,13 +1097,13 @@ static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_i
 
       if (do_swap)
       {
-         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_B], video_info->width - 133, video_info->height - 49, video_info->width,video_info->height, 0, 1, NULL);
-         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_A], video_info->width - 251, video_info->height - 49, video_info->width,video_info->height, 0, 1, NULL);
+         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_B], video_info->width - 133, video_info->height - 49, 0, 1, NULL);
+         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_A], video_info->width - 251, video_info->height - 49, 0, 1, NULL);
       }
       else
       {
-         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_B], video_info->width - 251, video_info->height - 49, video_info->width,video_info->height, 0, 1, NULL);
-         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_A], video_info->width - 133, video_info->height - 49, video_info->width,video_info->height, 0, 1, NULL);
+         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_B], video_info->width - 251, video_info->height - 49, 0, 1, NULL);
+         ozone_draw_icon(video_info, 25, 25, ozone->theme->textures[OZONE_THEME_TEXTURE_BUTTON_A], video_info->width - 133, video_info->height - 49, 0, 1, NULL);
       }
 
       menu_display_blend_end(video_info);
@@ -1118,12 +1112,12 @@ static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_i
             do_swap ? 
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_OK) :
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_BACK),
-            video_info->width - back_width, video_info->height - back_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, video_info->width, video_info->height, ozone->fonts.footer, ozone->theme->text_rgba, false);
+            video_info->width - back_width, video_info->height - back_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, ozone->fonts.footer, ozone->theme->text_rgba, false);
       ozone_draw_text(video_info, ozone,
             do_swap ? 
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_BACK) :
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_OK),
-            video_info->width - ok_width, video_info->height - ok_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, video_info->width, video_info->height, ozone->fonts.footer, ozone->theme->text_rgba, false);
+            video_info->width - ok_width, video_info->height - ok_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, ozone->fonts.footer, ozone->theme->text_rgba, false);
    }
 
    menu_display_blend_end(video_info);
@@ -1249,9 +1243,8 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
    ozone->raster_blocks.sidebar.carr.coords.vertices = 0;
 
    /* Background */
-   menu_display_draw_quad(video_info, 
+   ozone_draw_quad(video_info, 
       0, 0, video_info->width, video_info->height, 
-      video_info->width, video_info->height, 
       !video_info->libretro_running ? ozone->theme->background : ozone->theme->background_libretro_running
    );
 

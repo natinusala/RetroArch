@@ -45,7 +45,7 @@ static void ozone_draw_entry_value(ozone_handle_t *ozone,
    if (entry->checked)
    {
       menu_display_blend_begin(video_info);
-      ozone_draw_icon(video_info, 30, 30, ozone->theme->textures[OZONE_THEME_TEXTURE_CHECK], x - 20, y - 22, video_info->width, video_info->height, 0, 1, ozone->theme_dynamic.entries_checkmark);
+      ozone_draw_icon(video_info, 30, 30, ozone->theme->textures[OZONE_THEME_TEXTURE_CHECK], x - 20, y - 22, 0, 1, ozone->theme_dynamic.entries_checkmark);
       menu_display_blend_end(video_info);
       return;
    }
@@ -94,12 +94,12 @@ static void ozone_draw_entry_value(ozone_handle_t *ozone,
 
    if (do_draw_text)
    {
-      ozone_draw_text(video_info, ozone, value, x, y, TEXT_ALIGN_RIGHT, video_info->width, video_info->height, ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_selected_rgba, alpha_uint32), false);
+      ozone_draw_text(video_info, ozone, value, x, y, TEXT_ALIGN_RIGHT, ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_selected_rgba, alpha_uint32), false);
    }
    else
    {
       ozone_draw_text(video_info, ozone, (switch_is_on ? msg_hash_to_str(MENU_ENUM_LABEL_VALUE_ON) : msg_hash_to_str(MENU_ENUM_LABEL_VALUE_OFF)),
-               x, y, TEXT_ALIGN_RIGHT, video_info->width, video_info->height, ozone->fonts.entries_label,
+               x, y, TEXT_ALIGN_RIGHT, ozone->fonts.entries_label,
                COLOR_TEXT_ALPHA(switch_is_on ? ozone->theme->text_selected_rgba : ozone->theme->text_sublabel_rgba, alpha_uint32), false);
    }
 }
@@ -173,8 +173,8 @@ void ozone_draw_entries(ozone_handle_t *ozone, video_frame_info_t *video_info,
       ozone_color_alpha(ozone->theme_dynamic.entries_checkmark, alpha);
 
       /* Borders */
-      menu_display_draw_quad(video_info, x_offset + 456-3, y - 3 + scroll_y, entry_width + 10 - 3 -1, 1, video_info->width, video_info->height, ozone->theme_dynamic.entries_border);
-      menu_display_draw_quad(video_info, x_offset + 456-3, y - 3 + button_height + scroll_y, entry_width + 10 - 3-1, 1, video_info->width, video_info->height, ozone->theme_dynamic.entries_border);
+      ozone_draw_quad(video_info, x_offset + 456-3, y - 3 + scroll_y, entry_width + 10 - 3 -1, 1, ozone->theme_dynamic.entries_border);
+      ozone_draw_quad(video_info, x_offset + 456-3, y - 3 + button_height + scroll_y, entry_width + 10 - 3-1, 1, ozone->theme_dynamic.entries_border);
 
 border_iterate:
       y += node->height;
@@ -276,15 +276,15 @@ border_iterate:
          }
 
          menu_display_blend_begin(video_info);
-         ozone_draw_icon(video_info, 46, 46, texture, x_offset + 451+5+10, y + scroll_y, video_info->width, video_info->height, 0, 1, icon_color);
+         ozone_draw_icon(video_info, 46, 46, texture, x_offset + 451+5+10, y + scroll_y, 0, 1, icon_color);
          menu_display_blend_end(video_info);
 
          text_offset = 0;
       }
 
       /* Draw text */
-      ozone_draw_text(video_info, ozone, rich_label, text_offset + x_offset + 521, y + FONT_SIZE_ENTRIES_LABEL + 8 - 1 + scroll_y, TEXT_ALIGN_LEFT, video_info->width, video_info->height, ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_rgba, alpha_uint32), false);
-      ozone_draw_text(video_info, ozone, sublabel_str, x_offset + 470, y + FONT_SIZE_ENTRIES_SUBLABEL + 80 - 20 - 3 + scroll_y, TEXT_ALIGN_LEFT, video_info->width, video_info->height, ozone->fonts.entries_sublabel, COLOR_TEXT_ALPHA(ozone->theme->text_sublabel_rgba, alpha_uint32), false);
+      ozone_draw_text(video_info, ozone, rich_label, text_offset + x_offset + 521, y + FONT_SIZE_ENTRIES_LABEL + 8 - 1 + scroll_y, TEXT_ALIGN_LEFT, ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_rgba, alpha_uint32), false);
+      ozone_draw_text(video_info, ozone, sublabel_str, x_offset + 470, y + FONT_SIZE_ENTRIES_SUBLABEL + 80 - 20 - 3 + scroll_y, TEXT_ALIGN_LEFT, ozone->fonts.entries_sublabel, COLOR_TEXT_ALPHA(ozone->theme->text_sublabel_rgba, alpha_uint32), false);
 
       /* Value */
       ticker.idx = ozone->frame_count / 20;

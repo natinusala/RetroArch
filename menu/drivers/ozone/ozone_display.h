@@ -27,7 +27,7 @@ void ozone_draw_text(
       const char *str, float x,
       float y,
       enum text_alignment text_align,
-      unsigned width, unsigned height, font_data_t* font,
+      font_data_t* font,
       uint32_t color,
       bool draw_outside);
 
@@ -45,7 +45,6 @@ void ozone_draw_icon(
       unsigned icon_height,
       uintptr_t texture,
       float x, float y,
-      unsigned width, unsigned height,
       float rotation, float scale_factor,
       float *color);
 
@@ -60,3 +59,8 @@ void ozone_draw_osk(ozone_handle_t *ozone,
 void ozone_draw_messagebox(ozone_handle_t *ozone,
       video_frame_info_t *video_info,
       const char *message);
+
+void ozone_draw_quad(video_frame_info_t *video_info,
+      int x, int y,
+      unsigned width, unsigned height,
+      float *color);
