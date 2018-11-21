@@ -18,6 +18,12 @@
 
 /* TODO Find a solution for images scaling looking bad (downscale them instead of upscaling them) */
 
+float ozone_get_scale_factor(unsigned width, unsigned height)
+{
+    /* TODO Real scale factor */
+    return 1.0f;
+}
+
 void ozone_compute_metrics(ozone_handle_t *ozone,
       float scale_factor)
 {

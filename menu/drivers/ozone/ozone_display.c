@@ -322,7 +322,7 @@ void ozone_draw_osk(ozone_handle_t *ozone,
    {
       const char *msg = list->elems[i].data;
 
-      ozone_draw_text(video_info, ozone, msg, margin + padding * 2, margin + padding + FONT_SIZE_ENTRIES_LABEL + y_offset, TEXT_ALIGN_LEFT, &ozone->fonts.entries_label, text_color, false);
+      ozone_draw_text(video_info, ozone, msg, margin + padding * 2, margin + padding + ozone->metrics.font.entries_label + y_offset, TEXT_ALIGN_LEFT, &ozone->fonts.entries_label, text_color, false);
 
       /* Cursor */
       if (i == list->size - 1)

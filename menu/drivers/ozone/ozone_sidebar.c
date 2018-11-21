@@ -181,7 +181,7 @@ void ozone_draw_sidebar(ozone_handle_t *ozone, video_frame_info_t *video_info)
       title     = msg_hash_to_str(value_idx);
 
       /* Text */
-      ozone_draw_text(video_info, ozone, title, ozone->sidebar_offset + 115 - 10, y + FONT_SIZE_SIDEBAR + ozone->animations.scroll_y_sidebar, TEXT_ALIGN_LEFT, &ozone->fonts.sidebar, (selected ? ozone->theme->text_selected_rgba : ozone->theme->text_rgba), true);
+      ozone_draw_text(video_info, ozone, title, ozone->sidebar_offset + 115 - 10, y + ozone->metrics.font.sidebar + ozone->animations.scroll_y_sidebar, TEXT_ALIGN_LEFT, &ozone->fonts.sidebar, (selected ? ozone->theme->text_selected_rgba : ozone->theme->text_rgba), true);
 
       y += 65;
    }
@@ -218,7 +218,7 @@ void ozone_draw_sidebar(ozone_handle_t *ozone, video_frame_info_t *video_info)
 
          menu_animation_ticker(&ticker);
 
-         ozone_draw_text(video_info, ozone, console_title, ozone->sidebar_offset + 115 - 10, y + FONT_SIZE_SIDEBAR + ozone->animations.scroll_y_sidebar, TEXT_ALIGN_LEFT, &ozone->fonts.sidebar, (selected ? ozone->theme->text_selected_rgba : ozone->theme->text_rgba), true);
+         ozone_draw_text(video_info, ozone, console_title, ozone->sidebar_offset + 115 - 10, y + ozone->metrics.font.sidebar + ozone->animations.scroll_y_sidebar, TEXT_ALIGN_LEFT, &ozone->fonts.sidebar, (selected ? ozone->theme->text_selected_rgba : ozone->theme->text_rgba), true);
 
 console_iterate:
          y += 65;

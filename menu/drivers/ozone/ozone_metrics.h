@@ -91,4 +91,6 @@ typedef struct ozone_metrics
 void ozone_compute_metrics(ozone_handle_t *ozone,
       float scale_factor);
 
+float ozone_get_scale_factor(unsigned width, unsigned height);
+
 #endif
