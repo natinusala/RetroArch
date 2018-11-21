@@ -190,4 +190,10 @@ void ozone_free_list_nodes(file_list_t *list, bool actiondata);
 
 bool ozone_is_playlist(ozone_handle_t *ozone);
 
+void ozone_compute_entries_position(ozone_handle_t *ozone);
+
+void ozone_update_scroll(ozone_handle_t *ozone, bool allow_animation, ozone_node_t *node);
+
+unsigned ozone_count_lines(const char *str);
+
 #endif

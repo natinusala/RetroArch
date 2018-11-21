@@ -40,7 +40,8 @@
       "ozone_theme.h": "c",
       "ozone_texture.h": "c",
       "string_list.h": "c",
-      "core_info.h": "c"
+      "core_info.h": "c",
+      "pipeline_xmb_ribbon_simple.cg.h": "c"
    },
    "C_Cpp.dimInactiveRegions": false,
 }
