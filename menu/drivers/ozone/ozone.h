@@ -133,6 +133,8 @@ typedef struct ozone_handle
    file_list_t *horizontal_list; /* console tabs */
 
    ozone_metrics_t metrics;
+
+   float scale_factor_old;
 } ozone_handle_t;
 
 /* If you change this struct, also

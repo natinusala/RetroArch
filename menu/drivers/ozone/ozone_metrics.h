@@ -16,34 +16,37 @@
 #ifndef _OZONE_METRICS_H
 #define _OZONE_METRICS_H
 
-/* Baseline resolution is 1280x720 */
+/* Baseline resolution is 1080p */
 /* Those are all baseline metrics before scaling */
 
+/* TODO Once scaling is done, try 1080p and tweak
+   values to slim it down a little */
+
 /* Font sizes */
-#define FONT_SIZE_FOOTER            18
-#define FONT_SIZE_TITLE             36
-#define FONT_SIZE_TIME              22
-#define FONT_SIZE_ENTRIES_LABEL     24
-#define FONT_SIZE_ENTRIES_SUBLABEL  18
-#define FONT_SIZE_SIDEBAR           24
+#define FONT_SIZE_FOOTER            27
+#define FONT_SIZE_TITLE             54
+#define FONT_SIZE_TIME              33
+#define FONT_SIZE_ENTRIES_LABEL     36
+#define FONT_SIZE_ENTRIES_SUBLABEL  27
+#define FONT_SIZE_SIDEBAR           36
 
 /* Header metrics */
-#define HEADER_HORIZONTAL_PADDING   47
-#define HEADER_HEIGHT               87
-#define HEADER_SEPARATOR_PADDING    30
+#define HEADER_HORIZONTAL_PADDING   70
+#define HEADER_HEIGHT               130
+#define HEADER_SEPARATOR_PADDING    45
 
-#define HEADER_ICON_SIZE            60
+#define HEADER_ICON_SIZE            90
 
-#define HEADER_TIME_ICON_SIZE       92
-#define HEADER_TIME_ICON_Y          2
-#define HEADER_TIME_ICON_SPACING    15
-#define HEADER_TIMEDATE_OFFSET      95
+#define HEADER_TIME_ICON_SIZE       138
+#define HEADER_TIME_ICON_Y          3
+#define HEADER_TIME_ICON_SPACING    22
+#define HEADER_TIMEDATE_OFFSET      142
 
 /* Entries metrics */
-#define ENTRIES_VERTICAL_PADDING 40
+#define ENTRIES_VERTICAL_PADDING 60
 
 /* Sidebar metrics */
-#define SIDEBAR_VERTICAL_PADDING 30
+#define SIDEBAR_VERTICAL_PADDING 45
 
 /* Struct holding calculated and scaled metrics */
 /* Stored in the handle */

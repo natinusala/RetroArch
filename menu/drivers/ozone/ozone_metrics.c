@@ -20,8 +20,8 @@
 
 float ozone_get_scale_factor(unsigned width, unsigned height)
 {
-    /* TODO Real scale factor */
-    return 1.0f;
+   float scale_factor = (float)width / 1920.0f;
+   return scale_factor;
 }
 
 void ozone_compute_metrics(ozone_handle_t *ozone,
@@ -30,13 +30,12 @@ void ozone_compute_metrics(ozone_handle_t *ozone,
    ozone_metrics_t *metrics   = &ozone->metrics;
 
    /* Fonts */
-   /* TODO Actually use those instead of the hardcoded defines in the whole code */
-   metrics->font.footer             = FONT_SIZE_FOOTER            * scale_factor;
-   metrics->font.title              = FONT_SIZE_TITLE             * scale_factor;
-   metrics->font.time               = FONT_SIZE_TIME              * scale_factor;
-   metrics->font.entries_label      = FONT_SIZE_ENTRIES_LABEL     * scale_factor;
-   metrics->font.entries_sublabel   = FONT_SIZE_ENTRIES_SUBLABEL  * scale_factor;
-   metrics->font.sidebar            = FONT_SIZE_SIDEBAR           * scale_factor;
+   metrics->font.footer             = FONT_SIZE_FOOTER;
+   metrics->font.title              = FONT_SIZE_TITLE;
+   metrics->font.time               = FONT_SIZE_TIME;
+   metrics->font.entries_label      = FONT_SIZE_ENTRIES_LABEL;
+   metrics->font.entries_sublabel   = FONT_SIZE_ENTRIES_SUBLABEL;
+   metrics->font.sidebar            = FONT_SIZE_SIDEBAR;
 
    /* Header */
    metrics->header.horizontal_padding  = HEADER_HORIZONTAL_PADDING   * scale_factor;

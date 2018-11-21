@@ -114,10 +114,15 @@ void ozone_draw_text(
    if ((color & 0x000000FF) == 0)
       return;
 
-   menu_display_draw_text(font->font_data, str, x, y,
-         width, height, color, text_align, 1.0f,
-         false,
-         1.0, draw_outside);
+   menu_display_draw_text(font->font_data, str, 
+      x, 
+      y + (font->glyph_height * ozone->metrics.scale_factor),
+      width,
+      height,
+      color, text_align, ozone->metrics.scale_factor,
+      false,
+      1.0, draw_outside
+   );
 }
 
 static void ozone_draw_cursor_slice(ozone_handle_t *ozone,
@@ -322,7 +327,7 @@ void ozone_draw_osk(ozone_handle_t *ozone,
    {
       const char *msg = list->elems[i].data;
 
-      ozone_draw_text(video_info, ozone, msg, margin + padding * 2, margin + padding + ozone->metrics.font.entries_label + y_offset, TEXT_ALIGN_LEFT, &ozone->fonts.entries_label, text_color, false);
+      ozone_draw_text(video_info, ozone, msg, margin + padding * 2, margin + padding + y_offset, TEXT_ALIGN_LEFT, &ozone->fonts.entries_label, text_color, false);
 
       /* Cursor */
       if (i == list->size - 1)
