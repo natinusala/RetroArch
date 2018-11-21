@@ -267,12 +267,12 @@ static void ozone_free(void *data)
 
    if (ozone)
    {
-      video_coord_array_free(&ozone->raster_blocks.footer.carr);
-      video_coord_array_free(&ozone->raster_blocks.title.carr);
-      video_coord_array_free(&ozone->raster_blocks.time.carr);
-      video_coord_array_free(&ozone->raster_blocks.entries_label.carr);
-      video_coord_array_free(&ozone->raster_blocks.entries_sublabel.carr);
-      video_coord_array_free(&ozone->raster_blocks.sidebar.carr);
+      ozone_font_free(&ozone->fonts.footer);
+      ozone_font_free(&ozone->fonts.title);
+      ozone_font_free(&ozone->fonts.time);
+      ozone_font_free(&ozone->fonts.entries_label);
+      ozone_font_free(&ozone->fonts.entries_sublabel);
+      ozone_font_free(&ozone->fonts.sidebar);
 
       font_driver_bind_block(NULL, NULL);
 
@@ -303,47 +303,29 @@ static void ozone_context_reset(void *data, bool is_threaded)
 
       /* Fonts init */
       unsigned i;
-      unsigned size;
       char font_path[PATH_MAX_LENGTH];
 
       fill_pathname_join(font_path, ozone->assets_path, "regular.ttf", sizeof(font_path));
-      ozone->fonts.footer = menu_display_font_file(font_path, FONT_SIZE_FOOTER, is_threaded);
-      ozone->fonts.entries_label = menu_display_font_file(font_path, FONT_SIZE_ENTRIES_LABEL, is_threaded);
-      ozone->fonts.entries_sublabel = menu_display_font_file(font_path, FONT_SIZE_ENTRIES_SUBLABEL, is_threaded);
-      ozone->fonts.time = menu_display_font_file(font_path, FONT_SIZE_TIME, is_threaded);
-      ozone->fonts.sidebar = menu_display_font_file(font_path, FONT_SIZE_SIDEBAR, is_threaded);
+      ozone_font_init(&ozone->fonts.footer, font_path, FONT_SIZE_FOOTER, is_threaded);
+      ozone_font_init(&ozone->fonts.entries_label, font_path, FONT_SIZE_ENTRIES_LABEL, is_threaded);
+      ozone_font_init(&ozone->fonts.entries_sublabel, font_path, FONT_SIZE_ENTRIES_SUBLABEL, is_threaded);
+      ozone_font_init(&ozone->fonts.time, font_path, FONT_SIZE_TIME, is_threaded);
+      ozone_font_init(&ozone->fonts.sidebar, font_path, FONT_SIZE_SIDEBAR, is_threaded);
 
       fill_pathname_join(font_path, ozone->assets_path, "bold.ttf", sizeof(font_path));
-      ozone->fonts.title = menu_display_font_file(font_path, FONT_SIZE_TITLE, is_threaded);
+      ozone_font_init(&ozone->fonts.title, font_path, FONT_SIZE_TITLE, is_threaded);
 
       if (
-         !ozone->fonts.footer           ||
-         !ozone->fonts.entries_label    ||
-         !ozone->fonts.entries_sublabel ||
-         !ozone->fonts.time             ||
-         !ozone->fonts.sidebar          ||
-         !ozone->fonts.title
+         !ozone->fonts.footer.font_data           ||
+         !ozone->fonts.entries_label.font_data    ||
+         !ozone->fonts.entries_sublabel.font_data ||
+         !ozone->fonts.time.font_data             ||
+         !ozone->fonts.sidebar.font_data          ||
+         !ozone->fonts.title.font_data
       )
       {
          ozone->has_all_assets = false;
       }
-
-      /* Naive font size */
-      ozone->title_font_glyph_width = FONT_SIZE_TITLE * 3/4;
-      ozone->entry_font_glyph_width = FONT_SIZE_ENTRIES_LABEL * 3/4;
-      ozone->sublabel_font_glyph_width = FONT_SIZE_ENTRIES_SUBLABEL * 3/4;
-
-      /* More realistic font size */
-      /* TODO Move that in ozone_metrics */
-      size = font_driver_get_message_width(ozone->fonts.title, "a", 1, 1);
-      if (size)
-         ozone->title_font_glyph_width = size;
-      size = font_driver_get_message_width(ozone->fonts.entries_label, "a", 1, 1);
-      if (size)
-         ozone->entry_font_glyph_width = size;
-      size = font_driver_get_message_width(ozone->fonts.entries_sublabel, "a", 1, 1);
-      if (size)
-         ozone->sublabel_font_glyph_width = size;
 
       /* Textures init */
       for (i = 0; i < OZONE_TEXTURE_LAST; i++)
@@ -436,19 +418,12 @@ static void ozone_context_destroy(void *data)
 
    video_driver_texture_unload(&menu_display_white_texture);
 
-   menu_display_font_free(ozone->fonts.footer);
-   menu_display_font_free(ozone->fonts.title);
-   menu_display_font_free(ozone->fonts.time);
-   menu_display_font_free(ozone->fonts.entries_label);
-   menu_display_font_free(ozone->fonts.entries_sublabel);
-   menu_display_font_free(ozone->fonts.sidebar);
-
-   ozone->fonts.footer = NULL;
-   ozone->fonts.title = NULL;
-   ozone->fonts.time = NULL;
-   ozone->fonts.entries_label = NULL;
-   ozone->fonts.entries_sublabel = NULL;
-   ozone->fonts.sidebar = NULL;
+   ozone_font_free(&ozone->fonts.footer);
+   ozone_font_free(&ozone->fonts.title);
+   ozone_font_free(&ozone->fonts.time);
+   ozone_font_free(&ozone->fonts.entries_label);
+   ozone_font_free(&ozone->fonts.entries_sublabel);
+   ozone_font_free(&ozone->fonts.sidebar);
 
    menu_animation_ctx_tag tag = (uintptr_t) &ozone_default_theme;
    menu_animation_kill_by_tag(&tag);
@@ -881,7 +856,7 @@ static void ozone_compute_entries_position(ozone_handle_t *ozone)
       {
          char *sublabel_str = menu_entry_get_sublabel(&entry);
 
-         word_wrap(sublabel_str, sublabel_str, (video_info_width - 548) / ozone->sublabel_font_glyph_width, false);
+         word_wrap(sublabel_str, sublabel_str, (video_info_width - 548) / ozone->fonts.entries_sublabel.glyph_width, false);
 
          unsigned lines = ozone_count_lines(sublabel_str);
 
@@ -1005,7 +980,7 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
             video_info->width - ozone->metrics.header.time_icon_offset + ozone->metrics.header.time_icon_size/2 - ozone->metrics.header.time_icon_spacing,
             ozone->metrics.header.time_y + FONT_SIZE_TIME,
             TEXT_ALIGN_RIGHT,
-            ozone->fonts.time, ozone->theme->text_rgba, false);
+            &ozone->fonts.time, ozone->theme->text_rgba, false);
 
          menu_display_blend_begin(video_info);
          ozone_draw_icon(video_info, 
@@ -1038,7 +1013,7 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
          video_info->width - ozone->metrics.header.time_icon_offset + ozone->metrics.header.time_icon_size/2 - ozone->metrics.header.time_icon_spacing - timedate_offset,
          ozone->metrics.header.time_y + FONT_SIZE_TIME,
          TEXT_ALIGN_RIGHT,
-         ozone->fonts.time, ozone->theme->text_rgba, false);
+         &ozone->fonts.time, ozone->theme->text_rgba, false);
 
       menu_display_blend_begin(video_info);
       ozone_draw_icon(video_info,
@@ -1054,14 +1029,14 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
 
    /* Title */
    ticker.s = title;
-   ticker.len = (video_info->width - title_x - (video_info->timedate_enable ? timedate_offset : 0) - timedate_offset) / ozone->title_font_glyph_width;
+   ticker.len = (video_info->width - title_x - (video_info->timedate_enable ? timedate_offset : 0) - timedate_offset) / ozone->fonts.title.glyph_width;
    ticker.idx = ozone->frame_count / 20;
    ticker.str = ozone->title;
    ticker.selected = true;
 
    menu_animation_ticker(&ticker);
 
-   ozone_draw_text(video_info, ozone, title, title_x, ozone->metrics.header.title_y + FONT_SIZE_TITLE, TEXT_ALIGN_LEFT, ozone->fonts.title, ozone->theme->text_rgba, false);
+   ozone_draw_text(video_info, ozone, title, title_x, ozone->metrics.header.title_y + FONT_SIZE_TITLE, TEXT_ALIGN_LEFT, &ozone->fonts.title, ozone->theme->text_rgba, false);
 }
 
 static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_info, settings_t *settings)
@@ -1072,7 +1047,7 @@ static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_i
 
    /* Core title or Switch icon */
    if (settings->bools.menu_core_enable && menu_entries_get_core_title(core_title, sizeof(core_title)) == 0)
-      ozone_draw_text(video_info, ozone, core_title, 59, video_info->height - 49 + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, ozone->fonts.footer, ozone->theme->text_rgba, false);
+      ozone_draw_text(video_info, ozone, core_title, 59, video_info->height - 49 + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, &ozone->fonts.footer, ozone->theme->text_rgba, false);
    else
       ozone_draw_icon(video_info, 69, 30, ozone->theme->textures[OZONE_THEME_TEXTURE_SWITCH], 59, video_info->height - 52, 0, 1, NULL);
 
@@ -1112,12 +1087,12 @@ static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_i
             do_swap ? 
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_OK) :
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_BACK),
-            video_info->width - back_width, video_info->height - back_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, ozone->fonts.footer, ozone->theme->text_rgba, false);
+            video_info->width - back_width, video_info->height - back_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, &ozone->fonts.footer, ozone->theme->text_rgba, false);
       ozone_draw_text(video_info, ozone,
             do_swap ? 
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_BACK) :
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_BASIC_MENU_CONTROLS_OK),
-            video_info->width - ok_width, video_info->height - ok_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, ozone->fonts.footer, ozone->theme->text_rgba, false);
+            video_info->width - ok_width, video_info->height - ok_height + FONT_SIZE_FOOTER, TEXT_ALIGN_LEFT, &ozone->fonts.footer, ozone->theme->text_rgba, false);
    }
 
    menu_display_blend_end(video_info);
@@ -1228,19 +1203,12 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
    menu_display_set_viewport(video_info->width, video_info->height);
 
    /* Clear text */
-   font_driver_bind_block(ozone->fonts.footer,  &ozone->raster_blocks.footer);
-   font_driver_bind_block(ozone->fonts.title,  &ozone->raster_blocks.title);
-   font_driver_bind_block(ozone->fonts.time,  &ozone->raster_blocks.time);
-   font_driver_bind_block(ozone->fonts.entries_label,  &ozone->raster_blocks.entries_label);
-   font_driver_bind_block(ozone->fonts.entries_sublabel,  &ozone->raster_blocks.entries_sublabel);
-   font_driver_bind_block(ozone->fonts.sidebar,  &ozone->raster_blocks.sidebar);
-
-   ozone->raster_blocks.footer.carr.coords.vertices = 0;
-   ozone->raster_blocks.title.carr.coords.vertices = 0;
-   ozone->raster_blocks.time.carr.coords.vertices = 0;
-   ozone->raster_blocks.entries_label.carr.coords.vertices = 0;
-   ozone->raster_blocks.entries_sublabel.carr.coords.vertices = 0;
-   ozone->raster_blocks.sidebar.carr.coords.vertices = 0;
+   ozone_font_bind(&ozone->fonts.footer);
+   ozone_font_bind(&ozone->fonts.title);
+   ozone_font_bind(&ozone->fonts.time);
+   ozone_font_bind(&ozone->fonts.entries_label);
+   ozone_font_bind(&ozone->fonts.entries_sublabel);
+   ozone_font_bind(&ozone->fonts.sidebar);
 
    /* Background */
    ozone_draw_quad(video_info, 
@@ -1284,19 +1252,16 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
    menu_display_scissor_end(video_info);
 
    /* Flush first layer of text */
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.footer, video_info);
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.title, video_info);
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.time, video_info);
+   ozone_font_flush(&ozone->fonts.footer, video_info);
+   ozone_font_flush(&ozone->fonts.title, video_info);
+   ozone_font_flush(&ozone->fonts.time, video_info);
 
-   font_driver_bind_block(ozone->fonts.footer, NULL);
-   font_driver_bind_block(ozone->fonts.title, NULL);
-   font_driver_bind_block(ozone->fonts.time, NULL);
-   font_driver_bind_block(ozone->fonts.entries_label, NULL);
+   ozone_font_unbind(&ozone->fonts.footer);
+   ozone_font_unbind(&ozone->fonts.title);
+   ozone_font_unbind(&ozone->fonts.time);
+   ozone_font_unbind(&ozone->fonts.entries_label);
 
    /* Message box & OSK - second layer of text */
-   ozone->raster_blocks.footer.carr.coords.vertices = 0;
-   ozone->raster_blocks.entries_label.carr.coords.vertices = 0;
-
    if (ozone->should_draw_messagebox || draw_osk)
    {
       /* Fade in animation */
@@ -1352,8 +1317,8 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
       }
    }
 
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.footer, video_info);
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.entries_label, video_info);
+   ozone_font_flush(&ozone->fonts.footer, video_info);
+   ozone_font_flush(&ozone->fonts.entries_label, video_info);
 
    menu_display_unset_viewport(video_info->width, video_info->height);
 }

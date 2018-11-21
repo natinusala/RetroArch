@@ -21,6 +21,7 @@ typedef struct ozone_handle ozone_handle_t;
 #include "ozone_theme.h"
 #include "ozone_sidebar.h"
 #include "ozone_metrics.h"
+#include "ozone_display.h"
 
 #include <retro_miscellaneous.h>
 
@@ -40,23 +41,13 @@ typedef struct ozone_handle
 
    struct 
    {
-      font_data_t *footer;
-      font_data_t *title;
-      font_data_t *time;
-      font_data_t *entries_label;
-      font_data_t *entries_sublabel;
-      font_data_t *sidebar;
+      ozone_font_t footer;
+      ozone_font_t title;
+      ozone_font_t time;
+      ozone_font_t entries_label;
+      ozone_font_t entries_sublabel;
+      ozone_font_t sidebar;
    } fonts;
-
-   struct
-   {
-      video_font_raster_block_t footer;
-      video_font_raster_block_t title;
-      video_font_raster_block_t time;
-      video_font_raster_block_t entries_label;
-      video_font_raster_block_t entries_sublabel;
-      video_font_raster_block_t sidebar;
-   } raster_blocks;
 
    menu_texture_item textures[OZONE_THEME_TEXTURE_LAST];
    menu_texture_item icons_textures[OZONE_ENTRIES_ICONS_TEXTURE_LAST];
@@ -101,10 +92,6 @@ typedef struct ozone_handle
 
    bool draw_sidebar;
    float sidebar_offset;
-
-   unsigned title_font_glyph_width;
-   unsigned entry_font_glyph_width;
-   unsigned sublabel_font_glyph_width;
 
    ozone_theme_t *theme;
 

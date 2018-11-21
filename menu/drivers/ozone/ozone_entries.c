@@ -94,12 +94,12 @@ static void ozone_draw_entry_value(ozone_handle_t *ozone,
 
    if (do_draw_text)
    {
-      ozone_draw_text(video_info, ozone, value, x, y, TEXT_ALIGN_RIGHT, ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_selected_rgba, alpha_uint32), false);
+      ozone_draw_text(video_info, ozone, value, x, y, TEXT_ALIGN_RIGHT, &ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_selected_rgba, alpha_uint32), false);
    }
    else
    {
       ozone_draw_text(video_info, ozone, (switch_is_on ? msg_hash_to_str(MENU_ENUM_LABEL_VALUE_ON) : msg_hash_to_str(MENU_ENUM_LABEL_VALUE_OFF)),
-               x, y, TEXT_ALIGN_RIGHT, ozone->fonts.entries_label,
+               x, y, TEXT_ALIGN_RIGHT, &ozone->fonts.entries_label,
                COLOR_TEXT_ALPHA(switch_is_on ? ozone->theme->text_selected_rgba : ozone->theme->text_sublabel_rgba, alpha_uint32), false);
    }
 }
@@ -232,13 +232,13 @@ border_iterate:
       ticker.s = rich_label;
       ticker.str = entry_rich_label;
       ticker.selected = entry_selected && !ozone->cursor_in_sidebar;
-      ticker.len = (entry_width - 60 - text_offset) / ozone->entry_font_glyph_width;
+      ticker.len = (entry_width - 60 - text_offset) / ozone->fonts.entries_label.glyph_width;
 
       menu_animation_ticker(&ticker);
 
       if (ozone->empty_playlist)
       {
-         unsigned text_width = font_driver_get_message_width(ozone->fonts.entries_label, rich_label, (unsigned)strlen(rich_label), 1);
+         unsigned text_width = font_driver_get_message_width(ozone->fonts.entries_label.font_data, rich_label, (unsigned)strlen(rich_label), 1);
          x_offset = (video_info_width - 408 - 162)/2 - text_width/2;
          y = video_info_height/2 - 60;
       }
@@ -246,7 +246,7 @@ border_iterate:
       sublabel_str = menu_entry_get_sublabel(&entry);
 
       if (node->wrap)
-         word_wrap(sublabel_str, sublabel_str, (video_info->width - 548) / ozone->sublabel_font_glyph_width, false);
+         word_wrap(sublabel_str, sublabel_str, (video_info->width - 548) / ozone->fonts.entries_sublabel.glyph_width, false);
 
       /* Icon */
       tex = ozone_entries_icon_get_texture(ozone, entry.enum_idx, entry.type, entry_selected);
@@ -283,15 +283,15 @@ border_iterate:
       }
 
       /* Draw text */
-      ozone_draw_text(video_info, ozone, rich_label, text_offset + x_offset + 521, y + FONT_SIZE_ENTRIES_LABEL + 8 - 1 + scroll_y, TEXT_ALIGN_LEFT, ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_rgba, alpha_uint32), false);
-      ozone_draw_text(video_info, ozone, sublabel_str, x_offset + 470, y + FONT_SIZE_ENTRIES_SUBLABEL + 80 - 20 - 3 + scroll_y, TEXT_ALIGN_LEFT, ozone->fonts.entries_sublabel, COLOR_TEXT_ALPHA(ozone->theme->text_sublabel_rgba, alpha_uint32), false);
+      ozone_draw_text(video_info, ozone, rich_label, text_offset + x_offset + 521, y + FONT_SIZE_ENTRIES_LABEL + 8 - 1 + scroll_y, TEXT_ALIGN_LEFT, &ozone->fonts.entries_label, COLOR_TEXT_ALPHA(ozone->theme->text_rgba, alpha_uint32), false);
+      ozone_draw_text(video_info, ozone, sublabel_str, x_offset + 470, y + FONT_SIZE_ENTRIES_SUBLABEL + 80 - 20 - 3 + scroll_y, TEXT_ALIGN_LEFT, &ozone->fonts.entries_sublabel, COLOR_TEXT_ALPHA(ozone->theme->text_sublabel_rgba, alpha_uint32), false);
 
       /* Value */
       ticker.idx = ozone->frame_count / 20;
       ticker.s = entry_value_ticker;
       ticker.str = entry_value;
       ticker.selected = entry_selected && !ozone->cursor_in_sidebar;
-      ticker.len = (entry_width - 60 - ((int)utf8len(entry_rich_label) * ozone->entry_font_glyph_width)) / ozone->entry_font_glyph_width;
+      ticker.len = (entry_width - 60 - ((int)utf8len(entry_rich_label) * ozone->fonts.entries_label.glyph_width)) / ozone->fonts.entries_label.glyph_width;
 
       menu_animation_ticker(&ticker);
       ozone_draw_entry_value(ozone, video_info, entry_value_ticker, x_offset + 426 + entry_width, y + FONT_SIZE_ENTRIES_LABEL + 8 - 1 + scroll_y,alpha_uint32, &entry);
@@ -305,6 +305,6 @@ icons_iterate:
    }
 
    /* Text layer */
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.entries_label, video_info);
-   font_driver_flush(video_info->width, video_info->height, ozone->fonts.entries_sublabel, video_info);
+   ozone_font_flush(&ozone->fonts.entries_label, video_info);
+   ozone_font_flush(&ozone->fonts.entries_sublabel, video_info);
 }

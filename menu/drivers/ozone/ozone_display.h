@@ -17,9 +17,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _OZONE_DISPLAY_H
+#define _OZONE_DISPLAY_H
+
 #include "ozone.h"
 
 #include "../../menu_driver.h"
+
+typedef struct ozone_font
+{
+   font_data_t *font_data;
+   video_font_raster_block_t raster_block;
+
+   int glyph_width;
+   int glyph_height;
+}  ozone_font_t;
+
+void ozone_font_init(ozone_font_t *font, char *path, unsigned size, bool is_threaded);
+
+void ozone_font_free(ozone_font_t *font);
+
+void ozone_font_bind(ozone_font_t *font);
+
+void ozone_font_unbind(ozone_font_t *font);
+
+void ozone_font_flush(ozone_font_t *font, video_frame_info_t *video_info);
 
 void ozone_draw_text(
       video_frame_info_t *video_info,
@@ -27,7 +49,7 @@ void ozone_draw_text(
       const char *str, float x,
       float y,
       enum text_alignment text_align,
-      font_data_t* font,
+      ozone_font_t *font,
       uint32_t color,
       bool draw_outside);
 
@@ -64,3 +86,5 @@ void ozone_draw_quad(video_frame_info_t *video_info,
       int x, int y,
       unsigned width, unsigned height,
       float *color);
+
+#endif

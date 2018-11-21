@@ -104,7 +104,7 @@ void ozone_draw_text(
       const char *str, float x,
       float y,
       enum text_alignment text_align,
-      font_data_t* font,
+      ozone_font_t *font,
       uint32_t color,
       bool draw_outside)
 {
@@ -114,7 +114,7 @@ void ozone_draw_text(
    if ((color & 0x000000FF) == 0)
       return;
 
-   menu_display_draw_text(font, str, x, y,
+   menu_display_draw_text(font->font_data, str, x, y,
          width, height, color, text_align, 1.0f,
          false,
          1.0, draw_outside);
@@ -314,7 +314,7 @@ void ozone_draw_osk(ozone_handle_t *ozone,
       text_color  = ozone_theme_light.text_sublabel_rgba;
    }
 
-   word_wrap(message, text, (video_info->width - margin*2 - padding*2) / ozone->entry_font_glyph_width, true);
+   word_wrap(message, text, (video_info->width - margin*2 - padding*2) / ozone->fonts.entries_label.glyph_width, true);
 
    list = string_split(message, "\n");
 
@@ -322,14 +322,14 @@ void ozone_draw_osk(ozone_handle_t *ozone,
    {
       const char *msg = list->elems[i].data;
 
-      ozone_draw_text(video_info, ozone, msg, margin + padding * 2, margin + padding + FONT_SIZE_ENTRIES_LABEL + y_offset, TEXT_ALIGN_LEFT, ozone->fonts.entries_label, text_color, false);
+      ozone_draw_text(video_info, ozone, msg, margin + padding * 2, margin + padding + FONT_SIZE_ENTRIES_LABEL + y_offset, TEXT_ALIGN_LEFT, &ozone->fonts.entries_label, text_color, false);
 
       /* Cursor */
       if (i == list->size - 1)
       {
          if (ozone->osk_cursor)
          {
-            unsigned cursor_x = draw_placeholder ? 0 : font_driver_get_message_width(ozone->fonts.entries_label, msg, (unsigned)strlen(msg), 1);
+            unsigned cursor_x = draw_placeholder ? 0 : font_driver_get_message_width(ozone->fonts.entries_label.font_data, msg, (unsigned)strlen(msg), 1);
             ozone_draw_quad(video_info, margin + padding*2 + cursor_x, margin + padding + y_offset + 3, 1, 25, ozone_pure_white);
          }
       }
@@ -342,7 +342,7 @@ void ozone_draw_osk(ozone_handle_t *ozone,
    /* Keyboard */
    menu_display_draw_keyboard(
             ozone->theme->textures[OZONE_THEME_TEXTURE_CURSOR_STATIC],
-            ozone->fonts.entries_label,
+            ozone->fonts.entries_label.font_data,
             video_info,
             menu_event_get_osk_grid(),
             menu_event_get_osk_ptr(),
@@ -363,7 +363,7 @@ void ozone_draw_messagebox(ozone_handle_t *ozone,
    struct string_list *list = !string_is_empty(message)
       ? string_split(message, "\n") : NULL;
 
-   if (!list || !ozone || !ozone->fonts.footer)
+   if (!list || !ozone || !ozone->fonts.footer.font_data)
    {
       if (list)
          string_list_free(list);
@@ -392,7 +392,7 @@ void ozone_draw_messagebox(ozone_handle_t *ozone,
       {
          longest       = len;
          longest_width = font_driver_get_message_width(
-               ozone->fonts.footer, msg, (unsigned)strlen(msg), 1);
+               ozone->fonts.footer.font_data, msg, (unsigned)strlen(msg), 1);
       }
    }
 
@@ -424,7 +424,7 @@ void ozone_draw_messagebox(ozone_handle_t *ozone,
             x - longest_width/2.0,
             y + (i+0.75) * line_height,
             TEXT_ALIGN_LEFT,
-            ozone->fonts.footer,
+            &ozone->fonts.footer,
             COLOR_TEXT_ALPHA(ozone->theme->text_rgba, (uint32_t)(ozone->animations.messagebox_alpha*255.0f)),
             false
          );
@@ -445,4 +445,47 @@ void ozone_draw_quad(video_frame_info_t *video_info,
       video_info->width, video_info->height,
       color
    );
+}
+
+void ozone_font_init(ozone_font_t *font, char *path, unsigned size, bool is_threaded)
+{
+   int computed_size = 0;
+
+   font->font_data = menu_display_font_file(path, size, is_threaded);
+
+   /* Naive font size */
+   font->glyph_width    = size * 3/4;
+   font->glyph_height   = size;
+
+   /* More realistic font size */
+   if (font->font_data)
+   {
+      computed_size = font_driver_get_message_width(font->font_data, "a", 1, 1);
+      if (computed_size)
+         font->glyph_width = computed_size;
+   }
+}
+
+void ozone_font_free(ozone_font_t *font)
+{
+   video_coord_array_free(&font->raster_block.carr);
+   font->font_data = NULL;
+}
+
+void ozone_font_bind(ozone_font_t *font)
+{
+   font_driver_bind_block(font->font_data, &font->raster_block);
+   font->raster_block.carr.coords.vertices = 0;
+}
+
+void ozone_font_unbind(ozone_font_t *font)
+{
+   font_driver_bind_block(font->font_data, NULL);
+   font->raster_block.carr.coords.vertices = 0;
+}
+
+void ozone_font_flush(ozone_font_t *font, video_frame_info_t *video_info)
+{
+   font_driver_flush(video_info->width, video_info->height, font->font_data, video_info);
+   font->raster_block.carr.coords.vertices = 0;
 }
