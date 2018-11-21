@@ -16,8 +16,6 @@
 #include "ozone.h"
 #include "ozone_metrics.h"
 
-/* TODO Find a solution for images scaling looking bad (downscale them instead of upscaling them) */
-
 float ozone_get_scale_factor(unsigned width, unsigned height)
 {
    float scale_factor = (float)width / 1920.0f;

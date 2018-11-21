@@ -22,6 +22,8 @@
 /* TODO Once scaling is done, try 1080p and tweak
    values to slim it down a little */
 
+/* TODO Fix images scaling looking bad (downscale them instead of upscaling them) */
+
 /* Font sizes */
 #define FONT_SIZE_FOOTER            27
 #define FONT_SIZE_TITLE             54
