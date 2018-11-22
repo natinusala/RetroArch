@@ -27,6 +27,7 @@
 #include <boolean.h>
 #include <retro_common_api.h>
 #include <gfx/math/matrix_4x4.h>
+#include <queues/task_queue.h>
 
 #include "widgets/menu_entry.h"
 #include "menu_input.h"
@@ -56,6 +57,8 @@ RETRO_BEGIN_DECLS
 #define MENU_SETTINGS_PLAYLIST_ASSOCIATION_START 0x20000
 #define MENU_SETTINGS_CHEEVOS_START              0x40000
 #define MENU_SETTINGS_NETPLAY_ROOMS_START        0x80000
+
+#define COLOR_TEXT_ALPHA(color, alpha) (color & 0xFFFFFF00) | alpha
 
 extern float osk_dark[16];
 
@@ -788,16 +791,16 @@ bool menu_display_get_tex_coords(menu_display_ctx_coord_draw_t *draw);
 
 void menu_display_timedate(menu_display_ctx_datetime_t *datetime);
 
-void menu_display_handle_wallpaper_upload(void *task_data,
+void menu_display_handle_wallpaper_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err);
 
-void menu_display_handle_thumbnail_upload(void *task_data,
+void menu_display_handle_thumbnail_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err);
 
-void menu_display_handle_left_thumbnail_upload(void *task_data,
+void menu_display_handle_left_thumbnail_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err);
 
-void menu_display_handle_savestate_thumbnail_upload(void *task_data,
+void menu_display_handle_savestate_thumbnail_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err);
 
 void menu_display_push_quad(
@@ -831,10 +834,9 @@ font_data_t *menu_display_font(
 font_data_t *menu_display_font_file(char* fontpath, float font_size, bool is_threaded);
 
 bool menu_display_reset_textures_list(
-      const char *texture_path,
-      const char *iconpath,
-      uintptr_t *item,
-      enum texture_filter_type filter_type);
+      const char *texture_path, const char *iconpath,
+      uintptr_t *item, enum texture_filter_type filter_type,
+      unsigned *width, unsigned *height);
 
 /* Returns the OSK key at a given position */
 int menu_display_osk_ptr_at_pos(void *data, int x, int y,

@@ -344,7 +344,7 @@ static bool zarch_zui_list_item(video_frame_info_t *video_info,
 
    ticker.s        = title_buf;
    ticker.len      = ticker_size;
-   ticker.idx      = frame_count / 50;
+   ticker.idx      = menu_animation_get_ticker_time() * 2.5f;
    ticker.str      = label;
    ticker.selected = (bg == zui_bg_hilite || bg == zui_bg_pad_hilite);
 

@@ -70,6 +70,7 @@
 
 #ifdef HAVE_MENU
 #include "../../menu/menu_driver.h"
+#include "../../menu/widgets/menu_widgets.h"
 #endif
 
 #ifndef GL_UNSIGNED_INT_8_8_8_8_REV
@@ -1145,6 +1146,8 @@ static bool gl_frame(void *data, const void *frame,
 #endif
       }
    }
+
+   menu_widgets_frame(video_info);
 #endif
 
    if (!string_is_empty(msg))
@@ -2012,6 +2015,7 @@ static void *gl_init(const video_info_t *video,
    }
 
    gl_context_bind_hw_render(gl, true);
+
    return gl;
 
 error:
@@ -2633,6 +2637,12 @@ static void gl_get_poke_interface(void *data,
    *iface = &gl_poke_interface;
 }
 
+static bool gl_menu_widgets_enabled(void *data)
+{
+   (void)data;
+   return true;
+}
+
 video_driver_t video_gl = {
    gl_init,
    gl_frame,
@@ -2664,4 +2674,6 @@ video_driver_t video_gl = {
 #endif
    gl_get_poke_interface,
    gl_wrap_type_to_enum,
+
+   gl_menu_widgets_enabled
 };

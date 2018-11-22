@@ -147,7 +147,8 @@ bool task_push_decompress(
       const char *subdir,
       const char *valid_ext,
       retro_task_callback_t cb,
-      void *user_data);
+      void *user_data,
+      void *frontend_userdata);
 
 bool task_push_load_content_with_current_core_from_companion_ui(
       const char *fullpath,

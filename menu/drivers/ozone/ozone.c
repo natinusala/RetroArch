@@ -253,7 +253,14 @@ error:
       ozone_free_list_nodes(ozone->horizontal_list, false);
       file_list_free(ozone->horizontal_list);
    }
-   ozone->horizontal_list = NULL;
+
+   if (ozone->selection_buf_old)
+   {
+      ozone_free_list_nodes(ozone->selection_buf_old, false);
+      file_list_free(ozone->selection_buf_old);
+   }
+   ozone->selection_buf_old = NULL;
+   ozone->horizontal_list   = NULL;
 
    if (menu)
       free(menu);
@@ -287,6 +294,9 @@ static void ozone_free(void *data)
          ozone_free_list_nodes(ozone->horizontal_list, false);
          file_list_free(ozone->horizontal_list);
       }
+
+      ozone->horizontal_list     = NULL;
+      ozone->selection_buf_old   = NULL;
 
       if (!string_is_empty(ozone->pending_message))
          free(ozone->pending_message);
@@ -351,7 +361,7 @@ static void ozone_context_reset(void *data, bool is_threaded)
          strlcpy(filename, OZONE_TEXTURES_FILES[i], sizeof(filename));
          strlcat(filename, ".png", sizeof(filename));
 
-         if (!menu_display_reset_textures_list(filename, ozone->png_path, &ozone->textures[i], TEXTURE_FILTER_MIPMAP_LINEAR))
+         if (!menu_display_reset_textures_list(filename, ozone->png_path, &ozone->textures[i], TEXTURE_FILTER_MIPMAP_LINEAR, NULL, NULL))
          {
             ozone->has_all_assets = false;
             RARCH_WARN("[OZONE] Asset missing: %s%s%s\n", ozone->png_path, path_default_slash(), filename);
@@ -365,7 +375,7 @@ static void ozone_context_reset(void *data, bool is_threaded)
          strlcpy(filename, OZONE_TAB_TEXTURES_FILES[i], sizeof(filename));
          strlcat(filename, ".png", sizeof(filename));
 
-         if (!menu_display_reset_textures_list(filename, ozone->tab_path, &ozone->tab_textures[i], TEXTURE_FILTER_MIPMAP_LINEAR))
+         if (!menu_display_reset_textures_list(filename, ozone->tab_path, &ozone->tab_textures[i], TEXTURE_FILTER_MIPMAP_LINEAR, NULL, NULL))
          {
             ozone->has_all_assets = false;
             RARCH_WARN("[OZONE] Asset missing: %s%s%s\n", ozone->tab_path, path_default_slash(), filename);
@@ -378,7 +388,7 @@ static void ozone_context_reset(void *data, bool is_threaded)
 
       /* Icons textures init */
       for (i = 0; i < OZONE_ENTRIES_ICONS_TEXTURE_LAST; i++)
-         if (!menu_display_reset_textures_list(ozone_entries_icon_texture_path(i), ozone->icons_path, &ozone->icons_textures[i], TEXTURE_FILTER_MIPMAP_LINEAR))
+         if (!menu_display_reset_textures_list(ozone_entries_icon_texture_path(i), ozone->icons_path, &ozone->icons_textures[i], TEXTURE_FILTER_MIPMAP_LINEAR, NULL, NULL))
          {
             ozone->has_all_assets = false;
             RARCH_WARN("[OZONE] Asset missing: %s%s%s\n", ozone->icons_path, path_default_slash(), ozone_entries_icon_texture_path(i));
@@ -407,8 +417,9 @@ static void ozone_context_reset(void *data, bool is_threaded)
       if (!ozone->has_all_assets)
       {
          RARCH_WARN("[OZONE] Assets missing\n");
-         runloop_msg_queue_push(msg_hash_to_str(MSG_MISSING_ASSETS), 1, 256, false);
+         runloop_msg_queue_push(msg_hash_to_str(MSG_MISSING_ASSETS), 1, 256, false, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
       }
+
       ozone_restart_cursor_animation(ozone);
    }
 }
@@ -881,7 +892,6 @@ static void ozone_compute_entries_position(ozone_handle_t *ozone)
 static void ozone_render(void *data, bool is_idle)
 {
    size_t i;
-   menu_animation_ctx_delta_t delta;
    unsigned end                     = (unsigned)menu_entries_get_size();
    ozone_handle_t *ozone            = (ozone_handle_t*)data;
    if (!data)
@@ -894,11 +904,6 @@ static void ozone_render(void *data, bool is_idle)
    }
 
    ozone->selection = menu_navigation_get_selection();
-
-   delta.current = menu_animation_get_delta_time();
-
-   if (menu_animation_get_ideal_delta_time(&delta))
-      menu_animation_update(delta.ideal);
 
    /* TODO Handle pointer & mouse */
 
@@ -926,7 +931,7 @@ static void ozone_draw_header(ozone_handle_t *ozone, video_frame_info_t *video_i
    /* Title */
    ticker.s = title;
    ticker.len = (video_info->width - 128 - 47 - 130) / ozone->title_font_glyph_width;
-   ticker.idx = ozone->frame_count / 20;
+   ticker.idx = menu_animation_get_ticker_time();
    ticker.str = ozone->title;
    ticker.selected = true;
 
@@ -1483,7 +1488,6 @@ static int ozone_menu_iterate(menu_handle_t *menu, void *userdata, enum menu_act
             new_action = MENU_ACTION_NOOP;
             break;
          }
-
          break;
       case MENU_ACTION_CANCEL:
          if (ozone->cursor_in_sidebar)

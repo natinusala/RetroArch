@@ -31,8 +31,6 @@
 #include "../configuration.h"
 #include "../performance_counters.h"
 
-#define IDEAL_DELTA_TIME (1.0 / 60.0 * 1000000.0)
-
 struct tween
 {
    float       duration;
@@ -61,6 +59,7 @@ static menu_animation_t anim;
 static retro_time_t cur_time    = 0;
 static retro_time_t old_time    = 0;
 static float delta_time         = 0.0f;
+static float ticker_time        = 0.0f;
 static bool animation_is_active = false;
 
 /* from https://github.com/kikito/tween.lua/blob/master/tween.lua */
@@ -467,9 +466,12 @@ bool menu_animation_push(menu_animation_ctx_entry_t *entry)
    return true;
 }
 
-bool menu_animation_update(float delta_time)
+bool menu_animation_update()
 {
    unsigned i;
+   settings_t *settings = config_get_ptr();
+
+   menu_animation_update_time(settings->bools.menu_timedate_enable);
    
    anim.in_update = true;
 
@@ -547,29 +549,17 @@ bool menu_animation_ticker(const menu_animation_ctx_ticker_t *ticker)
    return true;
 }
 
-bool menu_animation_get_ideal_delta_time(menu_animation_ctx_delta_t *delta)
-{
-   if (!delta)
-      return false;
-   delta->ideal = delta->current / IDEAL_DELTA_TIME;
-   return true;
-}
-
 void menu_animation_update_time(bool timedate_enable)
 {
    static retro_time_t
       last_clock_update     = 0;
 
-   cur_time                 = cpu_features_get_time_usec();
-   delta_time               = cur_time - old_time;
-
-   if (delta_time >= IDEAL_DELTA_TIME* 4)
-      delta_time            = IDEAL_DELTA_TIME * 4;
-   if (delta_time <= IDEAL_DELTA_TIME / 4)
-      delta_time            = IDEAL_DELTA_TIME / 4;
+   cur_time                 = cpu_features_get_time_usec() / 1000.0f;
+   delta_time               = old_time == 0 ? 0 : cur_time - old_time;
    old_time                 = cur_time;
+   ticker_time              = (cur_time / 1000.0f) * 3.0f;
 
-   if (((cur_time - last_clock_update) > 1000000)
+   if (((cur_time - last_clock_update) > 1000)
          && timedate_enable)
    {
       animation_is_active   = true;
@@ -691,4 +681,9 @@ void menu_timer_kill(menu_timer_t *timer)
 {
    menu_animation_ctx_tag tag = (uintptr_t) timer;
    menu_animation_kill_by_tag(&tag);
+}
+
+float menu_animation_get_ticker_time()
+{
+   return ticker_time;
 }

@@ -1056,7 +1056,7 @@ static bool firmware_update_status(
    {
       runloop_msg_queue_push(
             msg_hash_to_str(MSG_FIRMWARE),
-            100, 500, true);
+            100, 500, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
       RARCH_LOG("Load content blocked. Reason: %s\n",
             msg_hash_to_str(MSG_FIRMWARE));
 
@@ -1136,7 +1136,7 @@ bool task_push_start_dummy_core(content_ctx_info_t *content_info)
    {
       if (error_string)
       {
-         runloop_msg_queue_push(error_string, 2, 90, true);
+         runloop_msg_queue_push(error_string, 2, 90, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          RARCH_ERR("%s\n", error_string);
          free(error_string);
       }
@@ -1227,7 +1227,7 @@ bool task_push_load_content_from_playlist_from_menu(
    {
       if (error_string)
       {
-         runloop_msg_queue_push(error_string, 2, 90, true);
+         runloop_msg_queue_push(error_string, 2, 90, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          RARCH_ERR("%s\n", error_string);
          free(error_string);
       }
@@ -1329,7 +1329,7 @@ bool task_push_start_current_core(content_ctx_info_t *content_info)
    {
       if (error_string)
       {
-         runloop_msg_queue_push(error_string, 2, 90, true);
+         runloop_msg_queue_push(error_string, 2, 90, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          RARCH_ERR("%s\n", error_string);
          free(error_string);
       }
@@ -1457,7 +1457,7 @@ bool task_push_load_content_with_new_core_from_menu(
    {
       if (error_string)
       {
-         runloop_msg_queue_push(error_string, 2, 90, true);
+         runloop_msg_queue_push(error_string, 2, 90, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          RARCH_ERR("%s\n", error_string);
          free(error_string);
       }
@@ -1588,7 +1588,7 @@ end:
    {
       if (error_string)
       {
-         runloop_msg_queue_push(error_string, 2, 90, true);
+         runloop_msg_queue_push(error_string, 2, 90, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          RARCH_ERR("%s\n", error_string);
          free(error_string);
       }
@@ -1986,7 +1986,7 @@ bool content_init(void)
       {
          RARCH_ERR("%s\n", error_string);
       }
-      runloop_msg_queue_push(error_string, 2, ret ? 1 : 180, true);
+      runloop_msg_queue_push(error_string, 2, ret ? 1 : 180, true, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
       free(error_string);
    }
 

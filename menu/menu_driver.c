@@ -44,6 +44,8 @@
 
 #include "../gfx/video_driver.h"
 
+#include "widgets/menu_widgets.h"
+
 #include "menu_animation.h"
 #include "menu_driver.h"
 #include "menu_cbs.h"
@@ -1258,7 +1260,7 @@ static bool menu_driver_load_image(menu_ctx_load_image_t *load_image_info)
    return false;
 }
 
-void menu_display_handle_thumbnail_upload(void *task_data,
+void menu_display_handle_thumbnail_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err)
 {
    menu_ctx_load_image_t load_image_info;
@@ -1274,7 +1276,7 @@ void menu_display_handle_thumbnail_upload(void *task_data,
    free(user_data);
 }
 
-void menu_display_handle_left_thumbnail_upload(void *task_data,
+void menu_display_handle_left_thumbnail_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err)
 {
    menu_ctx_load_image_t load_image_info;
@@ -1290,7 +1292,7 @@ void menu_display_handle_left_thumbnail_upload(void *task_data,
    free(user_data);
 }
 
-void menu_display_handle_savestate_thumbnail_upload(void *task_data,
+void menu_display_handle_savestate_thumbnail_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err)
 {
    menu_ctx_load_image_t load_image_info;
@@ -1309,7 +1311,7 @@ void menu_display_handle_savestate_thumbnail_upload(void *task_data,
 /* Function that gets called when we want to load in a
  * new menu wallpaper.
  */
-void menu_display_handle_wallpaper_upload(void *task_data,
+void menu_display_handle_wallpaper_upload(retro_task_t *task, void *task_data,
       void *user_data, const char *err)
 {
    menu_ctx_load_image_t load_image_info;
@@ -1609,7 +1611,8 @@ void menu_display_draw_text(
 
 bool menu_display_reset_textures_list(
       const char *texture_path, const char *iconpath,
-      uintptr_t *item, enum texture_filter_type filter_type)
+      uintptr_t *item, enum texture_filter_type filter_type,
+      unsigned *width, unsigned *height)
 {
    struct texture_image ti;
    char texpath[PATH_MAX_LENGTH] = {0};
@@ -1627,6 +1630,12 @@ bool menu_display_reset_textures_list(
 
    if (!image_texture_load(&ti, texpath))
       return false;
+
+   if (width)
+      *width = ti.width;
+
+   if (height)
+      *height = ti.height;
 
    video_driver_texture_load(&ti,
          filter_type, item);
@@ -1694,7 +1703,7 @@ const char *config_get_menu_driver_options(void)
  * when we need to extract the APK contents/zip file. This
  * file contains assets which then get extracted to the
  * user's asset directories. */
-static void bundle_decompressed(void *task_data,
+static void bundle_decompressed(retro_task_t *task, void *task_data,
       void *user_data, const char *err)
 {
    settings_t      *settings   = config_get_ptr();
@@ -1764,7 +1773,7 @@ static bool menu_init(menu_handle_t *menu_data)
       task_push_decompress(settings->arrays.bundle_assets_src,
             settings->arrays.bundle_assets_dst,
             NULL, settings->arrays.bundle_assets_dst_subdir,
-            NULL, bundle_decompressed, NULL);
+            NULL, bundle_decompressed, NULL, NULL);
 #endif
    }
 
@@ -1923,9 +1932,6 @@ bool menu_driver_render(bool is_idle, bool rarch_is_inited,
 
    if (BIT64_GET(menu_driver_data->state, MENU_STATE_BLIT))
    {
-      settings_t *settings = config_get_ptr();
-      menu_animation_update_time(settings->bools.menu_timedate_enable);
-
       if (menu_driver_ctx->render)
          menu_driver_ctx->render(menu_userdata, is_idle);
    }
@@ -2081,6 +2087,9 @@ static bool menu_driver_init_internal(bool video_is_threaded)
    if (menu_driver_ctx->lists_init)
       if (!menu_driver_ctx->lists_init(menu_driver_data))
          goto error;
+
+   if (video_driver_has_widgets())
+      menu_widgets_init();
 
    return true;
 
@@ -2307,6 +2316,9 @@ bool menu_driver_ctl(enum rarch_menu_ctl_state state, void *data)
             if (menu_userdata)
                free(menu_userdata);
             menu_userdata = NULL;
+
+            if (video_driver_has_widgets())
+               menu_widgets_free();
 
 #ifndef HAVE_DYNAMIC
             if (frontend_driver_has_fork())

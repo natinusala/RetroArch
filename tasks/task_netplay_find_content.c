@@ -26,6 +26,7 @@
 #include <string/stdstring.h>
 #include <file/file_path.h>
 #include <lists/dir_list.h>
+#include <queues/task_queue.h>
 
 #include "tasks_internal.h"
 #include "../file_path_special.h"
@@ -51,7 +52,7 @@ typedef struct
    struct string_list *lpl_list;
 } netplay_crc_handle_t;
 
-static void netplay_crc_scan_callback(void *task_data,
+static void netplay_crc_scan_callback(retro_task_t *task, void *task_data,
                                void *user_data, const char *error)
 {
    netplay_crc_handle_t *state     = (netplay_crc_handle_t*)task_data;
@@ -117,7 +118,8 @@ static void netplay_crc_scan_callback(void *task_data,
          string_is_empty(state->content_path) ? "content file" : "core");
       runloop_msg_queue_push(
             msg_hash_to_str(MENU_ENUM_LABEL_VALUE_NETPLAY_LOAD_CONTENT_MANUALLY),
-            1, 480, true);
+            1, 480, true,
+            NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
    }
 
 

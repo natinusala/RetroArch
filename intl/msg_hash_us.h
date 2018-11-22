@@ -4505,6 +4505,10 @@ MSG_HASH(
     "Taking screenshot."
     )
 MSG_HASH(
+    MSG_SCREENSHOT_SAVED,
+    "Screenshot saved"
+    )
+MSG_HASH(
     MSG_TO,
     "to"
     )

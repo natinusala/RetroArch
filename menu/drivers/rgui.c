@@ -550,7 +550,7 @@ static void rgui_render(void *data, bool is_idle)
 
    ticker.s        = title_buf;
    ticker.len      = RGUI_TERM_WIDTH(fb_width) - 10;
-   ticker.idx      = frame_count / RGUI_TERM_START_X(fb_width);
+   ticker.idx      = menu_animation_get_ticker_time();
    ticker.str      = title;
    ticker.selected = true;
 
@@ -652,7 +652,7 @@ static void rgui_render(void *data, bool is_idle)
 
       ticker.s        = entry_title_buf;
       ticker.len      = RGUI_TERM_WIDTH(fb_width) - (entry_spacing + 1 + 2);
-      ticker.idx      = frame_count / RGUI_TERM_START_X(fb_width);
+      ticker.idx      = menu_animation_get_ticker_time();
       ticker.str      = entry_path;
       ticker.selected = entry_selected;
 

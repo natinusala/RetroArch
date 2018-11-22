@@ -830,6 +830,10 @@ typedef struct video_driver
 #endif
    void (*poke_interface)(void *data, const video_poke_interface_t **iface);
    unsigned (*wrap_type_to_enum)(enum gfx_wrap_type type);
+
+   /* if set to true, will use menu widgets when applicable
+    * if set to false, will use OSD as a fallback */
+   bool (*menu_widgets_enabled)(void *data);
 } video_driver_t;
 
 
@@ -899,6 +903,7 @@ bool video_driver_get_hw_render_interface(const struct
 bool video_driver_get_viewport_info(struct video_viewport *viewport);
 void video_driver_set_title_buf(void);
 void video_driver_monitor_adjust_system_rates(void);
+bool video_driver_has_widgets(void);
 
 /**
  * video_driver_find_handle:

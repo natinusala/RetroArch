@@ -3361,7 +3361,8 @@ bool config_load_override(void)
     * since it will be overwritten by the override when reloading. */
    path_set(RARCH_PATH_CORE, buf);
    runloop_msg_queue_push(msg_hash_to_str(MSG_CONFIG_OVERRIDE_LOADED),
-         1, 100, true);
+         1, 100, true,
+         NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
 
    /* Reset save paths. */
    retroarch_override_setting_set(RARCH_OVERRIDE_SETTING_STATE_PATH, NULL);
@@ -3500,7 +3501,8 @@ bool config_load_remap(void)
       if (input_remapping_load_file(new_conf, game_path))
       {
          runloop_msg_queue_push(msg_hash_to_str(
-                  MSG_GAME_REMAP_FILE_LOADED), 1, 100, true);
+                  MSG_GAME_REMAP_FILE_LOADED), 1, 100, true,
+                  NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          rarch_ctl(RARCH_CTL_SET_REMAPS_GAME_ACTIVE, NULL);
          goto success;
       }
@@ -3521,7 +3523,8 @@ bool config_load_remap(void)
       if (input_remapping_load_file(new_conf, content_path))
       {
          runloop_msg_queue_push(msg_hash_to_str(
-                  MSG_GAME_REMAP_FILE_LOADED), 1, 100, true);
+                  MSG_GAME_REMAP_FILE_LOADED), 1, 100, true,
+                  NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          rarch_ctl(RARCH_CTL_SET_REMAPS_CONTENT_DIR_ACTIVE, NULL);
          goto success;
       }
@@ -3543,7 +3546,8 @@ bool config_load_remap(void)
       if (input_remapping_load_file(new_conf, core_path))
       {
          runloop_msg_queue_push(
-               msg_hash_to_str(MSG_CORE_REMAP_FILE_LOADED), 1, 100, true);
+               msg_hash_to_str(MSG_CORE_REMAP_FILE_LOADED), 1, 100, true,
+               NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
          rarch_ctl(RARCH_CTL_SET_REMAPS_CORE_ACTIVE, NULL);
          goto success;
       }
