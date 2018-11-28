@@ -50,6 +50,10 @@
 #include "verbosity.h"
 #include "lakka.h"
 
+#ifdef HAVE_LIBNX
+#include "frontend/drivers/platform_switch.h"
+#endif
+
 #include "tasks/tasks_internal.h"
 
 #include "../list_special.h"
@@ -1678,6 +1682,10 @@ static struct config_uint_setting *populate_settings_uint(settings_t *settings, 
    SETTING_UINT("video_windowed_position_height",            &settings->uints.window_position_height,    true, window_height, false);
 
    SETTING_UINT("video_record_threads",            &settings->uints.video_record_threads,    true, video_record_threads, false);
+
+#ifdef HAVE_LIBNX
+   SETTING_UINT("libnx_overclock",  &settings->uints.libnx_overclock, true, SWITCH_DEFAULT_CPU_PROFILE, false);
+#endif
 
    *size = count;
 

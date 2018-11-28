@@ -13,6 +13,8 @@
 
 #ifdef HAVE_LIBNX
 #include <switch.h>
+#include "platform_switch.h"
+#include "../../configuration.h"
 #else
 #include <libtransistor/nx.h>
 #include <libtransistor/ipc_helpers.h>
@@ -201,6 +203,8 @@ static void frontend_switch_deinit(void *data)
 
 #ifdef HAVE_LIBNX
    nifmExit();
+   pcvSetClockRate(PcvModule_Cpu, 1020000000);
+   pcvExit();
 #if defined(SWITCH) && defined(NXLINK)
    socketExit();
 #endif
@@ -613,14 +617,27 @@ static void frontend_switch_shutdown(bool unused)
 /* runloop_get_system_info isnt initialized that early.. */
 extern void retro_get_system_info(struct retro_system_info *info);
 
+/* TODO Set clock when docking */
+/* TODO Add OC setting to menu (see lakka.h for labels (SWITCH_CPU_PROFILES) and sublabels (SWITCH_CPU_SPEEDS)) */
+/* TODO Set clock when changing setting from menu */
+/* TODO DVFS ? */
+
 static void frontend_switch_init(void *data)
 {
+   settings_t *settings = config_get_ptr();
+
    (void)data;
 
 #ifdef HAVE_LIBNX
    nifmInitialize();
    appletLockExit();
    appletHook(&applet_hook_cookie, on_applet_hook, NULL);
+
+   if(R_SUCCEEDED(pcvInitialize()) 
+      && settings->uints.libnx_overclock >= 0 
+      && settings->uints.libnx_overclock <= LIBNX_MAX_CPU_PROFILE)
+      pcvSetClockRate(PcvModule_Cpu, SWITCH_CPU_SPEEDS_VALUES[settings->uints.libnx_overclock]);
+
 #ifndef HAVE_OPENGL
    /* Init Resolution before initDefault */
    gfxInitResolution(1280, 720);
