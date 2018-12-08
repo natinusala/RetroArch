@@ -867,7 +867,10 @@ static void video_driver_free_internal(void)
       )
       {
 #ifdef HAVE_MENU
-         menu_widgets_context_destroy();
+         if (video_driver_has_widgets())
+         {
+            menu_widgets_context_destroy();
+         }
 #endif
          current_video->free(video_driver_data);
       }
@@ -1129,10 +1132,6 @@ static bool video_driver_init_internal(bool *video_is_threaded)
    video_display_server_init();
 
    command_event(CMD_EVENT_SHADER_DIR_INIT, NULL);
-
-#ifdef HAVE_MENU
-   menu_widgets_context_reset(video_is_threaded);
-#endif
 
    return true;
 

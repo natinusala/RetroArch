@@ -492,7 +492,7 @@ bool menu_animation_update()
 
          if (tween->cb)
             tween->cb(tween->userdata);
-         
+
          da_delete(anim.list, i);
          i--;
       }

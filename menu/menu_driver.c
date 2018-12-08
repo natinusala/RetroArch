@@ -472,6 +472,7 @@ font_data_t *menu_display_font(
 font_data_t *menu_display_font_file(char* fontpath, float font_size, bool is_threaded)
 {
    font_data_t *font_data = NULL;
+
    if (!menu_disp)
       return NULL;
 
@@ -2088,9 +2089,6 @@ static bool menu_driver_init_internal(bool video_is_threaded)
       if (!menu_driver_ctx->lists_init(menu_driver_data))
          goto error;
 
-   if (video_driver_has_widgets())
-      menu_widgets_init();
-
    return true;
 
 error:
@@ -2316,9 +2314,6 @@ bool menu_driver_ctl(enum rarch_menu_ctl_state state, void *data)
             if (menu_userdata)
                free(menu_userdata);
             menu_userdata = NULL;
-
-            if (video_driver_has_widgets())
-               menu_widgets_free();
 
 #ifndef HAVE_DYNAMIC
             if (frontend_driver_has_fork())

@@ -1427,6 +1427,7 @@ static int ozone_menu_iterate(menu_handle_t *menu, void *userdata, enum menu_act
    switch (action)
    {
       case MENU_ACTION_DOWN:
+         //runloop_msg_queue_push("This is a shorter, one-line notification.", 0, 180, false, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_WARNING);
          if (!ozone->cursor_in_sidebar)
             break;
 
@@ -1442,6 +1443,7 @@ static int ozone_menu_iterate(menu_handle_t *menu, void *userdata, enum menu_act
          new_action = MENU_ACTION_NOOP;
          break;
       case MENU_ACTION_UP:
+         //runloop_msg_queue_push("The length of this sample text is what you'd expect a real notification to have.", 0, 180, false, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_WARNING);
          if (!ozone->cursor_in_sidebar)
             break;
 
@@ -1457,6 +1459,7 @@ static int ozone_menu_iterate(menu_handle_t *menu, void *userdata, enum menu_act
          new_action = MENU_ACTION_NOOP;
          break;
       case MENU_ACTION_LEFT:
+         runloop_msg_queue_push("This notification is so long that it requires to expand the rectangle width. Look at it, it spills all over the menu. Who wants that ?", 0, 180, false, NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_WARNING);
          if (ozone->cursor_in_sidebar)
          {
             new_action = MENU_ACTION_NOOP;

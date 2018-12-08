@@ -35,16 +35,18 @@
 #define DEFAULT_BACKDROP               0.75f
 
 #define MSG_QUEUE_PENDING_MAX          32
-#define MSG_QUEUE_ONSCREEN_MAX         8
+#define MSG_QUEUE_ONSCREEN_MAX         4
 
-#define MSG_QUEUE_ANIMATION_DURATION      750
+#define MSG_QUEUE_ANIMATION_DURATION      330
 #define VOLUME_DURATION                   3000
 #define SCREENSHOT_DURATION_IN            66
 #define SCREENSHOT_DURATION_OUT           SCREENSHOT_DURATION_IN*10
 #define SCREENSHOT_NOTIFICATION_DURATION  6000
 #define TASK_FINISHED_DURATION            3000
+#define HOURGLASS_INTERVAL                5000
+#define HOURGLASS_DURATION                1000
 
-void menu_widgets_init();
+void menu_widgets_init(bool video_is_threaded);
 void menu_widgets_free();
 
 bool menu_widgets_msg_queue_push(const char *msg,
