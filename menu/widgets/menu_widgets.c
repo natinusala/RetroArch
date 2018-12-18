@@ -126,7 +126,6 @@ static fifo_buffer_t *msg_queue;
 static file_list_t *current_msgs;
 static file_list_t *task_msgs;
 static unsigned msg_queue_kill;
-static menu_widget_msg_t *msg_dead = NULL; /* the next message to be freed */
 
 /* TODO Don't display icons if assets are missing */
 
@@ -485,7 +484,7 @@ static void menu_widgets_msg_queue_kill_end(void *userdata)
    if (!msg)
       return;
 
-   msg_dead = msg;
+   menu_widgets_msg_queue_free(msg, true);
 }
 
 static void menu_widgets_msg_queue_kill(unsigned idx)
@@ -721,14 +720,6 @@ void menu_widgets_iterate()
          break;
       }
    }
-
-   /* Free dead message, if any */
-   if (msg_dead)
-   {
-      menu_widgets_msg_queue_free(msg_dead, true);
-      msg_dead = NULL;
-   }
-
 
    /* Load screenshot and start its animation */
    if (screenshot_filename[0] != '\0')
