@@ -16,3 +16,23 @@ To get this running follow these steps:
 * Install the latest Android NDK
 * Import the project into Android Studio
 * Make sure to select the appropriate build variant for your device (32 or 64 bit)
+
+Sideloading a core
+------------------
+
+The `CoreSideloadActivity` activity allows you to sideload and run a core (with content) from your computer through ADB.
+
+**Don't forget to kill the task on your device before running the commands again, it will not reload the core otherwise!**
+
+Usage :
+
+```
+adb push <core> /data/local/tmp
+adb shell am start -n <package>/com.retroarch.browser.debug.CoreSideloadActivity --es "LIBRETRO" "/data/local/tmp/<core>" --es "ROM" "<content>"
+```
+
+Where `<package>` is the target RetroArch app package name :
+  - `com.retroarch` (RetroArch)
+  - `com.retroarch.aarch64` (RetroArch64)
+`<content>` is the path to the content to load (on your device) (optional)
+and `<core>` is the path to the core to sideload (on your computer).
