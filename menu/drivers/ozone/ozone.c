@@ -145,6 +145,12 @@ static void *ozone_init(void **userdata, bool video_is_threaded)
    ozone->categories_selection_ptr  = 0;
    ozone->pending_message           = NULL;
 
+   ozone->load_content_animation_content_name  = NULL;
+   ozone->load_content_animation_playlist_name = NULL;
+   ozone->inputs_blocked                       = false;
+   ozone->pending_action                       = MENU_ACTION_NOOP;
+   ozone->load_content_pending                 = false;
+
    ozone->system_tab_end                = 0;
    ozone->tabs[ozone->system_tab_end]     = OZONE_SYSTEM_TAB_MAIN;
    if (settings->bools.menu_content_show_settings && !settings->bools.kiosk_mode_enable)
@@ -294,6 +300,12 @@ static void ozone_free(void *data)
 
       if (!string_is_empty(ozone->pending_message))
          free(ozone->pending_message);
+
+      if (ozone->load_content_animation_content_name)
+         free(ozone->load_content_animation_content_name);
+
+      if (ozone->load_content_animation_playlist_name)
+         free(ozone->load_content_animation_playlist_name);
    }
 }
 
@@ -1034,7 +1046,6 @@ static void ozone_draw_footer(ozone_handle_t *ozone, video_frame_info_t *video_i
       ozone_draw_icon(video_info, 69, 30, ozone->theme->textures[OZONE_THEME_TEXTURE_SWITCH], 59, video_info->height - 52, video_info->width,video_info->height, 0, 1, NULL);
 
    /* Buttons */
-
    {
       unsigned back_width  = 215;
       unsigned back_height = 49;
@@ -1137,6 +1148,175 @@ static void ozone_messagebox_fadeout_cb(void *userdata)
    ozone->pending_message = NULL;
 
    ozone->should_draw_messagebox = false;
+}
+
+static void ozone_load_content_animation_end(void *userdata)
+{
+   /* Final stage : actually load content then clear everything */
+   ozone_handle_t *ozone = (ozone_handle_t*)userdata;
+
+   ozone->inputs_blocked = false;
+   ozone->pending_action = MENU_ACTION_OK;
+
+   if (ozone->load_content_animation_playlist_name)
+   {
+      free(ozone->load_content_animation_playlist_name);
+      ozone->load_content_animation_playlist_name = NULL;
+   }
+}
+
+static void ozone_load_content_animation_stage_five(void *userdata)
+{
+   /* Stage five: everything disappears */
+   ozone_handle_t *ozone = (ozone_handle_t*)userdata;
+
+   menu_animation_ctx_entry_t entry;
+
+   entry.cb             = ozone_load_content_animation_end;
+   entry.duration       = ANIMATION_LOAD_CONTENT_DURATION*1.5;
+   entry.easing_enum    = EASING_OUT_QUAD;
+   entry.subject        = &ozone->animations.load_content_final_fade_alpha;
+   entry.tag            = (uintptr_t) NULL;
+   entry.target_value   = 1.0f;
+   entry.userdata       = ozone;
+
+   menu_animation_push(&entry);
+}
+
+static void ozone_load_content_animation_stage_four(void *userdata)
+{
+   /* Stage four : breathe a little */
+   ozone_handle_t *ozone = (ozone_handle_t*)userdata;
+
+   menu_timer_ctx_entry_t entry;
+   entry.cb = ozone_load_content_animation_stage_five;
+   entry.duration = ANIMATION_LOAD_CONTENT_DURATION*2;
+   entry.userdata = ozone;
+
+   menu_timer_start(&ozone->animations.load_content_timer, &entry);
+}
+
+static void ozone_load_content_animation_color_transition(void *userdata)
+{
+   ozone_handle_t *ozone = (ozone_handle_t*)userdata;
+   ozone_color_transition(ozone->animations.load_content_icon_color, ozone_pure_white, ANIMATION_LOAD_CONTENT_DURATION*3, (uintptr_t) NULL,
+   ozone, ozone_load_content_animation_stage_four);
+}
+
+static void ozone_load_content_animation_stage_three(void *userdata)
+{
+   /* Stage three : wait, then color transition */
+   ozone_handle_t *ozone = (ozone_handle_t*)userdata;
+
+   menu_timer_ctx_entry_t entry;
+   entry.cb = ozone_load_content_animation_color_transition;
+   entry.duration = ANIMATION_LOAD_CONTENT_DURATION;
+   entry.userdata = ozone;
+
+   menu_timer_start(&ozone->animations.load_content_timer, &entry);
+}
+
+static void ozone_load_content_animation_stage_two(void *userdata)
+{
+   /* Stage two : black drop + text */
+   ozone_handle_t *ozone = (ozone_handle_t*)userdata;
+   menu_animation_ctx_entry_t entry;
+
+   entry.cb             = ozone_load_content_animation_stage_three;
+   entry.duration       = ANIMATION_LOAD_CONTENT_DURATION*1.5;
+   entry.easing_enum    = EASING_OUT_QUAD;
+   entry.subject        = &ozone->animations.load_content_fade_alpha;
+   entry.tag            = (uintptr_t) NULL;
+   entry.target_value   = 1.0f;
+   entry.userdata       = ozone;
+
+   menu_animation_push(&entry);
+}
+
+static void ozone_start_load_content_animation(ozone_handle_t *ozone)
+{
+   menu_animation_ctx_entry_t entry;
+   unsigned width;
+   float icon_color[16] = COLOR_HEX_TO_FLOAT(0x0473C9, 1.0f); //TODO: random color
+
+   video_driver_get_size(&width, NULL);
+
+   /* Prepare the animation */
+   memcpy(ozone->animations.load_content_icon_color, icon_color, sizeof(ozone->animations.load_content_icon_color));
+
+   if (ozone_is_playlist(ozone, false))
+   {
+      ozone_node_t *node = file_list_get_userdata_at_offset(ozone->horizontal_list, ozone->categories_selection_ptr - ozone->system_tab_end-1);
+      ozone->load_content_animation_playlist_name = strdup(node->console_name);
+
+      ozone->load_content_animation_icon = node->icon;
+   }
+   else
+   {
+      ozone->load_content_animation_playlist_name = strdup("RetroArch");
+      ozone->load_content_animation_icon = ozone->icons_textures[OZONE_ENTRIES_ICONS_TEXTURE_QUICKMENU];
+   }
+
+   //Start the icon animation
+   ozone->animations.load_content_icon_size        = LOAD_CONTENT_ANIMATION_INITIAL_ICON_SIZE;
+   ozone->animations.load_content_icon_alpha       = 0;
+   ozone->animations.load_content_fade_alpha       = 0;
+   ozone->animations.load_content_final_fade_alpha = 0;
+
+   entry.cb             = NULL;
+   entry.duration       = ANIMATION_LOAD_CONTENT_DURATION;
+   entry.easing_enum    = EASING_OUT_QUAD;
+   entry.subject        = &ozone->animations.load_content_icon_size;
+   entry.tag            = (uintptr_t) NULL;
+   entry.target_value   = LOAD_CONTENT_ANIMATION_TARGET_ICON_SIZE;
+   entry.userdata       = ozone;
+
+   menu_animation_push(&entry);
+
+   entry.subject        = &ozone->animations.load_content_icon_alpha;
+   entry.target_value   = 1.0f;
+   entry.cb             = ozone_load_content_animation_stage_two;
+
+   menu_animation_push(&entry);
+}
+
+static void ozone_draw_load_content_animation(ozone_handle_t *ozone, video_frame_info_t *video_info)
+{
+   int icon_size        = (int) ozone->animations.load_content_icon_size;
+   uint32_t text_alpha  = ozone->animations.load_content_fade_alpha * 255.0f;
+   uint32_t text_color  = COLOR_TEXT_ALPHA(0xB8B8B8, text_alpha);
+   unsigned text_offset = -25 * ozone->animations.load_content_fade_alpha;
+   float *icon_color    = ozone->animations.load_content_icon_color;
+
+   /* Fade out */
+   ozone_draw_backdrop(video_info, ozone->animations.load_content_fade_alpha);
+
+   /* Icon */
+   ozone_color_alpha(icon_color, ozone->animations.load_content_icon_alpha);
+   menu_display_blend_begin(video_info);
+   ozone_draw_icon(video_info, icon_size,
+      icon_size, ozone->load_content_animation_icon,
+      video_info->width/2 - icon_size/2,
+      video_info->height/2 - icon_size/2,
+      video_info->width,
+      video_info->height,
+      0, 1, icon_color
+   );
+   menu_display_blend_end(video_info);
+
+   /* Text */
+   ozone_draw_text(video_info, ozone,
+      ozone->load_content_animation_content_name,
+      video_info->width/2,
+      video_info->height/2 + 175 + 25 + text_offset,
+      TEXT_ALIGN_CENTER,
+      video_info->width, video_info->height,
+      ozone->fonts.title,
+      text_color, false
+   );
+
+   /* Everything disappears */
+   ozone_draw_backdrop(video_info, ozone->animations.load_content_final_fade_alpha);
 }
 
 static void ozone_frame(void *data, video_frame_info_t *video_info)
@@ -1320,6 +1500,10 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
       }
    }
 
+   /* Load content animation */
+   if (ozone->load_content_pending)
+      ozone_draw_load_content_animation(ozone, video_info);
+
    font_driver_flush(video_info->width, video_info->height, ozone->fonts.footer, video_info);
    font_driver_flush(video_info->width, video_info->height, ozone->fonts.entries_label, video_info);
 
@@ -1423,7 +1607,7 @@ static void ozone_populate_entries(void *data, const char *path, const char *lab
 
    ozone->fade_direction   = new_depth <= ozone->depth;
    ozone->depth            = new_depth;
-   ozone->is_playlist      = ozone_is_playlist(ozone);
+   ozone->is_playlist      = ozone_is_playlist(ozone, true);
 
    if (ozone->categories_selection_ptr == ozone->categories_active_idx_old)
    {
@@ -1452,6 +1636,12 @@ static int ozone_menu_iterate(menu_handle_t *menu, void *userdata, enum menu_act
    selection_buf              = menu_entries_get_selection_buf_ptr(0);
    tag                        = (uintptr_t)selection_buf;
    new_action                 = action;
+
+   if (ozone->pending_action != MENU_ACTION_NOOP)
+   {
+      new_action              = ozone->pending_action;
+      ozone->pending_action   = MENU_ACTION_NOOP;
+   }
 
    /* Inputs override */
    switch (action)
@@ -1541,7 +1731,8 @@ static int ozone_menu_iterate(menu_handle_t *menu, void *userdata, enum menu_act
          break;
    }
 
-   return generic_menu_iterate(menu, userdata, new_action);
+   return generic_menu_iterate(menu, userdata,
+      ozone->inputs_blocked ? MENU_ACTION_NOOP : new_action);
 }
 
 /* TODO Fancy toggle animation */
@@ -1822,6 +2013,35 @@ static int ozone_list_bind_init(menu_file_list_cbs_t *cbs,
    return -1;
 }
 
+static bool ozone_task_content_override(void *userdata, const char *content_name)
+{
+   ozone_handle_t *ozone = (ozone_handle_t*) userdata;
+
+   if (ozone->load_content_pending)
+   {
+      ozone->load_content_pending = false;
+      return false;
+   }
+
+   if (ozone->load_content_animation_content_name)
+   {
+      free(ozone->load_content_animation_content_name);
+      ozone->load_content_animation_content_name = NULL;
+   }
+
+   ozone->load_content_animation_content_name = strdup(content_name);
+
+   word_wrap(ozone->load_content_animation_content_name, ozone->load_content_animation_content_name,
+      45, true);
+
+   ozone->inputs_blocked         = true;
+   ozone->load_content_pending   = true;
+
+   ozone_start_load_content_animation(ozone);
+
+   return true;
+}
+
 menu_ctx_driver_t menu_ctx_ozone = {
    NULL,                         /* set_texture */
    ozone_messagebox,
@@ -1863,5 +2083,9 @@ menu_ctx_driver_t menu_ctx_ozone = {
    NULL,                         /* set_thumbnail_content */
    menu_display_osk_ptr_at_pos,
    NULL,                         /* update_savestate_thumbnail_path */
-   NULL                          /* update_savestate_thumbnail_image */
+   NULL,                         /* update_savestate_thumbnail_image */
+   NULL,                         /* pointer_down */
+   NULL,                         /* pointer_up */
+   NULL,                         /* action_override */
+   ozone_task_content_override
 };

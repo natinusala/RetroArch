@@ -121,7 +121,12 @@ void ozone_draw_sidebar(ozone_handle_t *ozone, video_frame_info_t *video_info)
    if (ozone->horizontal_list)
       horizontal_list_size = ozone->horizontal_list->size;
 
-   menu_display_scissor_begin(video_info, 0, 87, 408, video_info->height - 87 - 78);
+   menu_display_scissor_begin(video_info,
+      0,
+      87,
+      408,
+      video_info->height - 87 - 78
+   );
 
    /* Background */
    sidebar_height = video_info->height - 87 - 55 - 78;
@@ -206,7 +211,7 @@ void ozone_draw_sidebar(ozone_handle_t *ozone, video_frame_info_t *video_info)
             goto console_iterate;
 
          /* Icon */
-         ozone_draw_icon(video_info, 40, 40, node->icon, ozone->sidebar_offset + 41 + 10, y - 5 + ozone->animations.scroll_y_sidebar, video_info->width, video_info->height, 0, 1, (selected ? ozone->theme->text_selected : ozone->theme->entries_icon));
+         ozone_draw_icon(video_info, 46, 46, node->icon, ozone->sidebar_offset + 41 + 10 - 3, y - 5 - 3 + ozone->animations.scroll_y_sidebar, video_info->width, video_info->height, 0, 1, (selected ? ozone->theme->text_selected : ozone->theme->entries_icon));
 
          /* Text */
          ticker.idx        = ozone->frame_count / 20;
@@ -623,7 +628,7 @@ void ozone_context_destroy_horizontal_list(ozone_handle_t *ozone)
    }
 }
 
-bool ozone_is_playlist(ozone_handle_t *ozone)
+bool ozone_is_playlist(ozone_handle_t *ozone, bool depth)
 {
    bool is_playlist;
 
@@ -651,5 +656,8 @@ bool ozone_is_playlist(ozone_handle_t *ozone)
          break;
    }
 
-   return is_playlist && ozone->depth == 1;
+   if (depth)
+      return is_playlist && ozone->depth == 1;
+
+   return is_playlist;
 }

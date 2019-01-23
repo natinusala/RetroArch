@@ -35,15 +35,16 @@
 
 static void ozone_cursor_animation_cb(void *userdata);
 
-static void ozone_animate_cursor(ozone_handle_t *ozone, float *dst, float *target)
+void ozone_color_transition(float *dst, float *target, unsigned duration, uintptr_t tag, 
+   void *userdata, tween_cb cb)
 {
    menu_animation_ctx_entry_t entry;
    int i;
 
    entry.easing_enum = EASING_OUT_QUAD;
-   entry.tag = (uintptr_t) &ozone_default_theme;
-   entry.duration = ANIMATION_CURSOR_PULSE;
-   entry.userdata = ozone;
+   entry.tag         = tag;
+   entry.duration    = duration;
+   entry.userdata    = userdata;
 
    for (i = 0; i < 16; i++)
    {
@@ -51,7 +52,7 @@ static void ozone_animate_cursor(ozone_handle_t *ozone, float *dst, float *targe
          continue;
 
       if (i == 14)
-         entry.cb = ozone_cursor_animation_cb;
+         entry.cb = cb;
       else
          entry.cb = NULL;
 
@@ -60,6 +61,12 @@ static void ozone_animate_cursor(ozone_handle_t *ozone, float *dst, float *targe
 
       menu_animation_push(&entry);
    }
+}
+
+static void ozone_animate_cursor(ozone_handle_t *ozone, float *dst, float *target)
+{
+   ozone_color_transition(dst, target, ANIMATION_CURSOR_PULSE_DURATION, (uintptr_t) &ozone_default_theme,
+      ozone, ozone_cursor_animation_cb);
 }
 
 static void ozone_cursor_animation_cb(void *userdata)
@@ -249,7 +256,7 @@ void ozone_draw_icon(
 
 void ozone_draw_backdrop(video_frame_info_t *video_info, float alpha)
 {
-   /* TODO Replace this backdrop by a blur shader on the whole screen if available */
+   /* TODO Replace this backdrop by a blur shader on the whole screen if available (add a parameter) */
    ozone_color_alpha(ozone_backdrop, alpha);
    menu_display_draw_quad(video_info, 0, 0, video_info->width, video_info->height, video_info->width, video_info->height, ozone_backdrop);
 }

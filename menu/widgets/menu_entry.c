@@ -452,8 +452,13 @@ int menu_entry_action(menu_entry_t *entry, unsigned i, enum menu_action action)
 
       case MENU_ACTION_OK:
          if (cbs && cbs->action_ok)
-            ret = cbs->action_ok(entry->path,
-                  entry->label, entry->type, i, entry->entry_idx);
+         {
+            if (menu_driver_action_override(entry->path, entry->label, entry->type, cbs->action_ok_ident, cbs->enum_idx))
+               ret = false;
+            else
+               ret = cbs->action_ok(entry->path,
+                     entry->label, entry->type, i, entry->entry_idx);
+         }
          break;
       case MENU_ACTION_START:
          if (cbs && cbs->action_start)

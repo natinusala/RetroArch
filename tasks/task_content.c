@@ -1166,6 +1166,9 @@ bool task_push_load_content_from_playlist_from_menu(
    settings_t *settings                       = config_get_ptr();
    rarch_system_info_t *sys_info              = runloop_get_system_info();
 
+   if (menu_driver_task_content_override(label))
+      return true;
+
    content_ctx.check_firmware_before_loading  = settings->bools.check_firmware_before_loading;
    content_ctx.is_ips_pref                    = rarch_ctl(RARCH_CTL_IS_IPS_PREF, NULL);
    content_ctx.is_bps_pref                    = rarch_ctl(RARCH_CTL_IS_BPS_PREF, NULL);
@@ -1391,6 +1394,8 @@ bool task_push_load_content_with_new_core_from_menu(
    char *error_string                         = NULL;
    global_t *global                           = global_get_ptr();
    settings_t *settings                       = config_get_ptr();
+
+   //TODO: Implement for this one
 
    content_ctx.check_firmware_before_loading  = settings->bools.check_firmware_before_loading;
    content_ctx.is_ips_pref                    = rarch_ctl(RARCH_CTL_IS_IPS_PREF, NULL);
@@ -1705,6 +1710,8 @@ bool task_push_load_content_with_core_from_menu(
       retro_task_callback_t cb,
       void *user_data)
 {
+   //TODO: implement for this one
+
    /* Set content path */
    path_set(RARCH_PATH_CONTENT, fullpath);
 
@@ -1729,6 +1736,7 @@ bool task_push_load_subsystem_with_core_from_menu(
       retro_task_callback_t cb,
       void *user_data)
 {
+   //TODO: implement for this one
 
    pending_subsystem_init = true;
 

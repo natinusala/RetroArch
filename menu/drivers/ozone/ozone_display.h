@@ -20,6 +20,7 @@
 #include "ozone.h"
 
 #include "../../menu_driver.h"
+#include "../../menu_animation.h"
 
 void ozone_draw_text(
       video_frame_info_t *video_info,
@@ -60,3 +61,6 @@ void ozone_draw_osk(ozone_handle_t *ozone,
 void ozone_draw_messagebox(ozone_handle_t *ozone,
       video_frame_info_t *video_info,
       const char *message);
+
+void ozone_color_transition(float *dst, float *target, unsigned duration, uintptr_t tag, 
+   void *userdata, tween_cb cb);

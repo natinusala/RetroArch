@@ -1258,6 +1258,23 @@ static bool menu_driver_load_image(menu_ctx_load_image_t *load_image_info)
    return false;
 }
 
+bool menu_driver_action_override(const char *path, const char *label, unsigned type, 
+      const char *cbs_action_ok_ident, enum msg_hash_enums cbs_enum_idx)
+{
+#if 1
+   RARCH_LOG("Got action\n      - path=%s\n      - label=%s\n      - type=%d\n      - cbs_action_ok_ident=%s\n      - cbs_enum_idx=%d\n", path, label, type, cbs_action_ok_ident, cbs_enum_idx);
+#endif
+
+   return menu_driver_ctx && menu_driver_ctx->action_override 
+      && menu_driver_ctx->action_override(menu_userdata, path, label, type, cbs_action_ok_ident, cbs_enum_idx);
+}
+
+bool menu_driver_task_content_override(const char *content_name)
+{
+   return menu_driver_ctx && menu_driver_ctx->task_content_override
+      && menu_driver_ctx->task_content_override(menu_userdata, content_name);
+}
+
 void menu_display_handle_thumbnail_upload(void *task_data,
       void *user_data, const char *err)
 {

@@ -214,6 +214,7 @@ bool task_push_load_content_with_core_from_menu(
       enum rarch_core_type type,
       retro_task_callback_t cb,
       void *user_data);
+
 bool task_push_load_subsystem_with_core_from_menu(
       const char *fullpath,
       content_ctx_info_t *content_info,

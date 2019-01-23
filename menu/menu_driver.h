@@ -590,6 +590,15 @@ typedef struct menu_ctx_driver
    int (*pointer_up)(void *data, unsigned x, unsigned y, unsigned ptr,
          menu_file_list_cbs_t *cbs,
          menu_entry_t *entry, unsigned action);
+
+   /* allows menu drivers to catch OK actions and abort them if needed 
+      return true if the action should be aborted */
+   bool (*action_override)(void *userdata, const char *path, const char *label, unsigned type,
+         const char *cbs_action_ok_ident, enum msg_hash_enums cbs_enum_idx);
+
+   /* allows menu drivers to catch content loading and abort it if needed 
+      return true if loading content should be aborted */
+   bool (*task_content_override)(void *userdata, const char *content_name);
 } menu_ctx_driver_t;
 
 typedef struct menu_ctx_displaylist
@@ -694,6 +703,11 @@ bool menu_driver_is_binding_state(void);
 void menu_driver_set_binding_state(bool on);
 
 void menu_driver_frame(video_frame_info_t *video_info);
+
+bool menu_driver_action_override(const char *path, const char *label, unsigned type, 
+      const char *cbs_action_ok_ident, enum msg_hash_enums cbs_enum_idx);
+
+bool menu_driver_task_content_override(const char *content_name);
 
 /* Is a background texture set for the current menu driver?  Should
  * return true for RGUI, for instance. */

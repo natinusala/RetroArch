@@ -24,6 +24,7 @@ typedef struct ozone_handle ozone_handle_t;
 #include <retro_miscellaneous.h>
 
 #include "../../menu_driver.h"
+#include "../../menu_animation.h"
 #include "../../../retroarch.h"
 
 #define FONT_SIZE_FOOTER 18
@@ -33,9 +34,14 @@ typedef struct ozone_handle ozone_handle_t;
 #define FONT_SIZE_ENTRIES_SUBLABEL 18
 #define FONT_SIZE_SIDEBAR 24
 
-#define ANIMATION_PUSH_ENTRY_DURATION 10
-#define ANIMATION_CURSOR_DURATION 8
-#define ANIMATION_CURSOR_PULSE 30
+#define ANIMATION_PUSH_ENTRY_DURATION     10
+#define ANIMATION_CURSOR_DURATION         8
+#define ANIMATION_CURSOR_PULSE_DURATION   30
+
+#define ANIMATION_LOAD_CONTENT_DURATION   20
+
+#define LOAD_CONTENT_ANIMATION_INITIAL_ICON_SIZE   320
+#define LOAD_CONTENT_ANIMATION_TARGET_ICON_SIZE    240
 
 #define ENTRIES_START_Y 127
 
@@ -95,6 +101,15 @@ struct ozone_handle
       float list_alpha;
 
       float messagebox_alpha;
+
+      float load_content_icon_size;
+      float load_content_icon_alpha;
+      float load_content_fade_alpha;
+
+      float load_content_icon_color[16];
+      float load_content_final_fade_alpha;
+
+      menu_timer_t load_content_timer;
    } animations;
 
    bool fade_direction; /* false = left to right, true = right to left */
@@ -152,6 +167,14 @@ struct ozone_handle
    unsigned old_list_offset_y;
 
    file_list_t *horizontal_list; /* console tabs */
+
+   /* data for fancy run animation */
+   bool inputs_blocked;
+   char *load_content_animation_content_name;
+   char *load_content_animation_playlist_name;
+   enum menu_action pending_action;
+   bool load_content_pending;
+   menu_texture_item load_content_animation_icon;
 };
 
 /* If you change this struct, also
@@ -205,6 +228,6 @@ size_t ozone_list_get_size(void *data, enum menu_list_type type);
 
 void ozone_free_list_nodes(file_list_t *list, bool actiondata);
 
-bool ozone_is_playlist(ozone_handle_t *ozone);
+bool ozone_is_playlist(ozone_handle_t *ozone, bool depth);
 
 #endif
