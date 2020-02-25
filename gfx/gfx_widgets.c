@@ -1983,14 +1983,28 @@ bool gfx_widgets_init(bool video_is_threaded)
             }
             else
             {
-               RARCH_LOG("[Widgets] " JS_WIDGET " loaded successfully!\n");
+               /* Ensure the widget is valid */
+               if (
+                  !duk_get_global_string(ctx, js_widget_init) ||
+                  !duk_get_global_string(ctx, js_widget_free) ||
+                  !duk_get_global_string(ctx, js_widget_context_reset) ||
+                  !duk_get_global_string(ctx, js_widget_iterate) ||
+                  !duk_get_global_string(ctx, js_widget_frame)
+               )
+               {
+                  RARCH_ERR("[Widgets] Error while loading " JS_WIDGET ": widget is missing mandatory functions\n");
+               }
+               else
+               {
+                  /* Register all functions */
+                  gfx_widgets_js_register_functions(ctx);
 
-               /* Register all functions */
-               gfx_widgets_js_register_functions(ctx);
+                  RARCH_LOG("[Widgets] " JS_WIDGET " loaded successfully!\n");
 
-               /* Call widget_init */
-               duk_get_global_string(ctx, "widget_init");
-               duk_call(ctx, 0);
+                  /* Call widget_init */
+                  duk_get_global_string(ctx, js_widget_init);
+                  duk_call(ctx, 0);
+               }
             }
             duk_pop(ctx);
          }

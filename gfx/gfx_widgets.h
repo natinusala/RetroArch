@@ -25,6 +25,12 @@
 
 void gfx_widgets_js_register_functions(duk_context* ctx);
 
+#define js_widget_init           "widget_init"
+#define js_widget_free           "widget_free"
+#define js_widget_context_reset  "widget_context_reset"
+#define js_widget_iterate        "widget_iterate"
+#define js_widget_frame          "widget_frame"
+
 #endif
 
 #include <formats/image.h>
