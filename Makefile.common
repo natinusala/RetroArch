@@ -2109,4 +2109,10 @@ endif
 ifeq ($(HAVE_SEGAM), 1)
    DEFINES += -DHAVE_SEGAM
 endif
+
+ifeq ($(HAVE_DUKTAPE), 1)
+   DEFINES += -DHAVE_DUKTAPE
+   OBJ += $(DEPS_DIR)/duktape/src/duktape.o
+   INCLUDE_DIRS += -I$(DEPS_DIR)/duktape/src
+endif
 ##################################

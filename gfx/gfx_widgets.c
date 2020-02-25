@@ -1,7 +1,7 @@
 /*  RetroArch - A frontend for libretro.
  *  Copyright (C) 2014-2017 - Jean-André Santoni
  *  Copyright (C) 2015-2018 - Andre Leiradella
- *  Copyright (C) 2018-2019 - natinusala
+ *  Copyright (C) 2018-2020 - natinusala
  *
  *  RetroArch is free software: you can redistribute it and/or modify it under the terms
  *  of the GNU General Public License as published by the Free Software Found-
@@ -38,7 +38,13 @@
 #include "../cheevos-new/badges.h"
 #endif
 
-/* TODO: Fix context reset freezing everything in place (probably kills animations when it shouldn't anymore) */
+#ifdef HAVE_DUKTAPE
+#include <duktape.h>
+#include <verbosity.h>
+#ifdef HAVE_THREADS
+#include <rthreads/rthreads.h>
+#endif
+#endif
 
 static float msg_queue_background[16]  = COLOR_HEX_TO_FLOAT(0x3A3A3A, 1.0f);
 static float msg_queue_info[16]        = COLOR_HEX_TO_FLOAT(0x12ACF8, 1.0f);
@@ -186,15 +192,12 @@ static unsigned msg_queue_kill                   = 0;
 /* Count of messages bound to a task in current_msgs */
 static unsigned msg_queue_tasks_count            = 0;
 
-/* TODO: Don't display icons if assets are missing */
-
 static uintptr_t msg_queue_icon                  = 0;
 static uintptr_t msg_queue_icon_outline          = 0;
 static uintptr_t msg_queue_icon_rect             = 0;
 static bool msg_queue_has_icons                  = false;
 
-extern gfx_animation_ctx_tag 
-gfx_widgets_generic_tag;
+extern gfx_animation_ctx_tag gfx_widgets_generic_tag;
 
 /* There can only be one message animation at a time to 
  * avoid confusing users */
@@ -328,12 +331,25 @@ static unsigned msg_queue_task_rect_start_x;
 static unsigned msg_queue_task_hourglass_x;
 
 /* Used for both generic and libretro messages */
-static unsigned generic_message_height; 
+static unsigned generic_message_height;
 
 static unsigned divider_width_1px            = 1;
 
 static unsigned last_video_width             = 0;
 static unsigned last_video_height            = 0;
+
+/* JS Widgets */
+#ifdef HAVE_DUKTAPE
+typedef struct js_widget
+{
+   duk_context *ctx;
+#ifdef HAVE_THREADS
+   slock_t *ctx_lock; /* duktape heaps are not thread safe */
+#endif
+} js_widget_t;
+#endif
+
+js_widget_t* js_widget; /* TODO: use a list of widgets, load them all from the RA folder */
 
 static void msg_widget_msg_transition_animation_done(void *userdata)
 {
@@ -1900,6 +1916,22 @@ void gfx_widgets_frame(void *data)
    gfx_display_unset_viewport(video_info->width, video_info->height);
 }
 
+/* JS Native Functions */
+static duk_ret_t js_native_rarch_log(duk_context* ctx)
+{
+   RARCH_LOG("%s", duk_to_string(ctx, 0));
+   return 0;
+}
+/* ------------------- */
+
+static void js_widget_register_functions(js_widget_t* widget)
+{
+   duk_context* ctx = widget->ctx;
+
+   duk_push_c_function(ctx, js_native_rarch_log, 1);
+   duk_put_global_string(ctx, "RARCH_LOG");
+}
+
 bool gfx_widgets_init(bool video_is_threaded)
 {
    if (!gfx_display_init_first_driver(video_is_threaded))
@@ -1930,6 +1962,65 @@ bool gfx_widgets_init(bool video_is_threaded)
       ? gfx_display_get_widget_pixel_scale(last_video_width, last_video_height) 
       : gfx_display_get_widget_dpi_scale(last_video_width, last_video_height);
 
+   /* Init all JS widgets */
+   /* TODO: teardown in widget_free */
+   /* TODO: teardown if it fails to init */
+   /* TODO: compile? */
+#ifdef HAVE_DUKTAPE
+   if (filestream_exists("widget.js"))
+   {
+      RARCH_LOG("[JS] widget.js found, loading...\n");
+      char* buf      = NULL;
+      int64_t length = 0;
+
+      if (!filestream_read_file("widget.js", (void**)&buf, &length))
+      {
+         RARCH_ERR("[JS] Unable to read widget.js\n");
+      }
+      else
+      {
+         js_widget = (js_widget_t*)calloc(1, sizeof(*js_widget));
+
+         js_widget->ctx       = duk_create_heap_default();
+         js_widget->ctx_lock  = slock_new();
+
+         if (!js_widget->ctx || !js_widget->ctx_lock)
+         {
+            RARCH_ERR("[JS] Unable to initialize widget.js\n");
+         }
+         else
+         {
+            duk_context* ctx = js_widget->ctx;
+
+            /* Load the JS code */
+            duk_push_lstring(ctx, buf, (duk_size_t) length);
+            if (duk_peval(ctx) != 0)
+            {
+               RARCH_ERR("[JS] Script error: %s\n", duk_safe_to_string(ctx, -1));
+            }
+            else
+            {
+               RARCH_LOG("[JS] Script loaded successfully!\n");
+
+               /* Register all functions */
+               js_widget_register_functions(js_widget);
+
+               /* Call widget_init */
+               duk_get_global_string(ctx, "widget_init");
+               duk_call(ctx, 0);
+            }
+            duk_pop(ctx);
+         }
+      }
+
+      if (buf)
+         free(buf);
+   }
+   else
+   {
+      RARCH_WARN("[JS] widget.js not found!\n");
+   }
+#endif
    return true;
 
 error:
