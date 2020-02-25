@@ -20,6 +20,13 @@
 #include "../config.h"
 #endif
 
+#ifdef HAVE_DUKTAPE
+#include <duktape.h>
+
+void gfx_widgets_js_register_functions(duk_context* ctx);
+
+#endif
+
 #include <formats/image.h>
 #include <queues/task_queue.h>
 #include <queues/message_queue.h>

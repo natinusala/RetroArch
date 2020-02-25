@@ -842,6 +842,9 @@ endif
 
 ifeq ($(HAVE_GFX_WIDGETS), 1)
    OBJ += gfx/gfx_widgets.o
+   ifeq ($(HAVE_DUKTAPE), 1)
+     OBJ += gfx/gfx_widgets_js.o
+   endif
 endif
 
 ifeq ($(HAVE_OVERLAY), 1)

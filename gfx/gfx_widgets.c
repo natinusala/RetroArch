@@ -39,7 +39,6 @@
 #endif
 
 #ifdef HAVE_DUKTAPE
-#include <duktape.h>
 #include <verbosity.h>
 #ifdef HAVE_THREADS
 #include <rthreads/rthreads.h>
@@ -1914,23 +1913,7 @@ void gfx_widgets_frame(void *data)
    }
 
    gfx_display_unset_viewport(video_info->width, video_info->height);
-}
-
-/* JS Native Functions */
-static duk_ret_t js_native_rarch_log(duk_context* ctx)
-{
-   RARCH_LOG("%s", duk_to_string(ctx, 0));
-   return 0;
-}
-/* ------------------- */
-
-static void js_widget_register_functions(js_widget_t* widget)
-{
-   duk_context* ctx = widget->ctx;
-
-   duk_push_c_function(ctx, js_native_rarch_log, 1);
-   duk_put_global_string(ctx, "RARCH_LOG");
-}
+} 
 
 bool gfx_widgets_init(bool video_is_threaded)
 {
@@ -1967,15 +1950,15 @@ bool gfx_widgets_init(bool video_is_threaded)
    /* TODO: teardown if it fails to init */
    /* TODO: compile? */
 #ifdef HAVE_DUKTAPE
-   if (filestream_exists("widget.js"))
+#define JS_WIDGET "widget.js"
+   if (filestream_exists(JS_WIDGET))
    {
-      RARCH_LOG("[JS] widget.js found, loading...\n");
       char* buf      = NULL;
       int64_t length = 0;
 
-      if (!filestream_read_file("widget.js", (void**)&buf, &length))
+      if (!filestream_read_file(JS_WIDGET, (void**)&buf, &length))
       {
-         RARCH_ERR("[JS] Unable to read widget.js\n");
+         RARCH_ERR("[Widgets] Unable to read " JS_WIDGET "\n");
       }
       else
       {
@@ -1986,7 +1969,7 @@ bool gfx_widgets_init(bool video_is_threaded)
 
          if (!js_widget->ctx || !js_widget->ctx_lock)
          {
-            RARCH_ERR("[JS] Unable to initialize widget.js\n");
+            RARCH_ERR("[Widgets] Unable to initialize " JS_WIDGET "\n");
          }
          else
          {
@@ -1996,14 +1979,14 @@ bool gfx_widgets_init(bool video_is_threaded)
             duk_push_lstring(ctx, buf, (duk_size_t) length);
             if (duk_peval(ctx) != 0)
             {
-               RARCH_ERR("[JS] Script error: %s\n", duk_safe_to_string(ctx, -1));
+               RARCH_ERR("[Widgets] Error while loading " JS_WIDGET ": %s\n", duk_safe_to_string(ctx, -1));
             }
             else
             {
-               RARCH_LOG("[JS] Script loaded successfully!\n");
+               RARCH_LOG("[Widgets] " JS_WIDGET " loaded successfully!\n");
 
                /* Register all functions */
-               js_widget_register_functions(js_widget);
+               gfx_widgets_js_register_functions(ctx);
 
                /* Call widget_init */
                duk_get_global_string(ctx, "widget_init");
@@ -2016,10 +1999,7 @@ bool gfx_widgets_init(bool video_is_threaded)
       if (buf)
          free(buf);
    }
-   else
-   {
-      RARCH_WARN("[JS] widget.js not found!\n");
-   }
+   exit(1);
 #endif
    return true;
 
