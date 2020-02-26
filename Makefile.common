@@ -2109,4 +2109,18 @@ endif
 ifeq ($(HAVE_SEGAM), 1)
    DEFINES += -DHAVE_SEGAM
 endif
+
+ifeq ($(HAVE_WREN), 1)
+   DEFINES += -DHAVE_WREN
+   OBJ += $(DEPS_DIR)/wren/src/vm/wren_compiler.o \
+          $(DEPS_DIR)/wren/src/vm/wren_core.o \
+          $(DEPS_DIR)/wren/src/vm/wren_debug.o \
+          $(DEPS_DIR)/wren/src/vm/wren_primitive.o \
+          $(DEPS_DIR)/wren/src/vm/wren_utils.o \
+          $(DEPS_DIR)/wren/src/vm/wren_value.o \
+          $(DEPS_DIR)/wren/src/vm/wren_vm.o \
+          $(DEPS_DIR)/wren/src/vm/wren_opt_meta.o \
+          $(DEPS_DIR)/wren/src/vm/wren_opt_random.o
+   INCLUDE_DIRS += -I$(DEPS_DIR)/wren/src/include
+endif
 ##################################

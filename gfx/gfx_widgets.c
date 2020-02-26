@@ -1,7 +1,7 @@
 /*  RetroArch - A frontend for libretro.
  *  Copyright (C) 2014-2017 - Jean-André Santoni
  *  Copyright (C) 2015-2018 - Andre Leiradella
- *  Copyright (C) 2018-2019 - natinusala
+ *  Copyright (C) 2020 - natinusala
  *
  *  RetroArch is free software: you can redistribute it and/or modify it under the terms
  *  of the GNU General Public License as published by the Free Software Found-
@@ -38,7 +38,20 @@
 #include "../cheevos-new/badges.h"
 #endif
 
-/* TODO: Fix context reset freezing everything in place (probably kills animations when it shouldn't anymore) */
+#ifdef HAVE_WREN
+
+#ifdef C89_BUILD
+#error Wren requires at least C99, cannot continue with C89 build
+#endif
+
+#include <wren.h>
+
+#include <verbosity.h>
+#include <lists/string_list.h>
+#include <lists/dir_list.h>
+
+#include "wren/wren.inc.h"
+#endif
 
 static float msg_queue_background[16]  = COLOR_HEX_TO_FLOAT(0x3A3A3A, 1.0f);
 static float msg_queue_info[16]        = COLOR_HEX_TO_FLOAT(0x12ACF8, 1.0f);
@@ -186,8 +199,6 @@ static unsigned msg_queue_kill                   = 0;
 /* Count of messages bound to a task in current_msgs */
 static unsigned msg_queue_tasks_count            = 0;
 
-/* TODO: Don't display icons if assets are missing */
-
 static uintptr_t msg_queue_icon                  = 0;
 static uintptr_t msg_queue_icon_outline          = 0;
 static uintptr_t msg_queue_icon_rect             = 0;
@@ -196,7 +207,7 @@ static bool msg_queue_has_icons                  = false;
 extern gfx_animation_ctx_tag 
 gfx_widgets_generic_tag;
 
-/* There can only be one message animation at a time to 
+/* There can only be one message animation at a time to
  * avoid confusing users */
 static bool widgets_moving                       = false;
 
@@ -328,12 +339,17 @@ static unsigned msg_queue_task_rect_start_x;
 static unsigned msg_queue_task_hourglass_x;
 
 /* Used for both generic and libretro messages */
-static unsigned generic_message_height; 
+static unsigned generic_message_height;
 
 static unsigned divider_width_1px            = 1;
 
 static unsigned last_video_width             = 0;
 static unsigned last_video_height            = 0;
+
+/* Wren widgets */
+#ifdef HAVE_WREN
+static WrenVM* wrenVm;
+#endif
 
 static void msg_widget_msg_transition_animation_done(void *userdata)
 {
@@ -1900,6 +1916,63 @@ void gfx_widgets_frame(void *data)
    gfx_display_unset_viewport(video_info->width, video_info->height);
 }
 
+#ifdef HAVE_WREN
+#define WREN_MODULES_DIR "/home/voxiweb/.config/retroarch/wren/" /* TODO: dehardcode that */
+
+/* TODO: move Wren out of gfx widgets to have them menu independent */
+
+static char* wren_load_module(WrenVM* vm, const char* name)
+{
+   /* We use strdup because Wren frees the string when done */
+   RARCH_LOG("[Wren]: Loading module %s\n", name);
+
+   /* Library modules */
+   if (strcmp(name, "widgets_manager") == 0)
+      return strdup(widgets_manager_wren);
+   else if (strcmp(name, "widget") == 0)
+      return strdup(widget_wren);
+
+   /* User-provided modules */
+   char filename[PATH_MAX_LENGTH];
+   char path[PATH_MAX_LENGTH];
+
+   snprintf(filename, sizeof(filename), "%s.wren", name);
+   fill_pathname_join(path, WREN_MODULES_DIR, filename, sizeof(path));
+
+   if (filestream_exists(path))
+   {
+      char* buf      = NULL;
+      int64_t length = 0;
+
+      if (filestream_read_file(path, (void**)&buf, &length))
+         return strndup(buf, length);
+   }
+
+   /* Module not found */
+   RARCH_ERR("[Wren]: Module not found: %s\n", name);
+   return NULL;
+}
+
+static void wren_write(WrenVM* vm, const char* text)
+{
+   /* Wren likes to call this function with "\n\n" sometimes so trim
+      and ignore empty messages */
+   char* trimmed_text = strdup(text);
+   trimmed_text = string_trim_whitespace(trimmed_text);
+
+   if (!string_is_empty(trimmed_text))
+      RARCH_LOG("%s\n", trimmed_text);
+
+   free(trimmed_text);
+}
+
+static void wren_error(WrenVM* vm, WrenErrorType type, const char* module, int line, const char* message)
+{
+   RARCH_ERR("[Wren]: Error %d in module %s at line %d: %s\n", type, module, line, message);
+}
+
+#endif
+
 bool gfx_widgets_init(bool video_is_threaded)
 {
    if (!gfx_display_init_first_driver(video_is_threaded))
@@ -1929,6 +2002,61 @@ bool gfx_widgets_init(bool video_is_threaded)
    last_scale_factor = (gfx_display_get_driver_id() == MENU_DRIVER_ID_XMB) 
       ? gfx_display_get_widget_pixel_scale(last_video_width, last_video_height) 
       : gfx_display_get_widget_dpi_scale(last_video_width, last_video_height);
+
+#ifdef HAVE_WREN
+   /* Init Wren widgets */
+
+   /* Create VM */
+   /* TODO: teardown */
+   WrenConfiguration config;
+   wrenInitConfiguration(&config);
+
+   config.errorFn       = wren_error;
+   config.writeFn       = wren_write;
+   config.loadModuleFn  = wren_load_module;
+
+   wrenVm = wrenNewVM(&config);
+
+   if (wrenVm)
+   {
+      RARCH_LOG("[Wren]: Wren VM created\n");
+
+      /* Load all user provided modules */
+      struct string_list* modules = dir_list_new(WREN_MODULES_DIR, "wren", true, false, false, false);
+
+      if (modules)
+      {
+         RARCH_LOG("[Wren]: Found %d module(s) in %s\n", modules->size, WREN_MODULES_DIR);
+         for (size_t i = 0; i < modules->size; i++)
+         {
+            struct string_list_elem module = modules->elems[i];
+
+            char* module_path       = module.data;
+            char* filename          = strdup(path_basename(module_path));
+            path_remove_extension(filename);
+
+            char command[PATH_MAX_LENGTH];
+            snprintf(command, sizeof(command), "import \"%s\"", filename);
+
+            WrenInterpretResult result = wrenInterpret(wrenVm, "main", command);
+
+            if (result != WREN_RESULT_SUCCESS)
+               RARCH_ERR("[Wren]: Unable to load module %s\n", filename);
+
+            free(filename);
+         }
+
+         RARCH_LOG("[Wren]: Done loading modules\n");
+
+         string_list_free(modules);
+      }
+   }
+   else
+   {
+      RARCH_ERR("[Wren]: Unable to create Wren VM!\n");
+   }
+   exit(1);
+#endif
 
    return true;
 

@@ -111,6 +111,7 @@ endif
 ifneq ($(CXX_BUILD), 1)
    ifneq ($(C89_BUILD),)
       CFLAGS += -std=c89 -ansi -pedantic -Werror=pedantic -Wno-long-long
+		DEFINES += -DC89_BUILD
    else ifeq ($(HAVE_C99), 1)
       CFLAGS += $(C99_CFLAGS)
    endif
