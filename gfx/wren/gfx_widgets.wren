@@ -1,6 +1,13 @@
-import "widget"
+// Base class for all Widgets
+class Widget {
+   onInit() {}
+   onFree() {}
+   onContextReset() {}
+   onIterate() {}
+   onFrame() {}
+}
 
-// Interface for Wren widgets
+// Wren <-> RetroArch widgets interface
 class WidgetsManager {
    // Called by Wren widgets to register themselves
    static registerWidget(name, widget) {

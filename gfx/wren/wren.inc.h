@@ -16,7 +16,6 @@
 #ifndef _WREN_INC_H
 #define _WREN_INC_H
 
-#include "c/widget.inc.h"
-#include "c/widgets_manager.inc.h"
+#include "c/gfx_widgets.inc.h"
 
 #endif

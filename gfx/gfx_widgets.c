@@ -1926,11 +1926,9 @@ static char* wren_load_module(WrenVM* vm, const char* name)
    /* We use strdup because Wren frees the string when done */
    RARCH_LOG("[Wren]: Loading module %s\n", name);
 
-   /* Library modules */
-   if (strcmp(name, "widgets_manager") == 0)
-      return strdup(widgets_manager_wren);
-   else if (strcmp(name, "widget") == 0)
-      return strdup(widget_wren);
+   /* Built-in modules */
+   if (strcmp(name, "gfx_widgets") == 0)
+      return strdup(gfx_widgets_wren);
 
    /* User-provided modules */
    char filename[PATH_MAX_LENGTH];
