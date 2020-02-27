@@ -115,6 +115,10 @@
 #include "deps/discord-rpc/include/discord_rpc.h"
 #endif
 
+#ifdef HAVE_LUA
+#include "lichen/lichen.h"
+#endif
+
 #include "config.def.h"
 #include "config.def.keybinds.h"
 
@@ -27443,6 +27447,10 @@ bool retroarch_main_init(int argc, char *argv[])
 
    command_event(CMD_EVENT_SET_PER_GAME_RESOLUTION, NULL);
 
+#ifdef HAVE_LUA
+   lichen_init();
+#endif
+
    rarch_error_on_init     = false;
    rarch_is_inited         = true;
 
@@ -27932,6 +27940,10 @@ bool rarch_ctl(enum rarch_ctl_state state, void *data)
 
          path_deinit_subsystem();
          path_deinit_savefile();
+
+#ifdef HAVE_LUA
+         lichen_deinit();
+#endif
 
          rarch_is_inited         = false;
 
