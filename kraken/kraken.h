@@ -31,7 +31,4 @@ void kraken_register_functions(lua_State *state);
 // (depends on the current thread)
 lua_State* kraken_get_state(void);
 
-void hello_from_main_thread(void);
-void hello_from_video_thread(void);
-
 #endif
