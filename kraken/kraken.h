@@ -20,6 +20,17 @@
 
 #include <boolean.h>
 
+/*
+   The Kraken functions may only be called from
+   the main thread or the video thread
+
+   Calling anything from any other thread will
+   corrupt the Lua VM
+
+   Initialization and deinitialization must be done from
+   the main thread, subsequent calls are safe to use from both
+*/
+
 // Must be called from the main thread
 bool kraken_init(void);
 void kraken_deinit(void);
@@ -28,7 +39,7 @@ void kraken_deinit(void);
 void kraken_register_functions(lua_State *state);
 
 // Gets the state to use when calling Lua functions from C
-// (depends on the current thread)
+// (depends on the calling thread)
 lua_State* kraken_get_state(void);
 
 #endif
