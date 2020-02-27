@@ -70,6 +70,9 @@ bool lichen_init(void)
       RARCH_ERR("[Lichen]: Unable to load test.lua\n");
 
    /* Spawn video thread if needed */
+   /* TODO: Is the video thread garbage collected
+      if nothing runs on it for a while? */
+   /* TODO: make a table of thread id -> Lua state */
 #ifdef HAVE_THREADS
    mainThreadId      = sthread_get_current_thread_id();
    videoThreadState  = lua_newthread(mainThreadState);
