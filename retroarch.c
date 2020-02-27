@@ -116,7 +116,7 @@
 #endif
 
 #ifdef HAVE_LUA
-#include "lichen/lichen.h"
+#include "kraken/kraken.h"
 #endif
 
 #include "config.def.h"
@@ -27448,7 +27448,7 @@ bool retroarch_main_init(int argc, char *argv[])
    command_event(CMD_EVENT_SET_PER_GAME_RESOLUTION, NULL);
 
 #ifdef HAVE_LUA
-   lichen_init();
+   kraken_init();
 #endif
 
    rarch_error_on_init     = false;
@@ -27942,7 +27942,7 @@ bool rarch_ctl(enum rarch_ctl_state state, void *data)
          path_deinit_savefile();
 
 #ifdef HAVE_LUA
-         lichen_deinit();
+         kraken_deinit();
 #endif
 
          rarch_is_inited         = false;

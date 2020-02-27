@@ -14,12 +14,12 @@
  */
 
 #ifdef HAVE_THREADS
-#define lua_lock(state)   lichen_lock(state)
-#define lua_unlock(state) lichen_unlock(state)
+#define lua_lock(state)   kraken_lock(state)
+#define lua_unlock(state) kraken_unlock(state)
 
-void lichen_init_lock(void);
-void lichen_free_lock(void);
+void kraken_init_lock(void);
+void kraken_free_lock(void);
 
-void lichen_lock(lua_State* state);
-void lichen_unlock(lua_State* state);
+void kraken_lock(lua_State* state);
+void kraken_unlock(lua_State* state);
 #endif

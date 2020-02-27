@@ -13,7 +13,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "lichen.h"
+#include "kraken.h"
 
 #include "../verbosity.h"
 
@@ -23,12 +23,12 @@
 #include <rthreads/rthreads.h>
 #endif
 
-static int lichen_rarch_log(lua_State *state)
+static int kraken_rarch_log(lua_State *state)
 {
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
    {
-      RARCH_ERR("[Lichen]: lichen_rarch_log: invalid arguments\n");
+      RARCH_ERR("[Kraken]: kraken_rarch_log: invalid arguments\n");
       return 0;
    }
 
@@ -38,7 +38,7 @@ static int lichen_rarch_log(lua_State *state)
    return 0;
 }
 
-void lichen_register_functions(lua_State *state)
+void kraken_register_functions(lua_State *state)
 {
-   lua_register(state, "RARCH_LOG", lichen_rarch_log);
+   lua_register(state, "RARCH_LOG", kraken_rarch_log);
 }

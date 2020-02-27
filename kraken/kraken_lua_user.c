@@ -14,7 +14,7 @@
  */
 
 #include <lua.h>
-#include "lichen_lua_user.h"
+#include "kraken_lua_user.h"
 
 #include <stdlib.h>
 
@@ -24,25 +24,25 @@
 
 static slock_t* gil;
 
-void lichen_init_lock(void)
+void kraken_init_lock(void)
 {
    gil = slock_new();
 
    if (!gil)
-      RARCH_ERR("[Lichen]: Unable to create GIL!");
+      RARCH_ERR("[Kraken]: Unable to create GIL!");
 }
 
-void lichen_free_lock(void)
+void kraken_free_lock(void)
 {
    slock_free(gil);
 }
 
-void lichen_lock(lua_State* state)
+void kraken_lock(lua_State* state)
 {
    slock_lock(gil);
 }
 
-void lichen_unlock(lua_State* state)
+void kraken_unlock(lua_State* state)
 {
    slock_unlock(gil);
 }

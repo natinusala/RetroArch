@@ -21,15 +21,15 @@
 #include <boolean.h>
 
 // Must be called from the main thread
-bool lichen_init(void);
-void lichen_deinit(void);
+bool kraken_init(void);
+void kraken_deinit(void);
 
 // Registers the RetroArch API C functions to the given Lua state
-void lichen_register_functions(lua_State *state);
+void kraken_register_functions(lua_State *state);
 
 // Gets the state to use when calling Lua functions from C
 // (depends on the current thread)
-lua_State* lichen_get_state(void);
+lua_State* kraken_get_state(void);
 
 void hello_from_main_thread(void);
 void hello_from_video_thread(void);

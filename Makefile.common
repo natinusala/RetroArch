@@ -1870,10 +1870,10 @@ ifeq ($(HAVE_NETWORKING), 1)
                 $(DEPS_DIR)/lua/src/lutf8lib.o \
                 $(DEPS_DIR)/lua/src/loadlib.o \
                 $(DEPS_DIR)/lua/src/linit.o
-         OBJ += lichen/lichen.o \
-                lichen/lichen_functions.o \
-                lichen/lichen_lua_user.o
-         DEFINES += -DLUA_USER_H="\"lichen/lichen_lua_user.h\""
+         OBJ += kraken/kraken.o \
+                kraken/kraken_functions.o \
+                kraken/kraken_lua_user.o
+         DEFINES += -DLUA_USER_H="\"kraken/kraken_lua_user.h\""
       else
          DEFINES += -DRC_DISABLE_LUA
       endif

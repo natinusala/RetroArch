@@ -1,1 +1,1 @@
-RARCH_LOG("[Lichen]: Hello from test.lua\n")
+RARCH_LOG("[Kraken]: Hello from test.lua\n")

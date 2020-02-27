@@ -13,13 +13,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "lichen.h"
+#include "kraken.h"
 
 #include <stdlib.h>
 
 #include "../verbosity.h"
 
-#include "lichen_lua_user.h"
+#include "kraken_lua_user.h"
 
 #include <lua.h>
 #include <lualib.h>
@@ -34,32 +34,32 @@ static lua_State *videoThreadState;
 
 static lua_State *mainThreadState;
 
-bool lichen_init(void)
+bool kraken_init(void)
 {
    /* TODO: don't do anything if there are no addons */
 
    /* Safety check */
    if (mainThreadState)
    {
-      RARCH_LOG("[Lichen]: Already initialized\n");
+      RARCH_LOG("[Kraken]: Already initialized\n");
       return true;
    }
 
    /* Create state */
 #ifdef HAVE_THREADS
-   lichen_init_lock();
+   kraken_init_lock();
 #endif
    mainThreadState = luaL_newstate();
 
    if (!mainThreadState)
    {
-      RARCH_ERR("[Lichen]: Failed to initialize main thread state\n");
+      RARCH_ERR("[Kraken]: Failed to initialize main thread state\n");
       return false;
    }
 
    /* Load standard libs and RetroArch API */
    luaL_openlibs(mainThreadState);
-   lichen_register_functions(mainThreadState);
+   kraken_register_functions(mainThreadState);
 
    /* Load RetroArch API modules */
    /* TODO: do it */
@@ -67,7 +67,7 @@ bool lichen_init(void)
    /* Load addons */
    /* TODO: properly do it */
    if (luaL_dofile(mainThreadState, "test.lua"))
-      RARCH_ERR("[Lichen]: Unable to load test.lua\n");
+      RARCH_ERR("[Kraken]: Unable to load test.lua\n");
 
    /* Spawn video thread if needed */
    /* TODO: Is the video thread garbage collected
@@ -79,18 +79,18 @@ bool lichen_init(void)
 
    if (!videoThreadState)
    {
-      RARCH_ERR("[Lichen]: Failed to initialize video thread state\n");
-      lichen_deinit();
+      RARCH_ERR("[Kraken]: Failed to initialize video thread state\n");
+      kraken_deinit();
       return false;
    }
 #endif
 
-   RARCH_LOG("[Lichen]: Done initializing!\n");
+   RARCH_LOG("[Kraken]: Done initializing!\n");
 
    return true;
 }
 
-lua_State* lichen_get_state(void)
+lua_State* kraken_get_state(void)
 {
    if (!mainThreadState)
       return NULL;
@@ -105,12 +105,12 @@ lua_State* lichen_get_state(void)
    return mainThreadState;
 }
 
-void lichen_deinit(void)
+void kraken_deinit(void)
 {
    if (mainThreadState)
       lua_close(mainThreadState);
 
 #ifdef HAVE_THREADS
-   lichen_free_lock();
+   kraken_free_lock();
 #endif
 }
