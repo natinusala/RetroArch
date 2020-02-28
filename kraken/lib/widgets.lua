@@ -33,14 +33,14 @@ local function widgets_register(name, widget)
    -- Widget integrity check
    for k,func in pairs(widgets_funcs) do
       if widget[func] == nil then
-         RARCH_ERR(string.format("[Kraken]: Widget %s is missing function %s\n", name, func))
+         RARCH_ERR(string.format("[Widgets]: Widget %s is missing function %s\n", name, func))
          return
       end
    end
 
    -- Register it
    table.insert(widgets_table, widget)
-   RARCH_LOG(string.format("[Kraken]: %s widget registered \n", name))
+   RARCH_LOG(string.format("[Widgets]: %s widget registered \n", name))
 end
 
 function kraken_widgets_init()
@@ -87,5 +87,8 @@ end
 
 -- Exposed widgets module
 widgets = {
-   register = widgets_register
+   register          = widgets_register,
+   get_font_regular  = widgets_get_font_regular,
+   get_font_bold     = widgets_get_font_bold,
+   flush_font        = widgets_flush_font
 }

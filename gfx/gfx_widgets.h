@@ -20,6 +20,8 @@
 #include "../config.h"
 #endif
 
+#include "font_driver.h"
+
 #include <formats/image.h>
 #include <queues/task_queue.h>
 #include <queues/message_queue.h>
@@ -98,5 +100,10 @@ void gfx_widgets_set_libretro_message(const char *message, unsigned duration);
 void gfx_widgets_frame(void *data);
 
 bool gfx_widgets_set_fps_text(const char *new_fps_text);
+
+font_data_t* gfx_widgets_get_font_regular();
+font_data_t* gfx_widgets_get_font_bold();
+
+void gfx_widgets_font_flush(font_data_t* font, video_frame_info_t* video_info);
 
 #endif

@@ -81,9 +81,79 @@ static int kraken_display_draw_quad(lua_State* state)
    return 0;
 }
 
+/*
+   display.cache_text(
+      font: lightuserdata,
+      text: string,
+      x : integer,
+      y : integer,
+      color: integer,
+      alignment: integer,
+      scale: number,
+      shadow: boolean,
+      shadow_offset: number,
+      draw_outside: boolean,
+      video_info: lightuserdata
+   )
+*/
+static int kraken_display_cache_text(lua_State* state)
+{
+   int argc = lua_gettop(state);
+   if (
+      argc != 11 ||
+      !lua_islightuserdata(state, 1) ||   //font
+      !lua_isstring(state, 2) ||          //text
+      !lua_isinteger(state, 3) ||         //x
+      !lua_isinteger(state, 4) ||         //y
+      !lua_isinteger(state, 5) ||         //color
+      !lua_isinteger(state, 6) ||         //alignment
+      !lua_isnumber(state, 7) ||          //scale
+      !lua_isboolean(state, 8) ||         //shadow
+      !lua_isnumber(state, 9) ||          // shadow_offset
+      !lua_isboolean(state, 10) ||        //draw_outside
+      !lua_islightuserdata(state, 11)     //video_info
+   )
+   {
+      RARCH_ERR("[Kraken]: display.cache_text: invalid arguments\n");
+      return 0;
+   }
+
+   font_data_t* font                = (font_data_t*) lua_topointer(state, 1);
+   video_frame_info_t* video_info   = (video_frame_info_t*) lua_topointer(state, 11);
+   const char* text                 = lua_tostring(state, 2);
+   float x                          = (float) lua_tointeger(state, 3);
+   float y                          = (float) lua_tointeger(state, 4);
+   int width                        = video_info->width;
+   int height                       = video_info->height;
+   uint32_t color                   = lua_tointeger(state, 5);
+   enum text_alignment text_align   = (enum text_alignment) lua_tointeger(state, 6);
+   float scale                      = (float) lua_tonumber(state, 7);
+   bool shadows_enable              = lua_toboolean(state, 8);
+   float shadow_offset              = (float) lua_tonumber(state, 9);
+   bool draw_outside                = lua_toboolean(state, 10);
+
+   gfx_display_draw_text(
+      font,
+      text,
+      x,
+      y,
+      width,
+      height,
+      color,
+      text_align,
+      scale,
+      shadows_enable,
+      shadow_offset,
+      draw_outside
+   );
+
+   return 0;
+}
+
 void kraken_display_load(lua_State* state)
 {
    lua_register(state, "display_draw_quad", kraken_display_draw_quad);
+   lua_register(state, "display_cache_text", kraken_display_cache_text);
 
    kraken_lib_load_module(state, "display", display_lua);
 }

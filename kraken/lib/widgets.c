@@ -22,10 +22,7 @@
 
 #include "c/widgets.inc.h"
 
-void kraken_widgets_load(lua_State* state)
-{
-   kraken_lib_load_module(state, "widgets", widgets_lua);
-}
+#include "../../gfx/gfx_widgets.h"
 
 void kraken_widgets_free()
 {
@@ -97,4 +94,51 @@ void kraken_widgets_layout()
 
    if (lua_pcall(state, 0, 0, 0))
       RARCH_ERR("[Kraken]: Error while calling kraken_widgets_layout: %s\n", kraken_get_error(state));
+}
+
+//widgets.get_font_regular(): lightuserdata
+static int kraken_widgets_get_font_regular(lua_State* state)
+{
+   font_data_t* font = gfx_widgets_get_font_regular();
+   lua_pushlightuserdata(state, font);
+   return 1;
+}
+
+//widgets.get_font_bold(): lightuserdata
+static int kraken_widgets_get_font_bold(lua_State* state)
+{
+   font_data_t* font = gfx_widgets_get_font_bold();
+   lua_pushlightuserdata(state, font);
+   return 1;
+}
+
+//widgets.flush_font(font: lightuserdata, video_info: lightuserdata)
+static int kraken_widgets_flush_font(lua_State* state)
+{
+   int argc = lua_gettop(state);
+   if (
+      argc != 2 ||
+      !lua_islightuserdata(state, 1) ||   //font
+      !lua_islightuserdata(state, 2)      //video_info
+   )
+   {
+      RARCH_ERR("[Kraken]: widgets.flush_font: invalid arguments\n");
+      return 0;
+   }
+
+   font_data_t* font                = (font_data_t*) lua_topointer(state, 1);
+   video_frame_info_t* video_info   = (video_frame_info_t*) lua_topointer(state, 2);
+
+   gfx_widgets_font_flush(font, video_info);
+
+   return 0;
+}
+
+void kraken_widgets_load(lua_State* state)
+{
+   lua_register(state, "widgets_get_font_regular", kraken_widgets_get_font_regular);
+   lua_register(state, "widgets_get_font_bold", kraken_widgets_get_font_bold);
+   lua_register(state, "widgets_flush_font", kraken_widgets_flush_font);
+
+   kraken_lib_load_module(state, "widgets", widgets_lua);
 }

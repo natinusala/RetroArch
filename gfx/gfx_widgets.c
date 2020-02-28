@@ -17,6 +17,10 @@
 
 #include <retro_miscellaneous.h>
 
+#include <stdio.h>
+
+#include "../verbosity.h"
+
 #include <lists/file_list.h>
 #include <queues/fifo_queue.h>
 #include <file/file_path.h>
@@ -1287,6 +1291,18 @@ static void gfx_widgets_draw_task_msg(menu_widget_msg_t *msg,
    );
 }
 
+void gfx_widgets_font_flush(font_data_t* font, video_frame_info_t* video_info)
+{
+   font_driver_flush(video_info->width, video_info->height, font, video_info);
+
+   if (font == font_regular)
+      font_raster_regular.carr.coords.vertices  = 0;
+   else if (font == font_bold)
+      font_raster_bold.carr.coords.vertices     = 0;
+   else
+      RARCH_ERR("[Widgets]: Trying to flush an unknown font!\n");
+}
+
 static void gfx_widgets_draw_regular_msg(menu_widget_msg_t *msg, video_frame_info_t *video_info)
 {
    unsigned bar_width;
@@ -1949,7 +1965,7 @@ void gfx_widgets_frame(void *data)
    }
 
 #ifdef HAVE_LUA
-   kraken_widgets_frame();
+   kraken_widgets_frame(video_info);
 #endif
 
 #ifdef HAVE_MENU
@@ -2795,7 +2811,7 @@ void gfx_widgets_set_libretro_message(const char *msg, unsigned duration)
    gfx_animation_ctx_tag tag = (uintptr_t) &libretro_message_timer;
 
    strlcpy(libretro_message, msg, sizeof(libretro_message));
-   
+
    libretro_message_alpha = DEFAULT_BACKDROP;
 
    /* Kill and restart the timer / animation */
@@ -2810,4 +2826,14 @@ void gfx_widgets_set_libretro_message(const char *msg, unsigned duration)
 
    /* Compute text width */
    libretro_message_width = font_driver_get_message_width(font_regular, msg, (unsigned)strlen(msg), 1) + simple_widget_padding * 2;
+}
+
+font_data_t* gfx_widgets_get_font_regular()
+{
+   return font_regular;
+}
+
+font_data_t* gfx_widgets_get_font_bold()
+{
+   return font_bold;
 }
