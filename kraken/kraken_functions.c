@@ -23,6 +23,15 @@
 #include <rthreads/rthreads.h>
 #endif
 
+/*
+   NEVER call those functions from C code!
+
+   They are to be used by Lua only, this is why they are
+   static and not exposed
+
+   If you really need to, use lua_pushcfunction
+*/
+
 static int kraken_rarch_log(lua_State *state)
 {
    int argc = lua_gettop(state);
