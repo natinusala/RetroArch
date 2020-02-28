@@ -47,6 +47,10 @@
 #include "../cheevos-new/badges.h"
 #endif
 
+#ifdef HAVE_LUA
+#include "../kraken/lib/widgets.h"
+#endif
+
 /* TODO: Fix context reset freezing everything in place (probably kills animations when it shouldn't anymore) */
 
 static float msg_queue_background[16]  = COLOR_HEX_TO_FLOAT(0x3A3A3A, 1.0f);
@@ -1064,6 +1068,10 @@ void gfx_widgets_iterate(
       screenshot_loaded       = true;
       screenshot_filename[0]  = '\0';
    }
+
+#ifdef HAVE_LUA
+   kraken_widgets_iterate();
+#endif
 }
 
 static int gfx_widgets_draw_indicator(video_frame_info_t *video_info, 
@@ -1940,6 +1948,10 @@ void gfx_widgets_frame(void *data)
       );
    }
 
+#ifdef HAVE_LUA
+   kraken_widgets_frame();
+#endif
+
 #ifdef HAVE_MENU
    /* Load content animation */
    if (load_content_animation_running)
@@ -1986,6 +1998,10 @@ bool gfx_widgets_init(bool video_is_threaded, bool fullscreen)
    last_scale_factor = (gfx_display_get_driver_id() == MENU_DRIVER_ID_XMB) ?
          gfx_display_get_widget_pixel_scale(last_video_width, last_video_height, fullscreen) :
                gfx_display_get_widget_dpi_scale(last_video_width, last_video_height, fullscreen);
+
+#ifdef HAVE_LUA
+   kraken_widgets_init();
+#endif
 
    return true;
 
@@ -2118,6 +2134,10 @@ static void gfx_widgets_layout(
    divider_width_1px    = 1;
    if (last_scale_factor > 1.0f)
       divider_width_1px = (unsigned)(last_scale_factor + 0.5f);
+
+#ifdef HAVE_LUA
+   kraken_widgets_layout();
+#endif
 }
 
 void gfx_widgets_context_reset(bool is_threaded,
@@ -2179,6 +2199,10 @@ void gfx_widgets_context_reset(bool is_threaded,
 
    msg_queue_has_icons = msg_queue_icon && msg_queue_icon_outline && msg_queue_icon_rect;
 
+#ifdef HAVE_LUA
+   kraken_widgets_context_reset();
+#endif
+
    /* Update scaling/dimensions */
    last_video_width  = width;
    last_video_height = height;
@@ -2216,6 +2240,10 @@ static void gfx_widgets_context_destroy(void)
 
    font_regular = NULL;
    font_bold    = NULL;
+
+#ifdef HAVE_LUA
+   kraken_widgets_context_destroyed();
+#endif
 }
 
 #ifdef HAVE_CHEEVOS
@@ -2305,6 +2333,10 @@ void gfx_widgets_free(void)
 
       SLOCK_UNLOCK(cheevo_popup_queue_lock);
    }
+#endif
+
+#ifdef HAVE_LUA
+   kraken_widgets_free();
 #endif
 
    /* Font */

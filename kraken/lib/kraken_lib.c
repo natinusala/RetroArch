@@ -13,32 +13,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _KRAKEN_H
-#define _KRAKEN_H
+#include "../kraken.h"
 
-#include <lua.h>
+#include "kraken_lib.h"
 
-#include <boolean.h>
+#include "retroarch.h"
+#include "widgets.h"
 
-/*
-   The Kraken functions may only be called from
-   the main thread or the video thread
+#include "../../verbosity.h"
 
-   Calling anything from any other thread will
-   corrupt the Lua VM
+void kraken_load_module(lua_State* state, const char* name, char* data)
+{
+   if (luaL_dostring(state, data))
+      RARCH_ERR("[Kraken]: Unable to load library module %s: %s\n", name, kraken_get_error(state));
+}
 
-   Initialization and deinitialization must be done from
-   the main thread, subsequent calls are safe to use from both
-*/
-
-// Must be called from the main thread
-bool kraken_init(void);
-void kraken_deinit(void);
-
-// Gets the state to use when calling Lua functions from C
-// (depends on the calling thread)
-lua_State* kraken_get_state(void);
-
-char* kraken_get_error(lua_State* state);
-
-#endif
+void kraken_load_lib(lua_State* state)
+{
+   kraken_retroarch_load(state);
+   kraken_widgets_load(state);
+}

@@ -71,7 +71,9 @@
       "kraken.h": "c",
       "discord_rpc.h": "c",
       "rthreads.h": "c",
-      "mutex": "c"
+      "mutex": "c",
+      "kraken_lib.h": "c",
+      "widgets.h": "c"
    },
    "C_Cpp.dimInactiveRegions": false,
 }

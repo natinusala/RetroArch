@@ -13,41 +13,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "kraken.h"
+#ifndef _KRAKEN_LIB_RETROARCH_H
+#define _KRAKEN_LIB_RETROARCH_H
 
-#include "../verbosity.h"
+#include <lua.h>
 
-#include <stdlib.h>
+void kraken_retroarch_load(lua_State *state);
 
-#ifdef HAVE_THREADS
-#include <rthreads/rthreads.h>
 #endif
-
-/*
-   NEVER call those functions from C code!
-
-   They are to be used by Lua only, this is why they are
-   static and not exposed
-
-   If you really need to, use lua_pushcfunction
-*/
-
-static int kraken_rarch_log(lua_State *state)
-{
-   int argc = lua_gettop(state);
-   if (argc != 1 || !lua_isstring(state, 1))
-   {
-      RARCH_ERR("[Kraken]: kraken_rarch_log: invalid arguments\n");
-      return 0;
-   }
-
-   const char* text = lua_tostring(state, 1);
-   RARCH_LOG("%s", text);
-
-   return 0;
-}
-
-void kraken_register_functions(lua_State *state)
-{
-   lua_register(state, "RARCH_LOG", kraken_rarch_log);
-}

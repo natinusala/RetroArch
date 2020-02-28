@@ -13,32 +13,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _KRAKEN_H
-#define _KRAKEN_H
+#ifndef _KRAKEN_LIB_H
+#define _KRAKEN_LIB_H
 
 #include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
-#include <boolean.h>
+// Loads the Kraken library in the given state
+void kraken_load_lib(lua_State* state);
 
-/*
-   The Kraken functions may only be called from
-   the main thread or the video thread
-
-   Calling anything from any other thread will
-   corrupt the Lua VM
-
-   Initialization and deinitialization must be done from
-   the main thread, subsequent calls are safe to use from both
-*/
-
-// Must be called from the main thread
-bool kraken_init(void);
-void kraken_deinit(void);
-
-// Gets the state to use when calling Lua functions from C
-// (depends on the calling thread)
-lua_State* kraken_get_state(void);
-
-char* kraken_get_error(lua_State* state);
+void kraken_load_module(lua_State* state, const char* name, char* data);
 
 #endif

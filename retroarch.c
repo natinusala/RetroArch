@@ -27272,6 +27272,10 @@ bool retroarch_main_init(int argc, char *argv[])
 
    retroarch_parse_input_and_config(argc, argv);
 
+#ifdef HAVE_LUA
+   kraken_init();
+#endif
+
 #ifdef HAVE_ACCESSIBILITY
    if (is_accessibility_enabled())
       accessibility_startup_message();
@@ -27446,10 +27450,6 @@ bool retroarch_main_init(int argc, char *argv[])
    path_init_savefile();
 
    command_event(CMD_EVENT_SET_PER_GAME_RESOLUTION, NULL);
-
-#ifdef HAVE_LUA
-   kraken_init();
-#endif
 
    rarch_error_on_init     = false;
    rarch_is_inited         = true;

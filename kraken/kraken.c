@@ -21,6 +21,8 @@
 
 #include "kraken_lua_user.h"
 
+#include "lib/kraken_lib.h"
+
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -57,17 +59,16 @@ bool kraken_init(void)
       return false;
    }
 
-   /* Load standard libs and RetroArch API */
+   /* Load standard libs */
    luaL_openlibs(mainThreadState);
-   kraken_register_functions(mainThreadState);
 
-   /* Load RetroArch API modules */
-   /* TODO: do it */
+   /* Load Kraken library */
+   kraken_load_lib(mainThreadState);
 
-   /* Load addons */
+   /* Load and execute addons */
    /* TODO: properly do it */
    if (luaL_dofile(mainThreadState, "test.lua"))
-      RARCH_ERR("[Kraken]: Unable to load test.lua\n");
+      RARCH_ERR("[Kraken]: Unable to load addon test.lua: %s\n", kraken_get_error(mainThreadState));
 
    /* Spawn video thread if needed */
    /* TODO: Is the video thread garbage collected
@@ -85,9 +86,19 @@ bool kraken_init(void)
    }
 #endif
 
-   RARCH_LOG("[Kraken]: Done initializing!\n");
+   RARCH_LOG("[Kraken]: Done initializing\n");
 
    return true;
+}
+
+char* kraken_get_error(lua_State* state)
+{
+   const char* error = lua_tostring(state, -1);
+
+   if (error == NULL)
+      error = "unknown error";
+
+   return error;
 }
 
 lua_State* kraken_get_state(void)
