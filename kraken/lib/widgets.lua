@@ -13,7 +13,7 @@
 
       You should have received a copy of the GNU General Public License along with RetroArch.
       If not, see <http://www.gnu.org/licenses/>.
- -]]
+--]]
 
 -- A widget is a table containing at least the following functions
 local widgets_funcs = {
@@ -73,9 +73,9 @@ function kraken_widgets_layout()
    end
 end
 
-function kraken_widgets_frame()
+function kraken_widgets_frame(video_info)
    for k,widget in pairs(widgets_table) do
-      widget.on_frame()
+      widget.on_frame(video_info)
    end
 end
 

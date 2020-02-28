@@ -23,12 +23,13 @@
 #include <rthreads/rthreads.h>
 #endif
 
+//RARCH_ERR(text: string)
 static int kraken_retroarch_rarch_err(lua_State* state)
 {
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
    {
-      RARCH_ERR("[Kraken]: kraken_retroarch_rarch_err: invalid arguments\n");
+      RARCH_ERR("[Kraken]: RARCH_ERR: invalid arguments\n");
       return 0;
    }
 
@@ -38,12 +39,13 @@ static int kraken_retroarch_rarch_err(lua_State* state)
    return 0;
 }
 
+//RARCH_LOG(text: string)
 static int kraken_retroarch_rarch_log(lua_State *state)
 {
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
    {
-      RARCH_ERR("[Kraken]: kraken_retroarch_rarch_log: invalid arguments\n");
+      RARCH_ERR("[Kraken]: RARCH_LOG: invalid arguments\n");
       return 0;
    }
 

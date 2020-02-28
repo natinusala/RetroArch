@@ -24,7 +24,7 @@
 
 void kraken_widgets_load(lua_State* state)
 {
-   kraken_load_module(state, "widgets", widgets_lua);
+   kraken_lib_load_module(state, "widgets", widgets_lua);
 }
 
 void kraken_widgets_free()
@@ -77,13 +77,15 @@ void kraken_widgets_iterate()
       RARCH_ERR("[Kraken]: Error while calling kraken_widgets_iterate: %s\n", kraken_get_error(state));
 }
 
-void kraken_widgets_frame()
+void kraken_widgets_frame(video_frame_info_t* video_info)
 {
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_frame");
 
-   if (lua_pcall(state, 0, 0, 0))
+   lua_pushlightuserdata(state, (void*) video_info);
+
+   if (lua_pcall(state, 1, 0, 0))
       RARCH_ERR("[Kraken]: Error while calling kraken_widgets_frame: %s\n", kraken_get_error(state));
 }
 

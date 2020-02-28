@@ -23,6 +23,6 @@
 // Loads the Kraken library in the given state
 void kraken_load_lib(lua_State* state);
 
-void kraken_load_module(lua_State* state, const char* name, char* data);
+void kraken_lib_load_module(lua_State* state, const char* name, char* data);
 
 #endif

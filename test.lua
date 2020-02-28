@@ -11,11 +11,10 @@ local function widget_on_context_reset()
 end
 
 local function widget_on_iterate()
-   RARCH_LOG("Test widget iterate\n")
 end
 
-local function widget_on_frame()
-   RARCH_LOG("Test widget frame\n")
+local function widget_on_frame(video_info)
+   display.draw_quad(50, 50, 100, 100, 0x32cd32, 0.75, video_info)
 end
 
 local function widget_on_layout()

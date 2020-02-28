@@ -1074,7 +1074,7 @@ void gfx_widgets_iterate(
 #endif
 }
 
-static int gfx_widgets_draw_indicator(video_frame_info_t *video_info, 
+static int gfx_widgets_draw_indicator(video_frame_info_t *video_info,
       uintptr_t icon, int y, int top_right_x_advance, 
       enum msg_hash_enums msg)
 {
