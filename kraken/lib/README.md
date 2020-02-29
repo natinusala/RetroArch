@@ -1,6 +1,6 @@
 # RetroArch Kraken library
 
-This is the Lua library to interface with RetroArch.
+This is the Lua library to interface with RetroArch. Documentation of each individual module is available in the `doc` folder.
 
 Each library module has two sets of functions:
 
