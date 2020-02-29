@@ -13,25 +13,25 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../kraken.h"
+#ifndef _KRAKEN_LIB_H
+#define _KRAKEN_LIB_H
 
-#include "kraken_lib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
-#include "retroarch.h"
-#include "widgets.h"
-#include "display.h"
+/* Called for each module to register C functions */
+typedef void (*kraken_module_register_t)(lua_State* state);
 
-#include "../../verbosity.h"
-
-void kraken_lib_load_module(lua_State* state, const char* name, char* data)
+typedef struct kraken_module
 {
-   if (luaL_dostring(state, data))
-      RARCH_ERR("[Kraken]: Unable to load library module %s: %s\n", name, kraken_get_error(state));
-}
+   const char* name;
+   const char* lua_buf;
+   const int lua_buf_len;
+   kraken_module_register_t register_c_funcs;
+} kraken_module_t;
 
-void kraken_load_lib(lua_State* state)
-{
-   kraken_retroarch_load(state);
-   kraken_widgets_load(state);
-   kraken_display_load(state);
-}
+// Loads the Kraken library in the given state
+void kraken_load_lib(lua_State* state);
+
+#endif

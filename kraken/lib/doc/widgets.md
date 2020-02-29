@@ -7,6 +7,7 @@
 Registers and enables your widget.
 
 A widget is a table containing at least the following functions:
+
 - `on_init()`: called when the widget it initialized
 - `on_free()`: called when the widget is freed
 - `on_context_reset()`: called when the video context gets reset

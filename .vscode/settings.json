@@ -74,7 +74,11 @@
       "mutex": "c",
       "kraken_lib.h": "c",
       "widgets.h": "c",
-      "random": "cpp"
+      "random": "cpp",
+      "display.h": "c",
+      "display.inc.h": "c",
+      "widgets.inc.h": "c",
+      "retroarch.inc.h": "c"
    },
    "C_Cpp.dimInactiveRegions": false,
 }

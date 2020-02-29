@@ -1872,7 +1872,7 @@ ifeq ($(HAVE_NETWORKING), 1)
                 $(DEPS_DIR)/lua/src/linit.o
          OBJ += kraken/kraken.o \
                 kraken/kraken_lua_user.o \
-                kraken/lib/kraken_lib.o \
+                kraken/kraken_lib.o \
                 kraken/lib/widgets.o \
                 kraken/lib/retroarch.o \
                 kraken/lib/display.o

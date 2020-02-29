@@ -14,7 +14,7 @@
  */
 
 #include "../kraken.h"
-#include "kraken_lib.h"
+#include "../kraken_lib.h"
 
 #include <lua.h>
 
@@ -23,8 +23,6 @@
 #include "../../verbosity.h"
 
 #include "../../gfx/gfx_display.h"
-
-#include "c/display.inc.h"
 
 /*
    display.draw_quad(
@@ -150,10 +148,8 @@ static int kraken_display_cache_text(lua_State* state)
    return 0;
 }
 
-void kraken_display_load(lua_State* state)
+void kraken_display_register(lua_State* state)
 {
    lua_register(state, "display_draw_quad", kraken_display_draw_quad);
    lua_register(state, "display_cache_text", kraken_display_cache_text);
-
-   kraken_lib_load_module(state, "display", display_lua);
 }

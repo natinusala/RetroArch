@@ -13,14 +13,5 @@
       If not, see <http://www.gnu.org/licenses/>.
 --]]
 
--- Exposed display module
-return {
-   -- Functions
-   draw_quad   = display_draw_quad,
-   cache_text  = display_cache_text,
-
-   -- Constants
-   TEXT_ALIGN_LEFT   = 0,
-   TEXT_ALIGN_RIGHT  = 1,
-   TEXT_ALIGN_CENTER = 2
-}
+-- Exposed retroarch module
+return {}

@@ -20,7 +20,7 @@
 
 #include "../../retroarch.h"
 
-void kraken_widgets_load(lua_State* state);
+void kraken_widgets_register(lua_State* state);
 
 void kraken_widgets_init();
 void kraken_widgets_free();

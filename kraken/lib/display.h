@@ -18,6 +18,6 @@
 
 #include <lua.h>
 
-void kraken_display_load(lua_State* state);
+void kraken_display_register(lua_State* state);
 
 #endif

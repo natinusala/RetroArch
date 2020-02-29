@@ -1,5 +1,3 @@
--- Widgets module
-
 --[[  RetroArch - A frontend for libretro.
       Copyright (C) 2020 - natinusala
 
@@ -14,6 +12,8 @@
       You should have received a copy of the GNU General Public License along with RetroArch.
       If not, see <http://www.gnu.org/licenses/>.
 --]]
+
+retroarch = require("retroarch")
 
 -- A widget is a table containing at least the following functions
 local widgets_funcs = {
@@ -86,7 +86,7 @@ function kraken_widgets_iterate()
 end
 
 -- Exposed widgets module
-widgets = {
+return {
    register          = widgets_register,
    get_font_regular  = widgets_get_font_regular,
    get_font_bold     = widgets_get_font_bold,

@@ -18,9 +18,7 @@
 #include"../../verbosity.h"
 
 #include "../kraken.h"
-#include "kraken_lib.h"
-
-#include "c/widgets.inc.h"
+#include "../kraken_lib.h"
 
 #include "../../gfx/gfx_widgets.h"
 
@@ -134,11 +132,9 @@ static int kraken_widgets_flush_font(lua_State* state)
    return 0;
 }
 
-void kraken_widgets_load(lua_State* state)
+void kraken_widgets_register(lua_State* state)
 {
    lua_register(state, "widgets_get_font_regular", kraken_widgets_get_font_regular);
    lua_register(state, "widgets_get_font_bold", kraken_widgets_get_font_bold);
    lua_register(state, "widgets_flush_font", kraken_widgets_flush_font);
-
-   kraken_lib_load_module(state, "widgets", widgets_lua);
 }

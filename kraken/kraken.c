@@ -21,7 +21,7 @@
 
 #include "kraken_lua_user.h"
 
-#include "lib/kraken_lib.h"
+#include "kraken_lib.h"
 
 #include <lua.h>
 #include <lualib.h>
@@ -91,7 +91,7 @@ bool kraken_init(void)
    return true;
 }
 
-char* kraken_get_error(lua_State* state)
+const char* kraken_get_error(lua_State* state)
 {
    const char* error = lua_tostring(state, -1);
 

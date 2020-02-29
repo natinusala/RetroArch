@@ -39,6 +39,6 @@ void kraken_deinit(void);
 // (depends on the calling thread)
 lua_State* kraken_get_state(void);
 
-char* kraken_get_error(lua_State* state);
+const char* kraken_get_error(lua_State* state);
 
 #endif

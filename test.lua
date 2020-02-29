@@ -1,3 +1,7 @@
+widgets = require("widgets")
+display = require("display")
+retroarch = require("retroarch")
+
 local function widget_on_init()
    RARCH_LOG("Test widget init\n")
 end
