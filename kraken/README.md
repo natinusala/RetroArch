@@ -1,4 +1,4 @@
-# RetroArch Kraken LUA Addons system
+# Kraken: a RetroArch Lua Addons system
 
 To see what addons can do, please have a look at the documentation in `lib/doc`.
 
