@@ -18,6 +18,6 @@
 
 #include <lua.h>
 
-extern const kraken_module_t kraken_module_display;
+extern kraken_module_t kraken_module_display;
 
 #endif

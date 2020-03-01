@@ -18,5 +18,6 @@ To add a module:
 4. Run `regenerate.sh` to generate the C header containing the Lua code
 5. In `kraken_lib.c`, add your module to the list
 6. Run the code of your module where needed in RetroArch
+    - Make sure to ignore the calls if the module hasn't been loaded (it means no addon uses it anyway) with `KRAKEN_ENSURE_LOADED` or `KRAKEN_ENSURE_LOADED_RET`
 7. Write some documentation for the new module
 8. Done!

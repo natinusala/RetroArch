@@ -156,7 +156,7 @@ static void kraken_display_register(lua_State* state)
    lua_register(state, "display_cache_text", kraken_display_cache_text);
 }
 
-const kraken_module_t kraken_module_display = {
+kraken_module_t kraken_module_display = {
    "display",
    display_lua,
    sizeof(display_lua),

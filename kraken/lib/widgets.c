@@ -26,6 +26,8 @@
 
 void kraken_widgets_free()
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_free");
@@ -36,6 +38,8 @@ void kraken_widgets_free()
 
 void kraken_widgets_init()
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_init");
@@ -46,6 +50,8 @@ void kraken_widgets_init()
 
 void kraken_widgets_context_reset()
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_context_reset");
@@ -56,6 +62,8 @@ void kraken_widgets_context_reset()
 
 void kraken_widgets_context_destroyed()
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_context_destroyed");
@@ -66,6 +74,8 @@ void kraken_widgets_context_destroyed()
 
 void kraken_widgets_iterate()
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_iterate");
@@ -76,6 +86,8 @@ void kraken_widgets_iterate()
 
 void kraken_widgets_frame(video_frame_info_t* video_info)
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_frame");
@@ -88,6 +100,8 @@ void kraken_widgets_frame(video_frame_info_t* video_info)
 
 void kraken_widgets_layout()
 {
+   KRAKEN_ENSURE_LOADED(kraken_module_widgets);
+
    lua_State* state = kraken_get_state();
 
    lua_getglobal(state, "kraken_widgets_layout");
@@ -141,7 +155,7 @@ static void kraken_widgets_register(lua_State* state)
    lua_register(state, "widgets_flush_font", kraken_widgets_flush_font);
 }
 
-const kraken_module_t kraken_module_widgets = {
+kraken_module_t kraken_module_widgets = {
    "widgets",
    widgets_lua,
    sizeof(widgets_lua),

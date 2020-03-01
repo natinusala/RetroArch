@@ -20,13 +20,19 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include <stdbool.h>
+
 typedef struct kraken_module
 {
    const char* name;
    const char* lua_buf;
    const int lua_buf_len;
    void (*register_c_funcs)(lua_State* state);
+   bool loaded;
 } kraken_module_t;
+
+#define KRAKEN_ENSURE_LOADED(module) if (!module.loaded) return;
+#define KRAKEN_ENSURE_LOADED_RET(module, retval) if (!module.loaded) return retval;
 
 // Loads the Kraken library in the given state
 void kraken_load_lib(lua_State* state);

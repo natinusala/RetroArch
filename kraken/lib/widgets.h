@@ -30,6 +30,6 @@ void kraken_widgets_layout();
 void kraken_widgets_iterate();
 void kraken_widgets_frame(video_frame_info_t* video_info);
 
-extern const kraken_module_t kraken_module_widgets;
+extern kraken_module_t kraken_module_widgets;
 
 #endif

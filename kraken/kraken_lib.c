@@ -24,7 +24,7 @@
 #include "lib/widgets.h"
 #include "lib/display.h"
 
-static const kraken_module_t* modules[] = {
+static kraken_module_t* modules[] = {
    &kraken_module_retroarch,
    &kraken_module_widgets,
    &kraken_module_display
@@ -39,7 +39,7 @@ static int kraken_searcher(lua_State* state)
 
    for (i = 0; i < modules_len; i++)
    {
-      const kraken_module_t* module = modules[i];
+      kraken_module_t* module = modules[i];
       if (strcmp(name, module->name) == 0)
       {
          /* Register the C functions if needed */
@@ -56,6 +56,8 @@ static int kraken_searcher(lua_State* state)
          }
          else
          {
+            /* Mark the module as loaded */
+            module->loaded = true;
             return 1;
          }
       }
@@ -68,6 +70,10 @@ static int kraken_searcher(lua_State* state)
 
 void kraken_load_lib(lua_State* state)
 {
+   /* Mark all modules as unloaded */
+   for (size_t i = 0; i < modules_len; i++)
+      modules[i]->loaded = false;
+
    /* Load the searcher */
    lua_getglobal(state, "package");
    lua_getfield(state, -1, "searchers");

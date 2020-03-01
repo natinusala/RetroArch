@@ -63,7 +63,7 @@ static void kraken_retroarch_register(lua_State *state)
    lua_register(state, "RARCH_LOG", kraken_retroarch_rarch_log);
 }
 
-const kraken_module_t kraken_module_retroarch = {
+kraken_module_t kraken_module_retroarch = {
    "retroarch",
    retroarch_lua,
    sizeof(retroarch_lua),
