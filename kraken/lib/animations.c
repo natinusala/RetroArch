@@ -123,10 +123,11 @@ static int kraken_animations_push(lua_State* state)
 
    float target_value   = (float) lua_tonumber(state, 2);
    float duration       = (float) lua_tointeger(state, 3);
+   int easing           = lua_tointeger(state, 4);
 
    /* Push animation */
    gfx_animation_ctx_entry_t entry;
-   entry.easing_enum    = EASING_LINEAR;
+   entry.easing_enum    = easing;
    entry.tag            = (uintptr_t) NULL;
    entry.duration       = duration;
    entry.target_value   = target_value;

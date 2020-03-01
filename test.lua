@@ -6,7 +6,7 @@ animations = require("animations")
 xpos = 50.0
 
 function test_widget_animation_finished()
-   retroarch.log("Animation finished :spook:")
+   retroarch.notify("Animation finished :spook:", 180)
 end
 
 local function widget_on_init()

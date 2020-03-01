@@ -9,3 +9,7 @@ Prints a generic log message. Newline is automatically appended at the end of th
 ### `retroarch.err(text)`
 
 Prints an error message. Newline is automatically appended at the end of the string.
+
+### `retroarch.notify(text, duration)`
+
+Shows an onscreen notification.

@@ -15,6 +15,7 @@
 
 -- Exposed retroarch module
 return {
-   log = retroarch_log,
-   err = retroarch_err
+   log      = retroarch_log,
+   err      = retroarch_err,
+   notify   = retroarch_notify
 }

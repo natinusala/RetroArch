@@ -21,9 +21,8 @@
 
 #include <stdlib.h>
 
-#ifdef HAVE_THREADS
-#include <rthreads/rthreads.h>
-#endif
+#include <queues/message_queue.h>
+#include "../../retroarch.h"
 
 //retroarch.err(text: string)
 static int kraken_retroarch_err(lua_State* state)
@@ -31,7 +30,7 @@ static int kraken_retroarch_err(lua_State* state)
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
    {
-      RARCH_ERR("[Kraken]: RARCH_ERR: invalid arguments\n");
+      RARCH_ERR("[Kraken]: retroarch.err: invalid arguments\n");
       return 0;
    }
 
@@ -47,7 +46,7 @@ static int kraken_retroarch_log(lua_State *state)
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
    {
-      RARCH_ERR("[Kraken]: RARCH_LOG: invalid arguments\n");
+      RARCH_ERR("[Kraken]: retroarch.log: invalid arguments\n");
       return 0;
    }
 
@@ -57,10 +56,37 @@ static int kraken_retroarch_log(lua_State *state)
    return 0;
 }
 
+//retroarch.notify(text, duration)
+static int kraken_retroarch_notify(lua_State* state)
+{
+   int argc = lua_gettop(state);
+   if (argc != 2 || !lua_isstring(state, 1) || !lua_isinteger(state, 2))
+   {
+      RARCH_ERR("[Kraken]: retroarch.notify: invalid arguments\n");
+      return 0;
+   }
+
+   const char* text  = lua_tostring(state, 1);
+   int duration      = lua_tointeger(state, 2);
+
+   runloop_msg_queue_push(
+      text,
+      1,
+      duration,
+      false,
+      NULL,
+      MESSAGE_QUEUE_ICON_DEFAULT,
+      MESSAGE_QUEUE_CATEGORY_INFO
+   );
+
+   return 0;
+}
+
 static void kraken_retroarch_register(lua_State *state)
 {
    lua_register(state, "retroarch_err", kraken_retroarch_err);
    lua_register(state, "retroarch_log", kraken_retroarch_log);
+   lua_register(state, "retroarch_notify", kraken_retroarch_notify);
 }
 
 kraken_module_t kraken_module_retroarch = {
