@@ -18,6 +18,8 @@
 
 #include <lua.h>
 
-void kraken_retroarch_load(lua_State *state);
+#include "../kraken_lib.h"
+
+extern const kraken_module_t kraken_module_retroarch;
 
 #endif

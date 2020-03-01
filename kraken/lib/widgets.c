@@ -20,6 +20,8 @@
 #include "../kraken.h"
 #include "../kraken_lib.h"
 
+#include "c/widgets.inc.h"
+
 #include "../../gfx/gfx_widgets.h"
 
 void kraken_widgets_free()
@@ -132,9 +134,16 @@ static int kraken_widgets_flush_font(lua_State* state)
    return 0;
 }
 
-void kraken_widgets_register(lua_State* state)
+static void kraken_widgets_register(lua_State* state)
 {
    lua_register(state, "widgets_get_font_regular", kraken_widgets_get_font_regular);
    lua_register(state, "widgets_get_font_bold", kraken_widgets_get_font_bold);
    lua_register(state, "widgets_flush_font", kraken_widgets_flush_font);
 }
+
+const kraken_module_t kraken_module_widgets = {
+   "widgets",
+   widgets_lua,
+   sizeof(widgets_lua),
+   kraken_widgets_register
+};

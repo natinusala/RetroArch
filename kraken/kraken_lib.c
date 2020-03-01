@@ -20,22 +20,14 @@
 
 #include "../../verbosity.h"
 
-//Modules headers
 #include "lib/retroarch.h"
 #include "lib/widgets.h"
 #include "lib/display.h"
 
-//Lua code
-#include "lib/c/display.inc.h"
-#include "lib/c/widgets.inc.h"
-#include "lib/c/retroarch.inc.h"
-
-#define REGISTER_MODULE(name, lua_buf, register_c_funcs) { name, lua_buf, sizeof(lua_buf), register_c_funcs}
-
-static const kraken_module_t modules[] = {
-   REGISTER_MODULE("widgets", widgets_lua, kraken_widgets_register),
-   REGISTER_MODULE("display", display_lua, kraken_display_register),
-   REGISTER_MODULE("retroarch", retroarch_lua, kraken_retroarch_load)
+static const kraken_module_t* modules[] = {
+   &kraken_module_retroarch,
+   &kraken_module_widgets,
+   &kraken_module_display
 };
 
 static size_t modules_len = sizeof(modules) / sizeof(modules[0]);
@@ -47,7 +39,7 @@ static int kraken_searcher(lua_State* state)
 
    for (i = 0; i < modules_len; i++)
    {
-      const kraken_module_t* module = &modules[i];
+      const kraken_module_t* module = modules[i];
       if (strcmp(name, module->name) == 0)
       {
          /* Register the C functions if needed */

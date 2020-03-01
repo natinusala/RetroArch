@@ -17,6 +17,8 @@
 
 #include "../verbosity.h"
 
+#include "c/retroarch.inc.h"
+
 #include <stdlib.h>
 
 #ifdef HAVE_THREADS
@@ -55,8 +57,15 @@ static int kraken_retroarch_rarch_log(lua_State *state)
    return 0;
 }
 
-void kraken_retroarch_load(lua_State *state)
+static void kraken_retroarch_register(lua_State *state)
 {
    lua_register(state, "RARCH_ERR", kraken_retroarch_rarch_err);
    lua_register(state, "RARCH_LOG", kraken_retroarch_rarch_log);
 }
+
+const kraken_module_t kraken_module_retroarch = {
+   "retroarch",
+   retroarch_lua,
+   sizeof(retroarch_lua),
+   kraken_retroarch_register
+};

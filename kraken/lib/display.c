@@ -24,6 +24,8 @@
 
 #include "../../gfx/gfx_display.h"
 
+#include "c/display.inc.h"
+
 /*
    display.draw_quad(
       x: integer,
@@ -148,8 +150,15 @@ static int kraken_display_cache_text(lua_State* state)
    return 0;
 }
 
-void kraken_display_register(lua_State* state)
+static void kraken_display_register(lua_State* state)
 {
    lua_register(state, "display_draw_quad", kraken_display_draw_quad);
    lua_register(state, "display_cache_text", kraken_display_cache_text);
 }
+
+const kraken_module_t kraken_module_display = {
+   "display",
+   display_lua,
+   sizeof(display_lua),
+   kraken_display_register
+};

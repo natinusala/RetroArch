@@ -20,7 +20,7 @@
 
 #include "../../retroarch.h"
 
-void kraken_widgets_register(lua_State* state);
+#include "../kraken_lib.h"
 
 void kraken_widgets_init();
 void kraken_widgets_free();
@@ -29,5 +29,7 @@ void kraken_widgets_context_destroyed();
 void kraken_widgets_layout();
 void kraken_widgets_iterate();
 void kraken_widgets_frame(video_frame_info_t* video_info);
+
+extern const kraken_module_t kraken_module_widgets;
 
 #endif

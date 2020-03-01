@@ -20,15 +20,12 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
-/* Called for each module to register C functions */
-typedef void (*kraken_module_register_t)(lua_State* state);
-
 typedef struct kraken_module
 {
    const char* name;
    const char* lua_buf;
    const int lua_buf_len;
-   kraken_module_register_t register_c_funcs;
+   void (*register_c_funcs)(lua_State* state);
 } kraken_module_t;
 
 // Loads the Kraken library in the given state

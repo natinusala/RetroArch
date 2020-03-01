@@ -18,6 +18,6 @@
 
 #include <lua.h>
 
-void kraken_display_register(lua_State* state);
+extern const kraken_module_t kraken_module_display;
 
 #endif
