@@ -1,6 +1,6 @@
 # Display module
 
-## Module functions
+## Functions
 
 ### `display.draw_quad(x, y, width, height, color, alpha, video_info)`
 

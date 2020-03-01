@@ -1,6 +1,6 @@
 # Animations module
 
-## Module functions
+## Functions
 
 ### `animations.push(subject, target_value, duration, easing, cb)`
 

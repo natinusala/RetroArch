@@ -6,21 +6,21 @@ animations = require("animations")
 xpos = 50.0
 
 function test_widget_animation_finished()
-   RARCH_LOG("Animation finished :spook:\n")
+   retroarch.log("Animation finished :spook:")
 end
 
 local function widget_on_init()
-   RARCH_LOG("Test widget init\n")
+   retroarch.log("Test widget init")
 
    animations.push("xpos", 500.0, 5000, animations.easing.OUT_BOUNCE, "test_widget_animation_finished")
 end
 
 local function widget_on_free()
-   RARCH_LOG("Test widget free\n")
+   retroarch.log("Test widget free")
 end
 
 local function widget_on_context_reset()
-   RARCH_LOG("Test widget context reset\n")
+   retroarch.log("Test widget context reset")
 end
 
 local function widget_on_iterate()
@@ -46,11 +46,11 @@ local function widget_on_frame(video_info)
 end
 
 local function widget_on_layout()
-   RARCH_LOG("Test widget layout\n")
+   retroarch.log("Test widget layout")
 end
 
 local function widget_on_context_destroyed()
-   RARCH_LOG("Test widget context destroyed\n")
+   retroarch.log("Test widget context destroyed")
 end
 
 local widget = {

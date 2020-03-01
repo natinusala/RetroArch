@@ -14,4 +14,7 @@
 --]]
 
 -- Exposed retroarch module
-return {}
+return {
+   log = retroarch_log,
+   err = retroarch_err
+}

@@ -25,8 +25,8 @@
 #include <rthreads/rthreads.h>
 #endif
 
-//RARCH_ERR(text: string)
-static int kraken_retroarch_rarch_err(lua_State* state)
+//retroarch.err(text: string)
+static int kraken_retroarch_err(lua_State* state)
 {
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
@@ -36,13 +36,13 @@ static int kraken_retroarch_rarch_err(lua_State* state)
    }
 
    const char* text = lua_tostring(state, 1);
-   RARCH_ERR("%s", text);
+   RARCH_ERR("%s\n", text);
 
    return 0;
 }
 
-//RARCH_LOG(text: string)
-static int kraken_retroarch_rarch_log(lua_State *state)
+//retroarch.log(text: string)
+static int kraken_retroarch_log(lua_State *state)
 {
    int argc = lua_gettop(state);
    if (argc != 1 || !lua_isstring(state, 1))
@@ -52,15 +52,15 @@ static int kraken_retroarch_rarch_log(lua_State *state)
    }
 
    const char* text = lua_tostring(state, 1);
-   RARCH_LOG("%s", text);
+   RARCH_LOG("%s\n", text);
 
    return 0;
 }
 
 static void kraken_retroarch_register(lua_State *state)
 {
-   lua_register(state, "RARCH_ERR", kraken_retroarch_rarch_err);
-   lua_register(state, "RARCH_LOG", kraken_retroarch_rarch_log);
+   lua_register(state, "retroarch_err", kraken_retroarch_err);
+   lua_register(state, "retroarch_log", kraken_retroarch_log);
 }
 
 kraken_module_t kraken_module_retroarch = {

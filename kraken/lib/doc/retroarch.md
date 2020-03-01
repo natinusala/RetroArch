@@ -1,11 +1,11 @@
 # RetroArch global module
 
-## Static functions
+## Functions
 
-### `RARCH_LOG(text)`
+### `retroarch.log(text)`
 
-Prints a generic log message.
+Prints a generic log message. Newline is automatically appended at the end of the string.
 
-### `RARCH_ERR(text)`
+### `retroarch.err(text)`
 
-Prints an error message.
+Prints an error message. Newline is automatically appended at the end of the string.

@@ -1,6 +1,6 @@
 # Widgets module
 
-## Module functions
+## Functions
 
 ### `widgets.register(widget)`
 
