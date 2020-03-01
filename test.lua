@@ -1,9 +1,18 @@
 widgets = require("widgets")
 display = require("display")
 retroarch = require("retroarch")
+animations = require("animations")
+
+xpos = 50.0
+
+function test_widget_animation_finished()
+   RARCH_LOG("Animation finished :spook:\n")
+end
 
 local function widget_on_init()
    RARCH_LOG("Test widget init\n")
+
+   animations.push("xpos", 500.0, 5000, animations.easing.OUT_BOUNCE, "test_widget_animation_finished")
 end
 
 local function widget_on_free()
@@ -18,7 +27,7 @@ local function widget_on_iterate()
 end
 
 local function widget_on_frame(video_info)
-   display.draw_quad(50, 50, 200, 200, 0x32cd32, 0.75, video_info)
+   display.draw_quad(xpos, 50.0, 200.0, 200.0, 0x32cd32, 0.75, video_info)
    font = widgets.get_font_regular()
 
    display.cache_text(
@@ -27,7 +36,7 @@ local function widget_on_frame(video_info)
       150,
       150,
       0xFFFFFF,
-      display.TEXT_ALIGN_LEFT,
+      display.text_align.LEFT,
       1,
       true,
       5,

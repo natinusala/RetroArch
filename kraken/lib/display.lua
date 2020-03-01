@@ -20,7 +20,9 @@ return {
    cache_text  = display_cache_text,
 
    -- Constants
-   TEXT_ALIGN_LEFT   = 0,
-   TEXT_ALIGN_RIGHT  = 1,
-   TEXT_ALIGN_CENTER = 2
+   text_align = {
+      LEFT   = 0,
+      RIGHT  = 1,
+      CENTER = 2
+   }
 }

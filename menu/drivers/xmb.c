@@ -1403,6 +1403,7 @@ static void xmb_selection_pointer_changed(
          anim_entry.subject      = &node->alpha;
          anim_entry.tag          = tag;
          anim_entry.cb           = NULL;
+         anim_entry.tick         = NULL;
 
          switch (menu_xmb_animation_move_up_down)
          {
@@ -1479,6 +1480,7 @@ static void xmb_list_open_old(xmb_handle_t *xmb,
          anim_entry.easing_enum  = EASING_OUT_QUAD;
          anim_entry.tag          = (uintptr_t)list;
          anim_entry.cb           = NULL;
+         anim_entry.tick         = NULL;
 
          gfx_animation_push(&anim_entry);
 
@@ -1557,6 +1559,7 @@ static void xmb_list_open_new(xmb_handle_t *xmb,
          anim_entry.easing_enum  = EASING_OUT_QUAD;
          anim_entry.tag          = (uintptr_t)list;
          anim_entry.cb           = NULL;
+         anim_entry.tick         = NULL;
 
          gfx_animation_push(&anim_entry);
 
@@ -1646,6 +1649,7 @@ static void xmb_push_animations(xmb_node_t *node,
    anim_entry.easing_enum  = EASING_OUT_QUAD;
    anim_entry.tag          = tag;
    anim_entry.cb           = NULL;
+   anim_entry.tick         = NULL;
 
    gfx_animation_push(&anim_entry);
 
@@ -1862,6 +1866,7 @@ static void xmb_list_switch_horizontal_list(xmb_handle_t *xmb)
       /* TODO/FIXME - integer conversion resulted in change of sign */
       entry.tag          = -1;
       entry.cb           = NULL;
+      entry.tick         = NULL;
 
       switch (xmb_animation_horizontal_highlight)
       {
@@ -1912,6 +1917,7 @@ static void xmb_list_switch(xmb_handle_t *xmb)
    /* TODO/FIXME - integer conversion resulted in change of sign */
    anim_entry.tag          = -1;
    anim_entry.cb           = NULL;
+   anim_entry.tick         = NULL;
 
    if (anim_entry.subject)
       gfx_animation_push(&anim_entry);
@@ -1969,6 +1975,7 @@ static void xmb_list_open_horizontal_list(xmb_handle_t *xmb)
       /* TODO/FIXME - integer conversion resulted in change of sign */
       anim_entry.tag          = -1;
       anim_entry.cb           = NULL;
+      anim_entry.tick         = NULL;
 
       if (anim_entry.subject)
          gfx_animation_push(&anim_entry);
@@ -2264,6 +2271,7 @@ static void xmb_list_open(xmb_handle_t *xmb)
    /* TODO/FIXME - integer conversion resulted in change of sign */
    entry.tag          = -1;
    entry.cb           = NULL;
+   entry.tick         = NULL;
 
    switch (menu_xmb_animation_opening_main_menu)
    {
@@ -3778,6 +3786,7 @@ static void xmb_hide_fullscreen_thumbnails(
       animation_entry.subject      = &xmb->fullscreen_thumbnail_alpha;
       animation_entry.cb           = NULL;
       animation_entry.userdata     = NULL;
+      animation_entry.tick         = NULL;
 
       /* Push animation */
       gfx_animation_push(&animation_entry);
@@ -3881,6 +3890,7 @@ static void xmb_show_fullscreen_thumbnails(
    animation_entry.subject      = &xmb->fullscreen_thumbnail_alpha;
    animation_entry.cb           = NULL;
    animation_entry.userdata     = NULL;
+   animation_entry.tick         = NULL;
 
    /* Push animation */
    gfx_animation_push(&animation_entry);
@@ -6207,6 +6217,7 @@ static void xmb_toggle(void *userdata, bool menu_on)
    /* TODO/FIXME - integer conversion resulted in change of sign */
    entry.tag          = -1;
    entry.cb           = NULL;
+   entry.tick         = NULL;
 
    gfx_animation_push(&entry);
 

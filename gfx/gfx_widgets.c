@@ -546,6 +546,7 @@ void gfx_widgets_msg_queue_push(
                entry.subject        = &msg_widget->msg_transition_animation;
                entry.cb             = msg_widget_msg_transition_animation_done;
                entry.userdata       = msg_widget;
+               entry.tick           = NULL;
 
                gfx_animation_push(&entry);
             }
@@ -589,6 +590,7 @@ static void gfx_widgets_move_end(void *userdata)
       entry.tag            = (uintptr_t)unfold;
       entry.target_value   = 1.0f;
       entry.userdata       = unfold;
+      entry.tick           = NULL;
 
       gfx_animation_push(&entry);
 
@@ -641,6 +643,7 @@ static void gfx_widgets_msg_queue_move(void)
          entry.tag            = (uintptr_t)msg;
          entry.target_value   = y;
          entry.userdata       = unfold;
+         entry.tick           = NULL;
 
          gfx_animation_push(&entry);
 
@@ -728,6 +731,7 @@ static void gfx_widgets_msg_queue_kill(unsigned idx)
    entry.userdata       = NULL;
    entry.subject        = &msg->offset_y;
    entry.target_value   = msg->offset_y - msg_queue_height/4;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -870,6 +874,7 @@ static void gfx_widgets_screenshot_end(void *userdata)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = -((float)screenshot_height);
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -918,6 +923,7 @@ static void gfx_widgets_hourglass_tick(void *userdata)
    entry.subject        = &msg->hourglass_rotation;
    entry.cb             = gfx_widgets_hourglass_end;
    entry.userdata       = msg;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2393,6 +2399,7 @@ static void gfx_widgets_volume_timer_end(void *userdata)
    entry.tag            = volume_tag;
    entry.target_value   = 0.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -2479,6 +2486,7 @@ static void gfx_widgets_screenshot_fadeout(void *userdata)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = 0.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2494,6 +2502,7 @@ static void gfx_widgets_play_screenshot_flash(void)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = 1.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2560,6 +2569,7 @@ void gfx_widgets_start_load_content_animation(const char *content_name, bool rem
    entry.easing_enum = EASING_OUT_QUAD;
    entry.tag         = gfx_widgets_generic_tag;
    entry.userdata    = NULL;
+   entry.tick        = NULL;
 
    /* Stage one: icon animation */
    /* Position */
@@ -2637,6 +2647,7 @@ static void gfx_widgets_achievement_dismiss(void *userdata)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = (float)(-(int)(cheevo_height));
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2653,6 +2664,7 @@ static void gfx_widgets_achievement_fold(void *userdata)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = 0.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2670,6 +2682,7 @@ static void gfx_widgets_achievement_unfold(void *userdata)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = 1.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -2701,6 +2714,7 @@ static void gfx_widgets_start_achievement_notification(void)
    entry.tag            = gfx_widgets_generic_tag;
    entry.target_value   = 0.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2764,6 +2778,7 @@ static void gfx_widgets_generic_message_fadeout(void *userdata)
    entry.tag            = tag;
    entry.target_value   = 0.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }
@@ -2801,6 +2816,7 @@ static void gfx_widgets_libretro_message_fadeout(void *userdata)
    entry.tag            = tag;
    entry.target_value   = 0.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }

@@ -116,6 +116,7 @@ typedef struct gfx_animation_ctx_entry
    float target_value;
    float *subject;
    tween_cb cb;
+   tween_cb tick;
    void *userdata;
 } gfx_animation_ctx_entry_t;
 

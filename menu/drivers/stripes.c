@@ -1220,6 +1220,7 @@ static void stripes_selection_pointer_changed(
          anim_entry.easing_enum  = EASING_OUT_QUAD;
          anim_entry.tag          = tag;
          anim_entry.cb           = NULL;
+         anim_entry.tick         = NULL;
 
          gfx_animation_push(&anim_entry);
 
@@ -1284,6 +1285,7 @@ static void stripes_list_open_old(stripes_handle_t *stripes,
          anim_entry.easing_enum  = EASING_OUT_QUAD;
          anim_entry.tag          = (uintptr_t)list;
          anim_entry.cb           = NULL;
+         anim_entry.tick         = NULL;
 
          gfx_animation_push(&anim_entry);
 
@@ -1355,6 +1357,7 @@ static void stripes_list_open_new(stripes_handle_t *stripes,
          anim_entry.easing_enum  = EASING_OUT_QUAD;
          anim_entry.tag          = (uintptr_t)list;
          anim_entry.cb           = NULL;
+         anim_entry.tick         = NULL;
 
          gfx_animation_push(&anim_entry);
 
@@ -1434,6 +1437,7 @@ static void stripes_push_animations(stripes_node_t *node,
    anim_entry.easing_enum  = EASING_OUT_QUAD;
    anim_entry.tag          = tag;
    anim_entry.cb           = NULL;
+   anim_entry.tick         = NULL;
 
    gfx_animation_push(&anim_entry);
 
@@ -1660,6 +1664,7 @@ static void stripes_list_switch_horizontal_list(stripes_handle_t *stripes)
       entry.target_value = ia;
       entry.subject      = &node->alpha;
       entry.easing_enum  = EASING_OUT_QUAD;
+      entry.tick         = NULL;
       /* TODO/FIXME - integer conversion resulted in change of sign */
       entry.tag          = -1;
       entry.cb           = NULL;
@@ -1711,6 +1716,7 @@ static void stripes_list_switch(stripes_handle_t *stripes)
    /* TODO/FIXME - integer conversion resulted in change of sign */
    anim_entry.tag          = -1;
    anim_entry.cb           = NULL;
+   anim_entry.tick         = NULL;
 
    if (anim_entry.subject)
       gfx_animation_push(&anim_entry);
@@ -1784,6 +1790,7 @@ static void stripes_list_open_horizontal_list(stripes_handle_t *stripes)
       /* TODO/FIXME - integer conversion resulted in change of sign */
       anim_entry.tag          = -1;
       anim_entry.cb           = NULL;
+      anim_entry.tick         = NULL;
 
       if (anim_entry.subject)
          gfx_animation_push(&anim_entry);
@@ -2055,6 +2062,7 @@ static void stripes_list_open(stripes_handle_t *stripes)
    /* TODO/FIXME - integer conversion resulted in change of sign */
    entry.tag          = -1;
    entry.cb           = NULL;
+   entry.tick         = NULL;
 
    switch (stripes->depth)
    {
@@ -4064,6 +4072,7 @@ static void stripes_toggle(void *userdata, bool menu_on)
    /* TODO/FIXME - integer conversion resulted in change of sign */
    entry.tag          = -1;
    entry.cb           = NULL;
+   entry.tick         = NULL;
 
    gfx_animation_push(&entry);
 

@@ -28,10 +28,10 @@
 
 /*
    display.draw_quad(
-      x: integer,
-      y: integer,
-      width: integer,
-      height: integer,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
       color: integer,
       alpha: number,
       video_info: lightuserdata)
@@ -41,10 +41,10 @@ static int kraken_display_draw_quad(lua_State* state)
    int argc = lua_gettop(state);
    if (
       argc != 7 ||
-      !lua_isinteger(state, 1) ||      //x
-      !lua_isinteger(state, 2) ||      //y
-      !lua_isinteger(state, 3) ||      //width
-      !lua_isinteger(state, 4) ||      //height
+      !lua_isnumber(state, 1) ||      //x
+      !lua_isnumber(state, 2) ||      //y
+      !lua_isnumber(state, 3) ||      //width
+      !lua_isnumber(state, 4) ||      //height
       !lua_isinteger(state, 5) ||      //color
       !lua_isnumber(state, 6) ||       //alpha
       !lua_islightuserdata(state, 7)   //video_info
@@ -55,10 +55,10 @@ static int kraken_display_draw_quad(lua_State* state)
    }
 
    video_frame_info_t* video_info   = (video_frame_info_t*) lua_topointer(state, 7);
-   int x                            = lua_tointeger(state, 1);
-   int y                            = lua_tointeger(state, 2);
-   int w                            = lua_tointeger(state, 3);
-   int h                            = lua_tointeger(state, 4);
+   int x                            = round(lua_tonumber(state, 1));
+   int y                            = round(lua_tonumber(state, 2));
+   int w                            = round(lua_tonumber(state, 3));
+   int h                            = round(lua_tonumber(state, 4));
    unsigned width                   = video_info->width;
    unsigned height                  = video_info->height;
 

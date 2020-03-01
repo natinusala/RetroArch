@@ -30,14 +30,14 @@ If you're using a global widget font you need to use `widgets.flush_font()` to f
 
 ## Constants
 
-### `display.TEXT_ALIGN_LEFT`
+### `display.text_align.LEFT`
 
 To be used with `display.cache_text()` to cache left-aligned text.
 
-### `display.TEXT_ALIGN_RIGHT`
+### `display.text_align.RIGHT`
 
 To be used with `display.cache_text()` to cache right-aligned text.
 
-### `display.TEXT_ALIGN_CENTER`
+### `display.text_align.CENTER`
 
 To be used with `display.cache_text()` to cache center-aligned text.

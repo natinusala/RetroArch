@@ -22,6 +22,7 @@
 
 #include "lib/retroarch.h"
 #include "lib/display.h"
+#include "lib/animations.h"
 
 #ifdef HAVE_GFX_WIDGETS
 #include "lib/widgets.h"
@@ -30,6 +31,7 @@
 static kraken_module_t* modules[] = {
    &kraken_module_retroarch,
    &kraken_module_display,
+   &kraken_module_animations,
 #ifdef HAVE_GFX_WIDGETS
    &kraken_module_widgets,
 #endif

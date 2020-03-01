@@ -4369,6 +4369,7 @@ static void materialui_hide_fullscreen_thumbnails(
       animation_entry.subject      = &mui->fullscreen_thumbnail_alpha;
       animation_entry.cb           = NULL;
       animation_entry.userdata     = NULL;
+      animation_entry.tick         = NULL;
 
       /* Push animation */
       gfx_animation_push(&animation_entry);
@@ -4462,6 +4463,7 @@ static void materialui_show_fullscreen_thumbnails(
    animation_entry.subject      = &mui->fullscreen_thumbnail_alpha;
    animation_entry.cb           = NULL;
    animation_entry.userdata     = NULL;
+   animation_entry.tick         = NULL;
 
    /* Push animation */
    gfx_animation_push(&animation_entry);
@@ -5890,6 +5892,7 @@ static void materialui_animate_scroll(
    animation_entry.subject      = &mui->scroll_y;
    animation_entry.cb           = NULL;
    animation_entry.userdata     = NULL;
+   animation_entry.tick         = NULL;
 
    /* Push animation */
    gfx_animation_push(&animation_entry);
@@ -6049,6 +6052,8 @@ static void materialui_init_transition_animation(
    alpha_entry.subject      = &mui->transition_alpha;
    alpha_entry.cb           = NULL;
    alpha_entry.userdata     = NULL;
+   alpha_entry.tick         = NULL;
+   alpha_entry.tick         = NULL;
 
    /* > Push animation */
    gfx_animation_push(&alpha_entry);
@@ -6117,6 +6122,7 @@ static void materialui_init_transition_animation(
       x_offset_entry.subject      = &mui->transition_x_offset;
       x_offset_entry.cb           = NULL;
       x_offset_entry.userdata     = NULL;
+      x_offset_entry.tick         = NULL;
 
       /* > Push animation */
       gfx_animation_push(&x_offset_entry);

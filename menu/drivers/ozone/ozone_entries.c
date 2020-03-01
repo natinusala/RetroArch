@@ -179,6 +179,7 @@ void ozone_update_scroll(ozone_handle_t *ozone, bool allow_animation, ozone_node
       entry.tag            = tag;
       entry.target_value   = 1.0f;
       entry.userdata       = NULL;
+      entry.tick           = NULL;
 
       gfx_animation_push(&entry);
 
@@ -190,6 +191,7 @@ void ozone_update_scroll(ozone_handle_t *ozone, bool allow_animation, ozone_node
       entry.tag            = tag;
       entry.target_value   = new_scroll;
       entry.userdata       = NULL;
+      entry.tick           = NULL;
 
       gfx_animation_push(&entry);
    }
@@ -319,6 +321,7 @@ void ozone_entries_update_thumbnail_bar(ozone_handle_t *ozone, bool is_playlist,
    entry.easing_enum = EASING_OUT_QUAD;
    entry.tag         = tag;
    entry.subject     = &ozone->animations.thumbnail_bar_position;
+   entry.tick        = NULL;
 
    gfx_animation_kill_by_tag(&tag);
 

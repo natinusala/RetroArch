@@ -5,3 +5,4 @@ Available modules:
 - `widgets`
 - `retroarch`
 - `display`
+- `animations`

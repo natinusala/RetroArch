@@ -196,6 +196,7 @@ static void gfx_thumbnail_handle_upload(
       animation_entry.subject          = &thumbnail_tag->thumbnail->alpha;
       animation_entry.cb               = NULL;
       animation_entry.userdata         = NULL;
+      animation_entry.tick             = NULL;
 
       gfx_animation_push(&animation_entry);
    }

@@ -46,6 +46,7 @@ struct tween
    uintptr_t   tag;
    easing_cb   easing;
    tween_cb    cb;
+   tween_cb    tick;
    void        *userdata;
    bool        deleted;
 };
@@ -1068,6 +1069,7 @@ bool gfx_animation_push(gfx_animation_ctx_entry_t *entry)
    t.subject            = entry->subject;
    t.tag                = entry->tag;
    t.cb                 = entry->cb;
+   t.tick               = entry->tick;
    t.userdata           = entry->userdata;
    t.easing             = NULL;
    t.deleted            = false;
@@ -1365,6 +1367,9 @@ bool gfx_animation_update(
             tween->initial_value,
             tween->target_value - tween->initial_value,
             tween->duration);
+
+      if (tween->tick)
+         tween->tick(tween->userdata);
 
       if (tween->running_since >= tween->duration)
       {
@@ -2357,6 +2362,7 @@ void gfx_timer_start(gfx_timer_t *timer, gfx_timer_ctx_entry_t *timer_entry)
    entry.subject        = timer;
    entry.cb             = timer_entry->cb;
    entry.userdata       = timer_entry->userdata;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 }

@@ -1880,7 +1880,8 @@ ifeq ($(HAVE_NETWORKING), 1)
 
          # Kraken modules
          OBJ += kraken/lib/retroarch.o \
-                kraken/lib/display.o
+                kraken/lib/display.o \
+                kraken/lib/animations.o
 
          ifeq ($(HAVE_GFX_WIDGETS), 1)
             OBJ += kraken/lib/widgets.o

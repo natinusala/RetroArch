@@ -317,6 +317,7 @@ void ozone_go_to_sidebar(ozone_handle_t *ozone, uintptr_t tag)
    entry.tag            = tag;
    entry.target_value   = 1.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -346,6 +347,7 @@ void ozone_leave_sidebar(ozone_handle_t *ozone, uintptr_t tag)
    entry.tag            = tag;
    entry.target_value   = 1.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -394,7 +396,8 @@ void ozone_sidebar_update_collapse(ozone_handle_t *ozone, bool allow_animation)
    {
       if (allow_animation)
       {
-         entry.cb = ozone_sidebar_collapse_end;
+         entry.cb    = ozone_sidebar_collapse_end;
+         entry.tick  = NULL;
 
          /* Text alpha */
          entry.subject        = &ozone->animations.sidebar_text_alpha;
@@ -422,7 +425,8 @@ void ozone_sidebar_update_collapse(ozone_handle_t *ozone, bool allow_animation)
       {
          ozone->sidebar_collapsed = false;
 
-         entry.cb = NULL;
+         entry.cb    = NULL;
+         entry.tick  = NULL;
 
          /* Text alpha */
          entry.subject        = &ozone->animations.sidebar_text_alpha;
@@ -504,6 +508,7 @@ void ozone_sidebar_goto(ozone_handle_t *ozone, unsigned new_selection)
    entry.tag            = tag;
    entry.target_value   = 1.0f;
    entry.userdata       = NULL;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -515,6 +520,7 @@ void ozone_sidebar_goto(ozone_handle_t *ozone, unsigned new_selection)
    entry.tag          = tag;
    entry.target_value = ozone_sidebar_get_scroll_y(ozone, video_info_height);
    entry.userdata     = NULL;
+   entry.tick         = NULL;
 
    gfx_animation_push(&entry);
 

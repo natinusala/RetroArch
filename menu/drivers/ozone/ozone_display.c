@@ -38,10 +38,11 @@ static void ozone_animate_cursor(ozone_handle_t *ozone, float *dst, float *targe
    gfx_animation_ctx_entry_t entry;
    int i;
 
-   entry.easing_enum = EASING_OUT_QUAD;
-   entry.tag = (uintptr_t) &ozone_default_theme;
-   entry.duration = ANIMATION_CURSOR_PULSE;
-   entry.userdata = ozone;
+   entry.easing_enum    = EASING_OUT_QUAD;
+   entry.tag            = (uintptr_t) &ozone_default_theme;
+   entry.duration       = ANIMATION_CURSOR_PULSE;
+   entry.userdata       = ozone;
+   entry.tick           = NULL;
 
    for (i = 0; i < 16; i++)
    {

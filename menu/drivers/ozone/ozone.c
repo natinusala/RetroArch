@@ -2176,13 +2176,14 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
          gfx_animation_kill_by_tag(&messagebox_tag);
          ozone->animations.messagebox_alpha = 0.0f;
 
-         entry.cb = NULL;
-         entry.duration = ANIMATION_PUSH_ENTRY_DURATION;
-         entry.easing_enum = EASING_OUT_QUAD;
-         entry.subject = &ozone->animations.messagebox_alpha;
-         entry.tag = messagebox_tag;
-         entry.target_value = 1.0f;
-         entry.userdata = NULL;
+         entry.cb             = NULL;
+         entry.duration       = ANIMATION_PUSH_ENTRY_DURATION;
+         entry.easing_enum    = EASING_OUT_QUAD;
+         entry.subject        = &ozone->animations.messagebox_alpha;
+         entry.tag            = messagebox_tag;
+         entry.target_value   = 1.0f;
+         entry.userdata       = NULL;
+         entry.tick           = NULL;
 
          gfx_animation_push(&entry);
       }
@@ -2195,13 +2196,14 @@ static void ozone_frame(void *data, video_frame_info_t *video_info)
          gfx_animation_kill_by_tag(&messagebox_tag);
          ozone->animations.messagebox_alpha = 1.0f;
 
-         entry.cb = ozone_messagebox_fadeout_cb;
-         entry.duration = ANIMATION_PUSH_ENTRY_DURATION;
-         entry.easing_enum = EASING_OUT_QUAD;
-         entry.subject = &ozone->animations.messagebox_alpha;
-         entry.tag = messagebox_tag;
-         entry.target_value = 0.0f;
-         entry.userdata = ozone;
+         entry.cb             = ozone_messagebox_fadeout_cb;
+         entry.duration       = ANIMATION_PUSH_ENTRY_DURATION;
+         entry.easing_enum    = EASING_OUT_QUAD;
+         entry.subject        = &ozone->animations.messagebox_alpha;
+         entry.tag            = messagebox_tag;
+         entry.target_value   = 0.0f;
+         entry.userdata       = ozone;
+         entry.tick           = NULL;
 
          gfx_animation_push(&entry);
       }
@@ -2280,6 +2282,7 @@ static void ozone_list_open(ozone_handle_t *ozone)
    entry.tag            = (uintptr_t) NULL;
    entry.target_value   = 1.0f;
    entry.userdata       = ozone;
+   entry.tick           = NULL;
 
    gfx_animation_push(&entry);
 
@@ -2290,13 +2293,14 @@ static void ozone_list_open(ozone_handle_t *ozone)
    {
       ozone->draw_sidebar = true;
 
-      entry.cb = NULL;
-      entry.duration = ANIMATION_PUSH_ENTRY_DURATION;
-      entry.easing_enum = EASING_OUT_QUAD;
-      entry.subject = &ozone->sidebar_offset;
-      entry.tag = sidebar_tag;
-      entry.target_value = 0.0f;
-      entry.userdata = NULL;
+      entry.cb             = NULL;
+      entry.duration       = ANIMATION_PUSH_ENTRY_DURATION;
+      entry.easing_enum    = EASING_OUT_QUAD;
+      entry.subject        = &ozone->sidebar_offset;
+      entry.tag            = sidebar_tag;
+      entry.target_value   = 0.0f;
+      entry.userdata       = NULL;
+      entry.tick           = NULL;
 
       gfx_animation_push(&entry);
    }
@@ -2304,13 +2308,14 @@ static void ozone_list_open(ozone_handle_t *ozone)
    {
       struct gfx_animation_ctx_entry entry;
 
-      entry.cb = ozone_collapse_end;
-      entry.duration = ANIMATION_PUSH_ENTRY_DURATION;
-      entry.easing_enum = EASING_OUT_QUAD;
-      entry.subject = &ozone->sidebar_offset;
-      entry.tag = sidebar_tag;
-      entry.target_value = -ozone->dimensions.sidebar_width;
-      entry.userdata = (void*) ozone;
+      entry.cb             = ozone_collapse_end;
+      entry.duration       = ANIMATION_PUSH_ENTRY_DURATION;
+      entry.easing_enum    = EASING_OUT_QUAD;
+      entry.subject        = &ozone->sidebar_offset;
+      entry.tag            = sidebar_tag;
+      entry.target_value   = -ozone->dimensions.sidebar_width;
+      entry.userdata       = (void*) ozone;
+      entry.tick           = NULL;
 
       gfx_animation_push(&entry);
    }
@@ -2728,6 +2733,7 @@ void ozone_hide_fullscreen_thumbnails(ozone_handle_t *ozone, bool animate)
       animation_entry.subject      = &ozone->animations.fullscreen_thumbnail_alpha;
       animation_entry.cb           = NULL;
       animation_entry.userdata     = NULL;
+      animation_entry.tick         = NULL;
 
       /* Push animation */
       gfx_animation_push(&animation_entry);
@@ -2829,6 +2835,7 @@ void ozone_show_fullscreen_thumbnails(ozone_handle_t *ozone)
    animation_entry.subject      = &ozone->animations.fullscreen_thumbnail_alpha;
    animation_entry.cb           = NULL;
    animation_entry.userdata     = NULL;
+   animation_entry.tick         = NULL;
 
    /* Push animation */
    gfx_animation_push(&animation_entry);

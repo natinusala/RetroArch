@@ -78,7 +78,8 @@
       "display.h": "c",
       "display.inc.h": "c",
       "widgets.inc.h": "c",
-      "retroarch.inc.h": "c"
+      "retroarch.inc.h": "c",
+      "performance_counters.h": "c"
    },
    "C_Cpp.dimInactiveRegions": false,
 }
