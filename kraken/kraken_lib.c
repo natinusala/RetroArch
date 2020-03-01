@@ -21,13 +21,18 @@
 #include "../../verbosity.h"
 
 #include "lib/retroarch.h"
-#include "lib/widgets.h"
 #include "lib/display.h"
+
+#ifdef HAVE_GFX_WIDGETS
+#include "lib/widgets.h"
+#endif
 
 static kraken_module_t* modules[] = {
    &kraken_module_retroarch,
+   &kraken_module_display,
+#ifdef HAVE_GFX_WIDGETS
    &kraken_module_widgets,
-   &kraken_module_display
+#endif
 };
 
 static size_t modules_len = sizeof(modules) / sizeof(modules[0]);

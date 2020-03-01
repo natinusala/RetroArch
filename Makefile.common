@@ -1834,6 +1834,7 @@ ifeq ($(HAVE_NETWORKING), 1)
              deps/rcheevos/src/rurl/url.o
 
       ifeq ($(HAVE_LUA), 1)
+         # Lua
          DEFINES += -DHAVE_LUA \
                     -DLUA_32BITS
          INCLUDE_DIRS += -I$(DEPS_DIR)/lua/src
@@ -1870,13 +1871,20 @@ ifeq ($(HAVE_NETWORKING), 1)
                 $(DEPS_DIR)/lua/src/lutf8lib.o \
                 $(DEPS_DIR)/lua/src/loadlib.o \
                 $(DEPS_DIR)/lua/src/linit.o
+
+         # Kraken
          OBJ += kraken/kraken.o \
                 kraken/kraken_lua_user.o \
-                kraken/kraken_lib.o \
-                kraken/lib/widgets.o \
-                kraken/lib/retroarch.o \
-                kraken/lib/display.o
+                kraken/kraken_lib.o
          DEFINES += -DLUA_USER_H="\"kraken/kraken_lua_user.h\""
+
+         # Kraken modules
+         OBJ += kraken/lib/retroarch.o \
+                kraken/lib/display.o
+
+         ifeq ($(HAVE_GFX_WIDGETS), 1)
+            OBJ += kraken/lib/widgets.o
+         endif
       else
          DEFINES += -DRC_DISABLE_LUA
       endif
