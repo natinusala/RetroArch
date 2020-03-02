@@ -2,6 +2,7 @@ widgets = require("widgets")
 display = require("display")
 retroarch = require("retroarch")
 animations = require("animations")
+core = require("core")
 
 xpos = 50.0
 

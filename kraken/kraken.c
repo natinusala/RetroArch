@@ -121,6 +121,8 @@ void kraken_deinit(void)
    if (mainThreadState)
       lua_close(mainThreadState);
 
+   mainThreadState = NULL;
+
 #ifdef HAVE_THREADS
    kraken_free_lock();
 #endif
