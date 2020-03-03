@@ -28121,8 +28121,10 @@ bool rarch_ctl(enum rarch_ctl_state state, void *data)
             }
          }
          break;
-
-
+#ifdef HAVE_MENU
+      case RARCH_CTL_MENU_IS_ALIVE:
+         return menu_driver_alive;
+#endif
       case RARCH_CTL_NONE:
       default:
          return false;

@@ -82,11 +82,23 @@ static int kraken_retroarch_notify(lua_State* state)
    return 0;
 }
 
+//retroarch.is_menu_open()
+static int kraken_retroarch_is_menu_open(lua_State* state)
+{
+#ifdef HAVE_MENU
+   lua_pushboolean(state, rarch_ctl(RARCH_CTL_MENU_IS_ALIVE, NULL));
+#else
+   lua_pushboolean(state, false);
+#endif
+   return 1;
+}
+
 static void kraken_retroarch_register(lua_State *state)
 {
    lua_register(state, "retroarch_err", kraken_retroarch_err);
    lua_register(state, "retroarch_log", kraken_retroarch_log);
    lua_register(state, "retroarch_notify", kraken_retroarch_notify);
+   lua_register(state, "retroarch_is_menu_open", kraken_retroarch_is_menu_open);
 }
 
 kraken_module_t kraken_module_retroarch = {

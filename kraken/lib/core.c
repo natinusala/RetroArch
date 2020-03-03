@@ -19,6 +19,7 @@
 
 #include "../../retroarch.h"
 
+//core.is_running()
 static int kraken_core_is_running(lua_State* state)
 {
    lua_pushboolean(state, rarch_ctl(RARCH_CTL_CORE_IS_RUNNING, NULL));

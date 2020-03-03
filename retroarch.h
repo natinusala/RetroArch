@@ -161,7 +161,12 @@ enum rarch_ctl_state
    RARCH_CTL_CORE_IS_RUNNING,
 
    /* BSV Movie */
-   RARCH_CTL_BSV_MOVIE_IS_INITED
+   RARCH_CTL_BSV_MOVIE_IS_INITED,
+
+   /* Menu */
+#ifdef HAVE_MENU
+   RARCH_CTL_MENU_IS_ALIVE,
+#endif
 };
 
 enum rarch_capabilities

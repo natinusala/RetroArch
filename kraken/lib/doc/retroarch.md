@@ -13,3 +13,7 @@ Prints an error message. Newline is automatically appended at the end of the str
 ### `retroarch.notify(text, duration)`
 
 Shows an onscreen notification.
+
+### `retroarch.is_menu_open()`
+
+Returns `true` if the menu is currently open, `false` otherwise.
