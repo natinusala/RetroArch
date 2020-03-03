@@ -67,9 +67,9 @@ function kraken_widgets_context_destroyed()
    end
 end
 
-function kraken_widgets_layout()
+function kraken_widgets_layout(width, height)
    for k,widget in pairs(widgets_table) do
-      widget.on_layout()
+      widget.on_layout(width, height)
    end
 end
 

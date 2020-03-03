@@ -359,7 +359,7 @@ static unsigned msg_queue_task_rect_start_x;
 static unsigned msg_queue_task_hourglass_x;
 
 /* Used for both generic and libretro messages */
-static unsigned generic_message_height; 
+static unsigned generic_message_height;
 
 static unsigned volume_widget_width;
 static unsigned volume_widget_height;
@@ -2158,7 +2158,7 @@ static void gfx_widgets_layout(
       divider_width_1px = (unsigned)(last_scale_factor + 0.5f);
 
 #ifdef HAVE_LUA
-   kraken_widgets_layout();
+   kraken_widgets_layout(last_video_width, last_video_height);
 #endif
 }
 

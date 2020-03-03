@@ -46,8 +46,8 @@ local function widget_on_frame(video_info)
    )
 end
 
-local function widget_on_layout()
-   retroarch.log("Test widget layout")
+local function widget_on_layout(width, height)
+   retroarch.log(string.format("Test widget layout w/ resolution %d x %d", width, height))
 end
 
 local function widget_on_context_destroyed()

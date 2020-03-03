@@ -26,7 +26,7 @@ void kraken_widgets_init();
 void kraken_widgets_free();
 void kraken_widgets_context_reset();
 void kraken_widgets_context_destroyed();
-void kraken_widgets_layout();
+void kraken_widgets_layout(unsigned width, unsigned height);
 void kraken_widgets_iterate();
 void kraken_widgets_frame(video_frame_info_t* video_info);
 

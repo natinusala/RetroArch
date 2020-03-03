@@ -13,7 +13,7 @@ A widget is a table containing at least the following functions:
 - `on_context_reset()`: called when the video context gets reset
 - `on_iterate()`: called every frame from the main thread
 - `on_frame(video_info)`: called every frame from the video thread
-- `on_layout()`: called to layout the widget (after context reset or after a resolution change)
+- `on_layout(width, height)`: called to layout the widget (after context reset or after a resolution change)
 - `on_context_destroyed()`: called when the video context gets destroyed
 
 You may only use display functions from the `on_frame()` function as it is running on the video thread. All widget functions are synchronized and cannot run simultaneously.

@@ -98,7 +98,7 @@ void kraken_widgets_frame(video_frame_info_t* video_info)
       RARCH_ERR("[Kraken]: Error while calling kraken_widgets_frame: %s\n", kraken_get_error(state));
 }
 
-void kraken_widgets_layout()
+void kraken_widgets_layout(unsigned width, unsigned height)
 {
    KRAKEN_ENSURE_LOADED(kraken_module_widgets);
 
@@ -106,7 +106,10 @@ void kraken_widgets_layout()
 
    lua_getglobal(state, "kraken_widgets_layout");
 
-   if (lua_pcall(state, 0, 0, 0))
+   lua_pushinteger(state, width);
+   lua_pushinteger(state, height);
+
+   if (lua_pcall(state, 2, 0, 0))
       RARCH_ERR("[Kraken]: Error while calling kraken_widgets_layout: %s\n", kraken_get_error(state));
 }
 
