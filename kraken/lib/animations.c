@@ -24,6 +24,11 @@
 
 #include "../../gfx/gfx_animation.h"
 
+/* TODO:
+         Either keep track of the animations somewhere and cancel them all when kraken gets unloaded
+         or change the kraken deinit to have it deinit on exit and not on content load (probably better)
+*/
+
 typedef struct kraken_animations_userdata
 {
    float value;   /* the animation value (the gfx_animation subject) */
