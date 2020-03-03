@@ -21,12 +21,7 @@
 
 static int kraken_core_is_running(lua_State* state)
 {
-#ifdef HAVE_MENU
    lua_pushboolean(state, rarch_ctl(RARCH_CTL_CORE_IS_RUNNING, NULL));
-#else
-   lua_pushnil(state);
-#endif
-
    return 1;
 }
 
