@@ -14,5 +14,15 @@
 --]]
 
 return {
-   is_running = core_is_running
+   -- Functions
+   is_running  = core_is_running,
+   read_byte   = core_read_byte,
+
+   --Constants
+   memory = {
+      SAVE_RAM    = 0,
+      RTC         = 1,
+      SYSTEM_RAM  = 2,
+      VIDEO_RAM   = 3
+   }
 }

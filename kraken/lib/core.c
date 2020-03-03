@@ -19,16 +19,68 @@
 
 #include "../../retroarch.h"
 
-//core.is_running()
+#include "../../verbosity.h"
+
+//core.is_running(): boolean
 static int kraken_core_is_running(lua_State* state)
 {
    lua_pushboolean(state, rarch_ctl(RARCH_CTL_CORE_IS_RUNNING, NULL));
    return 1;
 }
 
+//core.read_byte(type: integer, address: integer): integer
+static int kraken_core_read_byte(lua_State* state)
+{
+   int argc = lua_gettop(state);
+   if (argc != 1 || !lua_isinteger(state, 1) || !lua_isinteger(state, 2))
+   {
+      RARCH_ERR("[Kraken]: core.read_byte: invalid arguments\n");
+
+      lua_pushnil(state);
+      return 1;
+   }
+
+   /* Ensure core is running */
+   bool running = rarch_ctl(RARCH_CTL_CORE_IS_RUNNING, NULL);
+
+   if (!running)
+   {
+      RARCH_ERR("[Kraken]: core.read_byte: core is not running, cannot read memory\n");
+      lua_pushnil(state);
+      return 1;
+   }
+
+   /* Get memory */
+   unsigned type     = lua_tointeger(state, 1);
+   unsigned address  = lua_tointeger(state, 2);
+
+   retro_ctx_memory_info_t meminfo;
+   meminfo.id = type;
+
+   if (!core_get_memory(&meminfo) || meminfo.size == 0 || !meminfo.data)
+   {
+      RARCH_ERR("[Kraken]: core.read_byte: cannot read memory\n");
+      lua_pushnil(state);
+      return 1;
+   }
+
+   if (address >= meminfo.size)
+   {
+      RARCH_ERR("[Kraken]: core.read_byte: address %d is higher than memory size %d\n", address, meminfo.size);
+      lua_pushnil(state);
+      return 1;
+   }
+
+   uint8_t* bytes = (uint8_t*) meminfo.data;
+
+   lua_pushinteger(state, bytes[address]);
+   return 1;
+}
+
 static void kraken_core_register(lua_State* state)
 {
    lua_register(state, "core_is_running", kraken_core_is_running);
+   lua_register(state, "core_read_byte", kraken_core_read_byte);
 }
 
 kraken_module_t kraken_module_core = {

@@ -82,7 +82,7 @@ static int kraken_retroarch_notify(lua_State* state)
    return 0;
 }
 
-//retroarch.is_menu_open()
+//retroarch.is_menu_open(): boolean
 static int kraken_retroarch_is_menu_open(lua_State* state)
 {
 #ifdef HAVE_MENU

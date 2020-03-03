@@ -75,7 +75,7 @@ static void kraken_animations_tick(void* userdata)
       duration: integer,
       easing: integer,
       cb : string
-   ) 
+   )
 */
 static int kraken_animations_push(lua_State* state)
 {
