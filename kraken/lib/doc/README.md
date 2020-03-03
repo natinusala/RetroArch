@@ -6,3 +6,4 @@ Available modules:
 - `retroarch`
 - `display`
 - `animations`
+- `core`
