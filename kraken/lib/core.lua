@@ -16,7 +16,7 @@
 return {
    -- Functions
    is_running  = core_is_running,
-   read_byte   = core_read_byte,
+   read_bytes  = core_read_bytes,
 
    --Constants
    memory = {

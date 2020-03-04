@@ -6,9 +6,11 @@
 
 Returns `true` if a libretro core is currently running, `false` otherwise.
 
-### `core.read_bytes(type, address)`
+### `core.read_bytes(type, ...)`
 
-Returns the bytes of the content memory at given address. Type can be one of the `core.memory` constants.
+Returns the byte of the content memory at given addresses. Type can be one of the `core.memory` constants.
+
+Example: `pose, game_mode = core.read_bytes(core.memory.SYSTEM_RAM, 0x13E0, 0x0100)`
 
 ## Constants
 

@@ -27,6 +27,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "../retroarch.h"
+
 #ifdef HAVE_THREADS
 #include <rthreads/rthreads.h>
 
@@ -68,7 +70,20 @@ bool kraken_init(void)
    /* Load and execute addons */
    /* TODO: properly do it */
    if (luaL_dofile(mainThreadState, "test.lua"))
-      RARCH_ERR("[Kraken]: Unable to load addon test.lua: %s\n", kraken_get_error(mainThreadState));
+   {
+      char error_message[PATH_MAX_LENGTH];
+      snprintf(error_message, sizeof(error_message), "Unable to load addon test.lua: %s", kraken_get_error(mainThreadState));
+      runloop_msg_queue_push(
+         error_message,
+         1,
+         180,
+         false,
+         NULL,
+         MESSAGE_QUEUE_ICON_DEFAULT,
+         MESSAGE_QUEUE_CATEGORY_INFO
+      );
+      RARCH_ERR("[Kraken]: %s\n", error_message);
+   }
 
    /* Spawn video thread if needed */
    /* TODO: Is the video thread garbage collected
