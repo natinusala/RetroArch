@@ -45,6 +45,7 @@ local function widget_on_context_destroyed()
 end
 
 local widget = {
+   name                 = "test",
    on_init              = widget_on_init,
    on_free              = widget_on_free,
    on_context_reset     = widget_on_context_reset,
@@ -54,4 +55,4 @@ local widget = {
    on_context_destroyed = widget_on_context_destroyed
 }
 
-widgets.register("test", widget)
+widgets.register(widget)

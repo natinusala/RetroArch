@@ -15,32 +15,39 @@
 
 retroarch = require("retroarch")
 
--- A widget is a table containing at least the following functions
-local widgets_funcs = {
-   "on_init",                 -- called when the widget it initialized
-   "on_free",                 -- called when the widget is freed
-   "on_context_reset",        -- called when the video context gets reset
-   "on_iterate",              -- called every frame from the main thread
-   "on_frame",                -- called every frame from the video thread
-   "on_layout",               -- called to layout the widget (after context reset or after a resolution change)
-   "on_context_destroyed"     -- called when the video context gets destroyed
+-- A widget is a table containing at least the following keys
+local widget_keys = {
+   "name",                    -- widget name
+   "on_init",                 -- function called when the widget it initialized
+   "on_free",                 -- function called when the widget is freed
+   "on_context_reset",        -- function called when the video context gets reset
+   "on_iterate",              -- function called every frame from the main thread
+   "on_frame",                -- function called every frame from the video thread
+   "on_layout",               -- function called to layout the widget (after context reset or after a resolution change)
+   "on_context_destroyed"     -- function called when the video context gets destroyed
 }
 
 -- Widgets management functions
 local widgets_table = {}
 
-local function widgets_register(name, widget)
+local function widgets_register(widget)
    -- Widget integrity check
-   for k,func in pairs(widgets_funcs) do
-      if widget[func] == nil then
-         retroarch.err(string.format("[Widgets]: Widget %s is missing function %s", name, func))
+   if widget["name"] == nil then
+      retroarch.err("[Kraken]: Cannot register a widget without a name")
+      return
+   end
+
+   name = widget.name
+   for k,v in pairs(widget_keys) do
+      if widget[v] == nil then
+         retroarch.err(string.format("[Kraken]: Widget \"%s\" is missing key %s", name, v))
          return
       end
    end
 
    -- Register it
    table.insert(widgets_table, widget)
-   retroarch.log(string.format("[Widgets]: %s widget registered", name))
+   retroarch.log(string.format("[Kraken]: Widget \"%s\" registered", name))
 end
 
 function kraken_widgets_init()

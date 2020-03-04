@@ -6,15 +6,16 @@
 
 Registers and enables your widget.
 
-A widget is a table containing at least the following functions:
+A widget is a table containing at least the following keys:
 
-- `on_init()`: called when the widget it initialized
-- `on_free()`: called when the widget is freed
-- `on_context_reset()`: called when the video context gets reset
-- `on_iterate()`: called every frame from the main thread
-- `on_frame(video_info)`: called every frame from the video thread
-- `on_layout(width, height)`: called to layout the widget (after context reset or after a resolution change)
-- `on_context_destroyed()`: called when the video context gets destroyed
+- `name`: the widget name
+- `on_init()`: function called when the widget it initialized
+- `on_free()`: function called when the widget is freed
+- `on_context_reset()`: function called when the video context gets reset
+- `on_iterate()`: function called every frame from the main thread
+- `on_frame(video_info)`: function called every frame from the video thread
+- `on_layout(width, height)`: function called to layout the widget (after context reset or after a resolution change)
+- `on_context_destroyed()`: function called when the video context gets destroyed
 
 You may only use display functions from the `on_frame()` function as it is running on the video thread. All widget functions are synchronized and cannot run simultaneously.
 
