@@ -41,10 +41,10 @@ static int kraken_display_draw_quad(lua_State* state)
    int argc = lua_gettop(state);
    if (
       argc != 7 ||
-      !lua_isnumber(state, 1) ||      //x
-      !lua_isnumber(state, 2) ||      //y
-      !lua_isnumber(state, 3) ||      //width
-      !lua_isnumber(state, 4) ||      //height
+      !lua_isnumber(state, 1) ||       //x
+      !lua_isnumber(state, 2) ||       //y
+      !lua_isnumber(state, 3) ||       //width
+      !lua_isnumber(state, 4) ||       //height
       !lua_isinteger(state, 5) ||      //color
       !lua_isnumber(state, 6) ||       //alpha
       !lua_islightuserdata(state, 7)   //video_info
@@ -85,8 +85,8 @@ static int kraken_display_draw_quad(lua_State* state)
    display.cache_text(
       font: lightuserdata,
       text: string,
-      x : integer,
-      y : integer,
+      x : number,
+      y : number,
       color: integer,
       alignment: integer,
       scale: number,
@@ -103,13 +103,13 @@ static int kraken_display_cache_text(lua_State* state)
       argc != 11 ||
       !lua_islightuserdata(state, 1) ||   //font
       !lua_isstring(state, 2) ||          //text
-      !lua_isinteger(state, 3) ||         //x
-      !lua_isinteger(state, 4) ||         //y
+      !lua_isnumber(state, 3) ||          //x
+      !lua_isnumber(state, 4) ||          //y
       !lua_isinteger(state, 5) ||         //color
       !lua_isinteger(state, 6) ||         //alignment
       !lua_isnumber(state, 7) ||          //scale
       !lua_isboolean(state, 8) ||         //shadow
-      !lua_isnumber(state, 9) ||          // shadow_offset
+      !lua_isnumber(state, 9) ||          //shadow_offset
       !lua_isboolean(state, 10) ||        //draw_outside
       !lua_islightuserdata(state, 11)     //video_info
    )
@@ -121,8 +121,8 @@ static int kraken_display_cache_text(lua_State* state)
    font_data_t* font                = (font_data_t*) lua_topointer(state, 1);
    video_frame_info_t* video_info   = (video_frame_info_t*) lua_topointer(state, 11);
    const char* text                 = lua_tostring(state, 2);
-   float x                          = (float) lua_tointeger(state, 3);
-   float y                          = (float) lua_tointeger(state, 4);
+   float x                          = (float) lua_tonumber(state, 3);
+   float y                          = (float) lua_tonumber(state, 4);
    int width                        = video_info->width;
    int height                       = video_info->height;
    uint32_t color                   = lua_tointeger(state, 5);

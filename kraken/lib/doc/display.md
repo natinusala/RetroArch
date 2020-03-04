@@ -28,6 +28,8 @@ The most common use case for manual flushing is when using scissoring - text is 
 
 If you're using a global widget font you need to use `widgets.flush_font()` to flush it. Otherwise you can flush it using the `display` module.
 
+Warning: you need to offset the Y position by the font height or it will be misplaced (the origin of each text drawn on screen is the bottom left corner).
+
 ## Constants
 
 ### `display.text_align.LEFT`

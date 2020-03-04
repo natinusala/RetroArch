@@ -21,11 +21,11 @@ You may only use display functions from the `on_frame()` function as it is runni
 
 ### `widgets.get_font_regular()`
 
-Returns the global regular font used by all widgets. To be used with `display.cache_font`.
+Returns the global regular font used by all widgets as well as its height. To be used with `display.cache_font`.
 
 ### `widgets.get_font_bold()`
 
-Returns the global bold font used by all widgets. To be used with `display.cache_font`.
+Returns the global bold font used by all widgets as well as its height. To be used with `display.cache_font`.
 
 ### `widgets_flush_font(font, video_info)`
 

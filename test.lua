@@ -30,6 +30,10 @@ local function widget_on_iterate()
    -- 0x7E0100: game mode
    -- 0x7E bank is mapped to beginning of RAM so translation is just remove 7E
    pose, game_mode = core.read_bytes(core.memory.SYSTEM_RAM, 0x13E0, 0x0100)
+
+   widgets.print_hex("Game mode", game_mode)
+   widgets.print_hex("Player pose", pose)
+
    if (pose == 0x3E) then -- death pose
       retroarch.log("you lost")
       retroarch.shutdown()

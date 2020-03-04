@@ -113,20 +113,22 @@ void kraken_widgets_layout(unsigned width, unsigned height)
       RARCH_ERR("[Kraken]: Error while calling kraken_widgets_layout: %s\n", kraken_get_error(state));
 }
 
-//widgets.get_font_regular(): lightuserdata
+//widgets.get_font_regular(): lightuserdata, number
 static int kraken_widgets_get_font_regular(lua_State* state)
 {
    font_data_t* font = gfx_widgets_get_font_regular();
    lua_pushlightuserdata(state, font);
-   return 1;
+   lua_pushnumber(state, (double) font->size);
+   return 2;
 }
 
-//widgets.get_font_bold(): lightuserdata
+//widgets.get_font_bold(): lightuserdata, number
 static int kraken_widgets_get_font_bold(lua_State* state)
 {
    font_data_t* font = gfx_widgets_get_font_bold();
    lua_pushlightuserdata(state, font);
-   return 1;
+   lua_pushnumber(state, (double) font->size);
+   return 2;
 }
 
 //widgets.flush_font(font: lightuserdata, video_info: lightuserdata)

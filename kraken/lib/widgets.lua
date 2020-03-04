@@ -27,7 +27,7 @@ local widget_keys = {
    "on_context_destroyed"     -- function called when the video context gets destroyed
 }
 
--- Widgets management functions
+-- Widgets management
 local widgets_table = {}
 
 local function widgets_register(widget)
@@ -50,6 +50,92 @@ local function widgets_register(widget)
    retroarch.log(string.format("[Kraken]: Widget \"%s\" registered", name))
 end
 
+-- Print widget
+-- Not a regular widget because we need to ensure it's
+-- handled after all others
+local print_strings = {}
+local print_longest = ""
+local print_longest_len = 0.0
+
+local function widgets_add_print_string(str)
+   table.insert(print_strings, str)
+
+   local len = string.len(str)
+   if (len > print_longest_len) then
+      print_longest_len = len
+      print_longest = str
+   end
+end
+
+local function widgets_print_int(name, value)
+   widgets_add_print_string(string.format("%s = %d", name, value))
+end
+
+local function widgets_print_hex(name, value)
+   widgets_add_print_string(string.format("%s = 0x%X", name, value))
+end
+
+local function widgets_print_str(name, value)
+   widgets_add_print_string(string.format("%s = %s", name, value))
+end
+
+local function print_widget_on_iterate()
+   print_widget_width = print_longest_len * 18.0 -- TODO: use get_measured_width * scale here on the string instead
+end
+
+local function print_widget_on_frame(video_info)
+   local y_advance = 0.0
+   local padding = print_widget_padding
+   local width = print_widget_width
+   local height = print_widget_height
+
+   for k,str in pairs(print_strings) do
+      -- Backdrop
+      display.draw_quad(
+         0.0,
+         y_advance,
+         width + padding * 2.0,
+         height + padding * 2.0,
+         0x000000,
+         0.75,
+         video_info
+      )
+
+      -- Text
+      local font, font_height = widgets.get_font_regular()
+      display.cache_text(
+         font,
+         str,
+         padding * 4.0,
+         y_advance + padding + font_height,
+         0xFFFFFF,
+         display.text_align.LEFT,
+         1.0,
+         false,
+         0.0,
+         false,
+         video_info
+      )
+
+      -- Advance
+      y_advance = y_advance + height + padding * 2.0
+   end
+
+   -- everything has been drawn, empty the table
+   -- and cleanup
+   local count = #print_strings
+   for i = 0, count do print_strings[i] = nil end
+   print_longest = ""
+   print_longest_len = 0.0
+end
+
+-- TODO: scale
+local function print_widget_on_layout(width, height)
+   print_widget_height = 50.0 -- TODO: use font height here instead
+   print_widget_padding = 5.0
+end
+
+-- Global functions (called by C)
 function kraken_widgets_init()
    for k,widget in pairs(widgets_table) do
       widget.on_init()
@@ -78,18 +164,24 @@ function kraken_widgets_layout(width, height)
    for k,widget in pairs(widgets_table) do
       widget.on_layout(width, height)
    end
+
+   print_widget_on_layout(width, height)
 end
 
 function kraken_widgets_frame(video_info)
    for k,widget in pairs(widgets_table) do
       widget.on_frame(video_info)
    end
+
+   print_widget_on_frame(video_info)
 end
 
 function kraken_widgets_iterate()
    for k,widget in pairs(widgets_table) do
       widget.on_iterate()
    end
+
+   print_widget_on_iterate()
 end
 
 -- Exposed widgets module
@@ -97,5 +189,9 @@ return {
    register          = widgets_register,
    get_font_regular  = widgets_get_font_regular,
    get_font_bold     = widgets_get_font_bold,
-   flush_font        = widgets_flush_font
+   flush_font        = widgets_flush_font,
+
+   print_int         = widgets_print_int,
+   print_hex         = widgets_print_hex,
+   print_str         = widgets_print_str
 }
