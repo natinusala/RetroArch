@@ -30,3 +30,15 @@ Returns the global bold font used by all widgets as well as its height. To be us
 ### `widgets_flush_font(font, video_info)`
 
 Draws all cached text for that font on screen and flushes the cache. See the `display` module documentation for more information on text caching.
+
+### `widgets.print_int(name, value)`
+
+Prints an integer value on the top-left corner of the screen for one frame (to be called in the iterate function every frame).
+
+### `widgets.print_hex(name, value)`
+
+Prints a hexadecimal value on the top-left corner of the screen for one frame (to be called in the iterate function every frame).
+
+### `widgets.print_str(name, value)`
+
+Prints a string value on the top-left corner of the screen for one frame (to be called in the iterate function every frame).
