@@ -17,3 +17,7 @@ Shows an onscreen notification.
 ### `retroarch.is_menu_open()`
 
 Returns `true` if the menu is currently open, `false` otherwise.
+
+### `retroarch.shutdown()`
+
+Gracefully quits RetroArch.

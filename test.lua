@@ -4,16 +4,8 @@ retroarch = require("retroarch")
 animations = require("animations")
 core = require("core")
 
-xpos = 50.0
-
-function test_widget_animation_finished()
-   retroarch.notify("Animation finished :spook:", 180)
-end
-
 local function widget_on_init()
    retroarch.log("Test widget init")
-
-   animations.push("xpos", 500.0, 5000, animations.easing.OUT_BOUNCE, "test_widget_animation_finished")
 end
 
 local function widget_on_free()
@@ -25,25 +17,23 @@ local function widget_on_context_reset()
 end
 
 local function widget_on_iterate()
+   is_running = core.is_running()
+   is_menu_open = retroarch.is_menu_open()
+
+   -- don't do anything if core is not running or menu is open
+   if ((not is_running) or (is_menu_open)) then
+      return
+   end
+
+   -- read player pose to detect death
+   byte = core.read_byte(core.memory.SYSTEM_RAM, 0x13E0) -- 0x7E13E0: player pose (0x7E bank is mapped to beginning of RAM)
+   if (byte == 0x3E) then -- death pose
+      retroarch.log("you lost")
+      retroarch.shutdown()
+   end
 end
 
 local function widget_on_frame(video_info)
-   display.draw_quad(xpos, 50.0, 200.0, 200.0, 0x32cd32, 0.75, video_info)
-   font = widgets.get_font_regular()
-
-   display.cache_text(
-      font,
-      "Hello from Lua",
-      150,
-      150,
-      0xFFFFFF,
-      display.text_align.LEFT,
-      1,
-      true,
-      5,
-      false,
-      video_info
-   )
 end
 
 local function widget_on_layout(width, height)

@@ -80,7 +80,8 @@
       "widgets.inc.h": "c",
       "retroarch.inc.h": "c",
       "performance_counters.h": "c",
-      "core.h": "c"
+      "core.h": "c",
+      "cstddef": "c"
    },
    "C_Cpp.dimInactiveRegions": false,
 }

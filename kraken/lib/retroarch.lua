@@ -18,5 +18,6 @@ return {
    log            = retroarch_log,
    err            = retroarch_err,
    notify         = retroarch_notify,
-   is_menu_open   = retroarch_is_menu_open
+   is_menu_open   = retroarch_is_menu_open,
+   shutdown       = retroarch_shutdown
 }

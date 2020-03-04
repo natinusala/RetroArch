@@ -24,6 +24,13 @@
 #include <queues/message_queue.h>
 #include "../../retroarch.h"
 
+//retroarch.shutdown()
+static int kraken_retroarch_shutdown(lua_State* state)
+{
+   rarch_ctl(RARCH_CTL_SET_SHUTDOWN, NULL);
+   return 0;
+}
+
 //retroarch.err(text: string)
 static int kraken_retroarch_err(lua_State* state)
 {
@@ -99,6 +106,7 @@ static void kraken_retroarch_register(lua_State *state)
    lua_register(state, "retroarch_log", kraken_retroarch_log);
    lua_register(state, "retroarch_notify", kraken_retroarch_notify);
    lua_register(state, "retroarch_is_menu_open", kraken_retroarch_is_menu_open);
+   lua_register(state, "retroarch_shutdown", kraken_retroarch_shutdown);
 }
 
 kraken_module_t kraken_module_retroarch = {

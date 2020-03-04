@@ -32,7 +32,7 @@ static int kraken_core_is_running(lua_State* state)
 static int kraken_core_read_byte(lua_State* state)
 {
    int argc = lua_gettop(state);
-   if (argc != 1 || !lua_isinteger(state, 1) || !lua_isinteger(state, 2))
+   if (argc != 2 || !lua_isinteger(state, 1) || !lua_isinteger(state, 2))
    {
       RARCH_ERR("[Kraken]: core.read_byte: invalid arguments\n");
 
@@ -72,8 +72,7 @@ static int kraken_core_read_byte(lua_State* state)
    }
 
    uint8_t* bytes = (uint8_t*) meminfo.data;
-
-   lua_pushinteger(state, bytes[address]);
+   lua_pushinteger(state, (int) bytes[address]);
    return 1;
 }
 
