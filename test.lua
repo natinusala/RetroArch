@@ -1,8 +1,8 @@
-widgets = require("widgets")
-display = require("display")
-retroarch = require("retroarch")
-animations = require("animations")
-core = require("core")
+local widgets = require("widgets")
+local display = require("display")
+local retroarch = require("retroarch")
+local animations = require("animations")
+local core = require("core")
 
 local function widget_on_init()
    retroarch.log("Test widget init")
@@ -26,7 +26,7 @@ local function widget_on_iterate()
    -- 0x7E13E0: player pose
    -- 0x7E0100: game mode
    -- 0x7E bank is mapped to beginning of RAM so translation is just remove 7E
-   pose, game_mode = core.read_bytes(core.memory.SYSTEM_RAM, 0x13E0, 0x0100)
+   local pose, game_mode = core.read_bytes(core.memory.SYSTEM_RAM, 0x13E0, 0x0100)
 
    -- don't print anything if menu is open
    if (not retroarch.is_menu_open()) then

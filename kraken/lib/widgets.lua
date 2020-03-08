@@ -13,7 +13,8 @@
       If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-retroarch = require("retroarch")
+local retroarch = require("retroarch")
+local display = require("display")
 
 -- A widget is a table containing at least the following keys
 local widget_keys = {
@@ -102,7 +103,7 @@ local function print_widget_on_frame(video_info)
       )
 
       -- Text
-      local font, font_height = widgets.get_font_regular()
+      local font, font_height = widgets_get_font_regular()
       display.cache_text(
          font,
          str,
