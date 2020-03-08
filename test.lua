@@ -17,11 +17,8 @@ local function widget_on_context_reset()
 end
 
 local function widget_on_iterate()
-   is_running = core.is_running()
-   is_menu_open = retroarch.is_menu_open()
-
-   -- don't do anything if core is not running or menu is open
-   if ((not is_running) or (is_menu_open)) then
+   -- don't do anything if core is not running
+   if (not core.is_running()) then
       return
    end
 
@@ -31,8 +28,11 @@ local function widget_on_iterate()
    -- 0x7E bank is mapped to beginning of RAM so translation is just remove 7E
    pose, game_mode = core.read_bytes(core.memory.SYSTEM_RAM, 0x13E0, 0x0100)
 
-   widgets.print_hex("Game mode", game_mode)
-   widgets.print_hex("Player pose", pose)
+   -- don't print anything if menu is open
+   if (not retroarch.is_menu_open()) then
+      widgets.print_hex("Game mode", game_mode)
+      widgets.print_hex("Player pose", pose)
+   end
 
    if (pose == 0x3E) then -- death pose
       retroarch.log("you lost")
@@ -41,6 +41,10 @@ local function widget_on_iterate()
 end
 
 local function widget_on_frame(video_info)
+   -- don't display anything if menu is open
+   if (retroarch.is_menu_open()) then
+      return
+   end
 end
 
 local function widget_on_layout(width, height)
