@@ -1299,14 +1299,14 @@ static void gfx_widgets_draw_task_msg(menu_widget_msg_t *msg,
 
 void gfx_widgets_font_flush(font_data_t* font, video_frame_info_t* video_info)
 {
-   font_driver_flush(video_info->width, video_info->height, font, video_info);
+   font_driver_flush(video_info->width, video_info->height, font);
 
    if (font == font_regular)
       font_raster_regular.carr.coords.vertices  = 0;
    else if (font == font_bold)
       font_raster_bold.carr.coords.vertices     = 0;
    else
-      RARCH_ERR("[Widgets]: Trying to flush an unknown font!\n");
+      RARCH_ERR("[Kraken]: Trying to flush an unknown font!\n");
 }
 
 static void gfx_widgets_draw_regular_msg(menu_widget_msg_t *msg, video_frame_info_t *video_info)
