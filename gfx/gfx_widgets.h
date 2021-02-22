@@ -84,6 +84,19 @@ enum notification_show_screenshot_flash
    NOTIFICATION_SHOW_SCREENSHOT_FLASH_LAST
 };
 
+enum help_message_slot
+{
+   HELP_MESSAGE_SLOT_TOP_LEFT = 0,
+   HELP_MESSAGE_SLOT_TOP_MIDDLE,
+   HELP_MESSAGE_SLOT_TOP_RIGHT,
+   HELP_MESSAGE_SLOT_MIDDLE_RIGHT,
+   HELP_MESSAGE_SLOT_BOTTOM_RIGHT,
+   HELP_MESSAGE_SLOT_BOTTOM_MIDDLE,
+   HELP_MESSAGE_SLOT_BOTTOM_LEFT,
+   HELP_MESSAGE_SLOT_MIDDLE_LEFT,
+   _HELP_MESSAGE_SLOT_MAX
+};
+
 /* This structure holds all objects + metadata
  * corresponding to a particular font */
 typedef struct
@@ -379,6 +392,7 @@ extern const gfx_widget_t gfx_widget_generic_message;
 extern const gfx_widget_t gfx_widget_libretro_message;
 extern const gfx_widget_t gfx_widget_progress_message;
 extern const gfx_widget_t gfx_widget_load_content_animation;
+extern const gfx_widget_t gfx_widget_help_message;
 
 #ifdef HAVE_CHEEVOS
 extern const gfx_widget_t gfx_widget_achievement_popup;
