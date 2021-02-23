@@ -379,6 +379,38 @@ void gfx_widget_set_progress_message(void *data,
 /* Warning: not thread safe! */
 bool gfx_widget_start_load_content_animation(void);
 
+/*
+   Pushes a "help message" widget in the given slot.
+
+   If a message is already present in that slot it will be properly animated out and the new one
+   will be animated in, unless the animated bool is set to false, in which case a faster fade in / out
+   animation will play.
+
+   If no message is present in that slot the animated bool does not have any effect.
+
+   The timeout parameter allows to automatically dismiss the message after a certain amount of time
+   has passed (in ms). Use 0 to disable.
+*/
+void gfx_widget_help_message_push(enum help_message_slot slot, const char* title, const char* message, bool animated, retro_time_t timeout);
+
+/*
+   Dismisses any "help message" present in the given slot.
+
+   If a transition was already pending or ongoing for that slot (right after calling push for instance),
+   it will be cancelled and the pending message will not show up.
+
+   If animated is set to false, it will instantly disappear instead of being
+   animated out (useful to quickly dispose of help messages when loading content for instance).
+*/
+void gfx_widget_help_message_dismiss(enum help_message_slot slot, bool animated);
+
+/*
+   Dismisses all "help messages" in all slots.
+
+   Animated parameter has the same behavior as the regular dismiss function.
+*/
+void gfx_widget_help_message_dismiss_all(bool animated);
+
 /* All the functions below should be called in
  * the video driver - once they are all added, set
  * enable_menu_widgets to true for that driver */
