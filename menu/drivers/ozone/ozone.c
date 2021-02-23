@@ -28,6 +28,8 @@
 #include "discord/discord.h"
 #endif
 
+#include "../../../gfx/gfx_widgets.h"
+
 #include <file/file_path.h>
 #include <string/stdstring.h>
 #include <encodings/utf.h>
@@ -383,6 +385,8 @@ static enum menu_action ozone_parse_menu_entry_action(
          }
          break;
       case MENU_ACTION_DOWN:
+         gfx_widget_help_message_push(HELP_MESSAGE_SLOT_MIDDLE_LEFT, "Need help?", "Press ESCAPE twice to quit RetroArch.", true, 0);
+
          if (ozone->cursor_in_sidebar)
          {
             /* If cursor is active, ensure we target

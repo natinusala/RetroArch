@@ -391,7 +391,25 @@ bool gfx_widget_start_load_content_animation(void);
    The timeout parameter allows to automatically dismiss the message after a certain amount of time
    has passed (in ms). Use 0 to disable.
 */
-void gfx_widget_help_message_push(enum help_message_slot slot, const char* title, const char* message, bool animated, retro_time_t timeout);
+void gfx_widget_help_message_push(
+      enum help_message_slot slot,
+      const char* title,
+      const char* message,
+      bool animated,
+      retro_time_t timeout);
+
+/*
+   Delays the creation of a "help message" widget. Behaves the same as the push function.
+
+   The delay is cancelled when dismissing the message of the same slot.
+*/
+void gfx_widget_help_message_delay(
+      retro_time_t delay,
+      enum help_message_slot slot,
+      const char* title,
+      const char* message,
+      bool animated,
+      retro_time_t timeout);
 
 /*
    Dismisses any "help message" present in the given slot.

@@ -252,7 +252,8 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    {
       gfx_widget_help_message_slot_t* slot = state->slots[i];
 
-      gfx_widget_help_message_slot_layout(slot);
+      if (slot)
+         gfx_widget_help_message_slot_layout(slot);
    }
 }
 
@@ -295,9 +296,9 @@ gfx_widget_help_message_t* gfx_widgets_help_message_init(enum help_message_slot 
    gfx_widget_help_message_t* message_ptr = NULL;
 
    /* Init */
-   message = calloc(1, sizeof(*message_ptr));
+   message_ptr = calloc(1, sizeof(*message_ptr));
 
-   if (!message)
+   if (!message_ptr)
       return NULL;
 
    /* Generic attrs */
@@ -342,7 +343,7 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
 
 void gfx_widget_help_message_dismiss(enum help_message_slot slot, bool animated)
 {
-   // TODO: do it
+   // TODO: do it only if slot_ptr is valid
 }
 
 void gfx_widget_help_message_dismiss_all(bool animated)
