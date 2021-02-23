@@ -14,6 +14,7 @@
  */
 
 #include "../gfx_widgets.h"
+#include "../gfx_display.h"
 
 #include <string/stdstring.h>
 
@@ -61,7 +62,7 @@ typedef struct gfx_widget_help_message_slot
    enum gfx_widget_help_message_slot_state state;
 
    /* Goes from 1.0f to 0.0f, represents the slide in / out animation.
-      Formula is x - (x * slide_animation) */
+      Formula is x = x - (width * slide_animation) */
    float slide_animation;
 
    /* Currently displayed message */
@@ -244,7 +245,7 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    state->layout.display_width  = p_dispwidget->last_video_width;
    state->layout.display_height = p_dispwidget->last_video_height;
    state->layout.message_width  = state->layout.display_width / 4;
-   state->layout.header_height  = font_regular->line_height * 2;
+   state->layout.header_height  = (unsigned) ((float) font_regular->line_height * 1.5f);
    state->layout.glyph_width    = font_driver_get_message_width(font_regular, "a", 1, 1.0f);
    state->layout.line_height    = font_regular->line_height;
 
@@ -257,10 +258,84 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    }
 }
 
-static void gfx_widget_help_message_slot_frame(gfx_widget_help_message_slot_t* slot)
+static void gfx_widget_help_message_slot_frame(gfx_widget_help_message_slot_t* slot, const video_frame_info_t* video_info)
 {
-   /* Draw current message */
-   // TODO: do it
+   static float header_color[16] = COLOR_HEX_TO_FLOAT(0x3A3A3A, 1.0f);
+   static float body_color[16]   = COLOR_HEX_TO_FLOAT(0x7A7A7A, 1.0f);
+
+   const unsigned video_width  = video_info->width;
+   const unsigned video_height = video_info->height;
+
+   int left_side, top_side;
+   unsigned width, height;
+
+   if (!slot->current)
+      return;
+
+   width  = slot->current->layout.width;
+   height = slot->current->layout.header_height + slot->current->layout.message_height;
+
+   left_side = slot->current->layout.x;
+   top_side  = slot->current->layout.y;
+
+   /* Positioning */
+   switch(slot->current->slot)
+   {
+      /* Sliding from left side */
+      case HELP_MESSAGE_SLOT_TOP_LEFT:
+      case HELP_MESSAGE_SLOT_BOTTOM_LEFT:
+      case HELP_MESSAGE_SLOT_MIDDLE_LEFT:
+         left_side -= width * (int) roundf(slot->slide_animation);
+         break;
+      /* Sliding from top side */
+      case HELP_MESSAGE_SLOT_TOP_MIDDLE:
+         top_side -= height * (int) roundf(slot->slide_animation);
+         break;
+      /* Sliding from right side */
+      case HELP_MESSAGE_SLOT_TOP_RIGHT:
+      case HELP_MESSAGE_SLOT_MIDDLE_RIGHT:
+      case HELP_MESSAGE_SLOT_BOTTOM_RIGHT:
+         left_side += width * (int) roundf(slot->slide_animation);
+         break;
+      /* Sliding from bottom side */
+      case HELP_MESSAGE_SLOT_BOTTOM_MIDDLE:
+         top_side += height * (int) roundf(slot->slide_animation);
+         break;
+      default:
+         break;
+   }
+
+   /* TODO: padding */
+
+   /* Header */
+   gfx_display_draw_quad(
+      video_info->userdata,
+      video_width,
+      video_height,
+      left_side,
+      top_side,
+      width,
+      slot->current->layout.header_height,
+      video_width,
+      video_height,
+      header_color
+   );
+
+   /* Body */
+   gfx_display_draw_quad(
+      video_info->userdata,
+      video_width,
+      video_height,
+      left_side,
+      top_side + slot->current->layout.header_height,
+      width,
+      slot->current->layout.message_height,
+      video_width,
+      video_height,
+      body_color
+   );
+
+   /* TODO: text */
 }
 
 static void gfx_widget_help_message_frame(void* data, void* userdata)
@@ -268,6 +343,7 @@ static void gfx_widget_help_message_frame(void* data, void* userdata)
    size_t i;
 
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
+   const video_frame_info_t* video_info = (const video_frame_info_t*)data;
 
    if (state->messages_count == 0)
       return;
@@ -277,7 +353,7 @@ static void gfx_widget_help_message_frame(void* data, void* userdata)
       gfx_widget_help_message_slot_t* slot = state->slots[i];
 
       if (slot)
-         gfx_widget_help_message_slot_frame(slot);
+         gfx_widget_help_message_slot_frame(slot, video_info);
    }
 }
 
@@ -338,6 +414,7 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
       slot_ptr->slide_animation = 1.0f;
 
       // TODO: Start animation
+      slot_ptr->slide_animation = 0.0f; /* TODO: remove after animation is done */
    }
 }
 

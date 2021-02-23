@@ -10,6 +10,9 @@
    "editor.insertSpaces": true,
    "editor.formatOnSave": false,
    "files.associations": {
+      "**/templates/*.html": "django-html",
+      "**/templates/*": "django-txt",
+      "**/requirements{/**,*}.{txt,in}": "pip-requirements",
       "frontend_driver.h": "c",
       "*.in": "c",
       "*.rh": "c",
@@ -64,7 +67,9 @@
       "menu_input_dialog.h": "c",
       "ozone_sidebar.h": "c",
       "menu_thumbnail_path.h": "c",
-      "badges.h": "c"
+      "badges.h": "c",
+      "cmath": "c",
+      "gfx_display.h": "c"
    },
    "files.exclude": {
       "**/*.o": true,
