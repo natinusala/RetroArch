@@ -246,7 +246,7 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    state->layout.display_height = p_dispwidget->last_video_height;
    state->layout.message_width  = state->layout.display_width / 4;
    state->layout.header_height  = (unsigned) ((float) font_regular->line_height * 1.5f);
-   state->layout.glyph_width    = font_driver_get_message_width(font_regular, "a", 1, 1.0f);
+   state->layout.glyph_width    = font_driver_get_message_width(font_regular->font, "a", 1, 1.0f);
    state->layout.line_height    = font_regular->line_height;
 
    for (i = 0; i < _HELP_MESSAGE_SLOT_MAX; i++)
@@ -398,6 +398,10 @@ gfx_widget_help_message_t* gfx_widgets_help_message_init(enum help_message_slot 
 void gfx_widget_help_message_push(enum help_message_slot slot, const char* title, const char* message, bool animated, retro_time_t timeout)
 {
    gfx_widget_help_message_slot_t* slot_ptr = gfx_widget_help_message_slot_prepare(slot);
+
+   /* Ensure we are pushing a valid help message */
+   if (string_is_empty(title) || string_is_empty(message))
+      return;
 
    /* Case 1: there is no message, add one */
    if (!slot_ptr->current)
