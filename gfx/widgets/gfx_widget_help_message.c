@@ -28,22 +28,41 @@
 
 enum gfx_widget_help_message_slot_state
 {
-   GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_IN = 0, // a message is currently sliding in
+   GFX_WIDGET_HELP_MESSAGE_STATE_NONE = 0, // default state
+   GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_IN, // a message is currently sliding in
    GFX_WIDGET_HELP_MESSAGE_STATE_IDLE, // a message is visible and waiting to disappear or change its text
    GFX_WIDGET_HELP_MESSAGE_STATE_TEXT_CHANGING, // a message is visible and its text is currently changing
    GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_OUT, // a message is currently sliding out
 };
 
-/* Struct defining one help message */
-typedef struct gfx_widget_help_message
+/* Single help message slot state */
+typedef struct gfx_widget_help_message_slot
 {
+   enum help_message_slot slot;
+
+   enum gfx_widget_help_message_slot_state state;
+
+   /* Goes from 1.0f to 0.0f, represents the slide in / out animation.
+      Formula is x = x - (width * slide_animation) */
+   float slide_animation;
+
+   /* Currently displayed message data */
    char original_title[TITLE_MAX_LENGTH]; /* original title, truncated into truncated_title */
    char original_message[MESSAGE_MAX_LENGTH]; /* original message, word wrapped into wrapped_message */
 
    char truncated_title[TITLE_MAX_LENGTH]; /* actually displayed title */
    char wrapped_message[MESSAGE_MAX_LENGTH]; /* actually displayed text */
 
-   enum help_message_slot slot;
+   /* Info about the next queued message, if any */
+   struct
+   {
+      char* title; /* strdup'd */
+      char* message; /* strdup'd */
+
+      bool animated; /* for slide in animation */
+
+      retro_time_t timeout;
+   } next;
 
    struct
    {
@@ -54,22 +73,6 @@ typedef struct gfx_widget_help_message
       unsigned header_height;
       unsigned message_height;
    } layout;
-} gfx_widget_help_message_t;
-
-/* Single help message slot state */
-typedef struct gfx_widget_help_message_slot
-{
-   enum gfx_widget_help_message_slot_state state;
-
-   /* Goes from 1.0f to 0.0f, represents the slide in / out animation.
-      Formula is x = x - (width * slide_animation) */
-   float slide_animation;
-
-   /* Currently displayed message */
-   gfx_widget_help_message_t* current;
-
-   /* Potential next message to show (for the transition) */
-   gfx_widget_help_message_t* next;
 } gfx_widget_help_message_slot_t;
 
 /* Global help message "widget" state */
@@ -108,7 +111,7 @@ gfx_widget_help_message_slot_t* gfx_widget_help_message_slot_prepare(enum help_m
    slot_ptr = calloc(1, sizeof(*slot_ptr));
 
    /* Slot init */
-   // TODO: slot init
+   slot_ptr->state = GFX_WIDGET_HELP_MESSAGE_STATE_NONE;
 
    state->slots[(size_t) slot] = slot_ptr;
 
@@ -125,12 +128,12 @@ void gfx_widget_help_message_slot_release(enum help_message_slot slot)
 
    // TODO: kill all animations and timers
 
-   /* Free all messages */
-   if (slot_ptr->current)
-      free(slot_ptr->current);
+   /* Free next message strings, if any */
+   if (slot_ptr->next.title)
+      free(slot_ptr->next.title);
 
-   if (slot_ptr->next)
-      free(slot_ptr->next);
+   if (slot_ptr->next.message)
+      free(slot_ptr->next.message);
 
    free(slot_ptr);
    state->slots[(size_t) slot] = NULL;
@@ -148,7 +151,7 @@ static bool gfx_widget_help_message_init(bool video_is_threaded, bool fullscreen
    return true;
 }
 
-static void gfx_widget_help_message_message_layout(gfx_widget_help_message_t* message)
+static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* slot)
 {
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
 
@@ -156,16 +159,16 @@ static void gfx_widget_help_message_message_layout(gfx_widget_help_message_t* me
    size_t i;
 
    /* Universal layout */
-   message->layout.width         = state->layout.message_width;
-   message->layout.header_height = state->layout.header_height;
+   slot->layout.width         = state->layout.message_width;
+   slot->layout.header_height = state->layout.header_height;
 
    /* TODO: Truncate title */
-   strncpy(message->truncated_title, message->original_title, TITLE_MAX_LENGTH);
+   strncpy(slot->truncated_title, slot->original_title, TITLE_MAX_LENGTH);
 
    /* Perform word wrapping */
    word_wrap(
-      message->wrapped_message,
-      message->original_message,
+      slot->wrapped_message,
+      slot->original_message,
       state->layout.glyph_width_regular,
       true,
       0
@@ -175,60 +178,51 @@ static void gfx_widget_help_message_message_layout(gfx_widget_help_message_t* me
    lines = 1;
    for (i = 0; i < MESSAGE_MAX_LENGTH; i++)
    {
-      if (message->wrapped_message[i] == '\n')
+      if (slot->wrapped_message[i] == '\n')
          lines++;
-      else if (message->wrapped_message[i] == '\0')
+      else if (slot->wrapped_message[i] == '\0')
          break;
    }
 
-   message->layout.message_height = state->layout.line_height * lines; /* TODO: padding */
+   slot->layout.message_height = state->layout.line_height * lines; /* TODO: padding */
 
    /* Positioning */
-   switch (message->slot)
+   switch (slot->slot)
    {
       default:
       case HELP_MESSAGE_SLOT_TOP_LEFT:
-         message->layout.x = 0;
-         message->layout.y = 0;
+         slot->layout.x = 0;
+         slot->layout.y = 0;
          break;
       case HELP_MESSAGE_SLOT_TOP_MIDDLE:
-         message->layout.x = state->layout.display_width / 2 - message->layout.width / 2;
-         message->layout.y = 0;
+         slot->layout.x = state->layout.display_width / 2 - slot->layout.width / 2;
+         slot->layout.y = 0;
          break;
       case HELP_MESSAGE_SLOT_TOP_RIGHT:
-         message->layout.x = state->layout.display_width - message->layout.width;
-         message->layout.y = 0;
+         slot->layout.x = state->layout.display_width - slot->layout.width;
+         slot->layout.y = 0;
          break;
       case HELP_MESSAGE_SLOT_MIDDLE_RIGHT:
-         message->layout.x = state->layout.display_width - message->layout.width;
-         message->layout.y = state->layout.display_height / 2 - (message->layout.header_height + message->layout.message_height) / 2;
+         slot->layout.x = state->layout.display_width - slot->layout.width;
+         slot->layout.y = state->layout.display_height / 2 - (slot->layout.header_height + slot->layout.message_height) / 2;
          break;
       case HELP_MESSAGE_SLOT_BOTTOM_RIGHT:
-         message->layout.x = state->layout.display_width - message->layout.width;
-         message->layout.y = state->layout.display_height - (message->layout.header_height + message->layout.message_height);
+         slot->layout.x = state->layout.display_width - slot->layout.width;
+         slot->layout.y = state->layout.display_height - (slot->layout.header_height + slot->layout.message_height);
          break;
       case HELP_MESSAGE_SLOT_BOTTOM_MIDDLE:
-         message->layout.x = state->layout.display_width / 2 - message->layout.width / 2;
-         message->layout.y = state->layout.display_height - (message->layout.header_height + message->layout.message_height);
+         slot->layout.x = state->layout.display_width / 2 - slot->layout.width / 2;
+         slot->layout.y = state->layout.display_height - (slot->layout.header_height + slot->layout.message_height);
          break;
       case HELP_MESSAGE_SLOT_BOTTOM_LEFT:
-         message->layout.x = 0;
-         message->layout.y = state->layout.display_height - (message->layout.header_height + message->layout.message_height);
+         slot->layout.x = 0;
+         slot->layout.y = state->layout.display_height - (slot->layout.header_height + slot->layout.message_height);
          break;
       case HELP_MESSAGE_SLOT_MIDDLE_LEFT:
-         message->layout.x = 0;
-         message->layout.y = state->layout.display_height / 2 - (message->layout.header_height + message->layout.message_height) / 2;
+         slot->layout.x = 0;
+         slot->layout.y = state->layout.display_height / 2 - (slot->layout.header_height + slot->layout.message_height) / 2;
          break;
    }
-}
-
-static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* slot)
-{
-   if (slot->current)
-      gfx_widget_help_message_message_layout(slot->current);
-
-   if (slot->next)
-      gfx_widget_help_message_message_layout(slot->next);
 }
 
 static void gfx_widget_help_message_layout(void *data, bool is_threaded, const char *dir_assets, char *font_path)
@@ -239,12 +233,14 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
    gfx_widget_font_data_t *font_regular   = &p_dispwidget->gfx_widget_fonts.regular;
 
+   float scale_factor = p_dispwidget->last_scale_factor;
+
    // TODO: text size too? or does it scale automatically?
 
    /* Messages layout */
    state->layout.display_width       = p_dispwidget->last_video_width;
    state->layout.display_height      = p_dispwidget->last_video_height;
-   state->layout.message_width       = state->layout.display_width / 4;
+   state->layout.message_width       = (unsigned) (250.0f * scale_factor);
    state->layout.header_height       = (unsigned) ((float) font_regular->line_height * 1.5f);
    state->layout.glyph_width_regular = font_driver_get_message_width(font_regular->font, "a", 1, 1.0f);
    state->layout.line_height         = font_regular->line_height;
@@ -263,10 +259,11 @@ static void gfx_widget_help_message_slot_frame(
       const video_frame_info_t* video_info,
       dispgfx_widget_t* p_dispwidget)
 {
-   /* TODO: proper colors that go well on the ozone dark theme (shadow?)*/
-   static float header_color[16] = COLOR_HEX_TO_FLOAT(0x3A3A3A, 1.0f);
-   static float body_color[16]   = COLOR_HEX_TO_FLOAT(0x7A7A7A, 1.0f);
-   static uint32_t text_color    = 0xFFFFFFFF;
+   static float background_color[16] = COLOR_HEX_TO_FLOAT(0x000000, 0.9f);
+   static float pellet_color[16]     = COLOR_HEX_TO_FLOAT(0x1FB318, 1.0f);
+
+   static uint32_t title_color   = 0x1FB318FF;
+   static uint32_t message_color = 0xFFFFFFFF;
 
    const unsigned video_width  = video_info->width;
    const unsigned video_height = video_info->height;
@@ -274,17 +271,17 @@ static void gfx_widget_help_message_slot_frame(
    int left_side, top_side;
    unsigned width, height;
 
-   if (!slot->current)
+   if (!slot)
       return;
 
-   width  = slot->current->layout.width;
-   height = slot->current->layout.header_height + slot->current->layout.message_height;
+   width  = slot->layout.width;
+   height = slot->layout.header_height + slot->layout.message_height;
 
-   left_side = slot->current->layout.x;
-   top_side  = slot->current->layout.y;
+   left_side = slot->layout.x;
+   top_side  = slot->layout.y;
 
    /* Positioning */
-   switch(slot->current->slot)
+   switch(slot->slot)
    {
       /* Sliding from left side */
       case HELP_MESSAGE_SLOT_TOP_LEFT:
@@ -312,41 +309,31 @@ static void gfx_widget_help_message_slot_frame(
 
    /* TODO: padding */
 
-   /* Header */
+   /* Background */
    gfx_display_draw_quad(
       video_info->userdata,
       video_width, video_height,
       left_side,
       top_side,
       width,
-      slot->current->layout.header_height,
+      height,
       video_width, video_height,
-      header_color
+      background_color
    );
+
+   /* TODO: pellet */
+
+   /* Text */
 
    gfx_widgets_draw_text(
       &p_dispwidget->gfx_widget_fonts.bold,
-      slot->current->truncated_title,
+      slot->truncated_title,
       left_side,
-      top_side + slot->current->layout.header_height / 2 + p_dispwidget->gfx_widget_fonts.bold.line_descender, /* TODO: properly center it */
+      top_side + slot->layout.header_height / 2 + p_dispwidget->gfx_widget_fonts.bold.line_descender, /* TODO: properly center it */
       video_width, video_height,
-      text_color,
+      title_color,
       TEXT_ALIGN_LEFT,
       true
-   );
-
-   /* Body */
-   gfx_display_draw_quad(
-      video_info->userdata,
-      video_width,
-      video_height,
-      left_side,
-      top_side + slot->current->layout.header_height,
-      width,
-      slot->current->layout.message_height,
-      video_width,
-      video_height,
-      body_color
    );
 
    /* TODO: text */
@@ -380,38 +367,11 @@ static void gfx_widget_help_message_free()
       gfx_widget_help_message_slot_release(i);
 }
 
-// TODO: free
-gfx_widget_help_message_t* gfx_widgets_help_message_init(enum help_message_slot slot, const char* title, const char* message)
-{
-   gfx_widget_help_message_state_t* state = &p_w_help_message_st;
-   gfx_widget_help_message_t* message_ptr = NULL;
-
-   /* Init */
-   message_ptr = calloc(1, sizeof(*message_ptr));
-
-   if (!message_ptr)
-      return NULL;
-
-   /* Generic attrs */
-   message_ptr->slot = slot;
-
-   /* Copy texts */
-   snprintf(message_ptr->original_title, TITLE_MAX_LENGTH, "%s", title);
-   snprintf(message_ptr->original_message, MESSAGE_MAX_LENGTH, "%s", message);
-
-   /* Layout */
-   gfx_widget_help_message_message_layout(message_ptr);
-
-   /* Increment counter */
-   state->messages_count++;
-
-   return message_ptr;
-}
-
 /* Public functions */
 
 void gfx_widget_help_message_push(enum help_message_slot slot, const char* title, const char* message, bool animated, retro_time_t timeout)
 {
+   gfx_widget_help_message_state_t* state   = &p_w_help_message_st;
    gfx_widget_help_message_slot_t* slot_ptr = gfx_widget_help_message_slot_prepare(slot);
 
    /* Ensure we are pushing a valid help message */
@@ -419,21 +379,27 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
       return;
 
    /* Case 1: there is no message, add one */
-   if (!slot_ptr->current)
+   /* TODO: turn into a switch case to ensure every case is handled */
+   if (slot_ptr->state == GFX_WIDGET_HELP_MESSAGE_STATE_NONE)
    {
-      /* Add message */
-      gfx_widget_help_message_t* message_ptr = gfx_widgets_help_message_init(slot, title, message);
+      /* Generic attrs */
+      slot_ptr->slot = slot;
 
-      if (!message_ptr)
-         return;
+      /* Copy texts */
+      snprintf(slot_ptr->original_title, TITLE_MAX_LENGTH, "%s", title);
+      snprintf(slot_ptr->original_message, MESSAGE_MAX_LENGTH, "%s", message);
 
-      slot_ptr->current = message_ptr;
+      /* Layout */
+      gfx_widget_help_message_slot_layout(slot_ptr);
 
       /* Reset slot state */
       slot_ptr->slide_animation = 1.0f;
 
       // TODO: Start animation
       slot_ptr->slide_animation = 0.0f; /* TODO: remove after animation is done */
+
+      /* Increment counter */
+      state->messages_count++;
    }
 }
 
