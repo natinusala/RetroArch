@@ -248,7 +248,7 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    /* Messages layout */
    state->layout.display_width       = p_dispwidget->last_video_width;
    state->layout.display_height      = p_dispwidget->last_video_height;
-   state->layout.message_width       = (unsigned) roundf(325.0f * scale_factor);
+   state->layout.message_width       = (unsigned) roundf(325.0f * scale_factor); /* TODO: adjust width depending on slot */
    state->layout.glyph_width         = font_driver_get_message_width(font->font, "a", 1, 1.0f);
    state->layout.line_height         = font->line_height;
    state->layout.title_padding_x     = (unsigned) roundf(35.0f * scale_factor);
