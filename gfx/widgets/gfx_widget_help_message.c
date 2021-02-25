@@ -89,6 +89,12 @@ struct gfx_widget_help_message_state
       unsigned line_height;
       unsigned display_width;
       unsigned display_height;
+      unsigned pellet_y_offset;
+      unsigned title_x_offset;
+      unsigned title_padding_x;
+      unsigned message_padding_x;
+      unsigned padding_y;
+      unsigned pellet_size;
    } layout;
 };
 
@@ -156,11 +162,14 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
 
    unsigned lines;
+   unsigned available_message_width;
    size_t i;
 
    /* Universal layout */
    slot->layout.width         = state->layout.message_width;
    slot->layout.header_height = state->layout.header_height;
+
+   available_message_width = slot->layout.width - state->layout.message_padding_x * 2;
 
    /* TODO: Truncate title */
    strncpy(slot->truncated_title, slot->original_title, TITLE_MAX_LENGTH);
@@ -169,7 +178,7 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
    word_wrap(
       slot->wrapped_message,
       slot->original_message,
-      state->layout.glyph_width_regular,
+      (int) roundf((float) available_message_width / (float) state->layout.glyph_width_regular),
       true,
       0
    );
@@ -184,7 +193,7 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
          break;
    }
 
-   slot->layout.message_height = state->layout.line_height * lines; /* TODO: padding */
+   slot->layout.message_height = state->layout.line_height * lines + state->layout.padding_y * 2;
 
    /* Positioning */
    switch (slot->slot)
@@ -240,10 +249,16 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    /* Messages layout */
    state->layout.display_width       = p_dispwidget->last_video_width;
    state->layout.display_height      = p_dispwidget->last_video_height;
-   state->layout.message_width       = (unsigned) (250.0f * scale_factor);
-   state->layout.header_height       = (unsigned) ((float) font_regular->line_height * 1.5f);
+   state->layout.message_width       = (unsigned) roundf(300.0f * scale_factor);
    state->layout.glyph_width_regular = font_driver_get_message_width(font_regular->font, "a", 1, 1.0f);
    state->layout.line_height         = font_regular->line_height;
+   state->layout.padding_y           = (unsigned) roundf(10.0f * scale_factor);
+   state->layout.title_padding_x     = (unsigned) roundf(30.0f * scale_factor);
+   state->layout.message_padding_x   = (unsigned) roundf(10.0f * scale_factor);
+   state->layout.header_height       = font_regular->line_height + 2 * state->layout.padding_y;
+   state->layout.pellet_size         = (unsigned) roundf(15.0f * scale_factor);
+   state->layout.pellet_y_offset     = state->layout.header_height / 2 - state->layout.pellet_size / 2;
+   state->layout.title_x_offset      = state->layout.title_padding_x * 2 + state->layout.pellet_size;
 
    for (i = 0; i < _HELP_MESSAGE_SLOT_MAX; i++)
    {
@@ -261,9 +276,12 @@ static void gfx_widget_help_message_slot_frame(
 {
    static float background_color[16] = COLOR_HEX_TO_FLOAT(0x000000, 0.9f);
    static float pellet_color[16]     = COLOR_HEX_TO_FLOAT(0x1FB318, 1.0f);
+   static float agagougou_color[16]     = COLOR_HEX_TO_FLOAT(0xFF0000, 1.0f);
 
    static uint32_t title_color   = 0x1FB318FF;
    static uint32_t message_color = 0xFFFFFFFF;
+
+   gfx_widget_help_message_state_t* state = &p_w_help_message_st;
 
    const unsigned video_width  = video_info->width;
    const unsigned video_height = video_info->height;
@@ -307,8 +325,6 @@ static void gfx_widget_help_message_slot_frame(
          break;
    }
 
-   /* TODO: padding */
-
    /* Background */
    gfx_display_draw_quad(
       video_info->userdata,
@@ -321,15 +337,36 @@ static void gfx_widget_help_message_slot_frame(
       background_color
    );
 
-   /* TODO: pellet */
+   /* TODO: remove it */
+   gfx_display_draw_quad(
+      video_info->userdata,
+      video_width, video_height,
+      left_side,
+      top_side,
+      width,
+      state->layout.header_height,
+      video_width, video_height,
+      agagougou_color
+   );
 
-   /* Text */
+   /* Pellet */
+   gfx_display_draw_quad(
+      video_info->userdata,
+      video_width, video_height,
+      left_side + state->layout.title_padding_x,
+      top_side + state->layout.pellet_y_offset,
+      state->layout.pellet_size,
+      state->layout.pellet_size,
+      video_width, video_height,
+      pellet_color
+   );
 
+   /* Title */
    gfx_widgets_draw_text(
       &p_dispwidget->gfx_widget_fonts.bold,
       slot->truncated_title,
-      left_side,
-      top_side + slot->layout.header_height / 2 + p_dispwidget->gfx_widget_fonts.bold.line_descender, /* TODO: properly center it */
+      left_side + state->layout.title_x_offset,
+      top_side + state->layout.message_padding_x + slot->layout.header_height / 2 + p_dispwidget->gfx_widget_fonts.bold.line_descender, /* TODO: properly center it */
       video_width, video_height,
       title_color,
       TEXT_ALIGN_LEFT,
