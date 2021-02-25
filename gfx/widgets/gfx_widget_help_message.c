@@ -85,12 +85,12 @@ struct gfx_widget_help_message_state
    struct {
       unsigned message_width;
       unsigned header_height;
-      unsigned glyph_width_regular;
+      unsigned glyph_width;
       unsigned line_height;
       unsigned display_width;
       unsigned display_height;
-      unsigned pellet_y_offset;
-      unsigned title_x_offset;
+      unsigned pellet_offset_y;
+      unsigned title_offset_x;
       unsigned title_padding_x;
       unsigned message_padding_x;
       unsigned padding_y;
@@ -169,7 +169,8 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
    slot->layout.width         = state->layout.message_width;
    slot->layout.header_height = state->layout.header_height;
 
-   available_message_width = slot->layout.width - state->layout.message_padding_x * 2;
+   /* Only count letft padding, the wrapping uncertainty counts as the right padding */
+   available_message_width = slot->layout.width - state->layout.message_padding_x;
 
    /* TODO: Truncate title */
    strncpy(slot->truncated_title, slot->original_title, TITLE_MAX_LENGTH);
@@ -178,7 +179,7 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
    word_wrap(
       slot->wrapped_message,
       slot->original_message,
-      (int) roundf((float) available_message_width / (float) state->layout.glyph_width_regular),
+      (int) roundf((float) available_message_width / (float) state->layout.glyph_width),
       true,
       0
    );
@@ -240,25 +241,23 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
 
    dispgfx_widget_t* p_dispwidget         = (dispgfx_widget_t*)data;
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
-   gfx_widget_font_data_t *font_regular   = &p_dispwidget->gfx_widget_fonts.regular;
+   gfx_widget_font_data_t *font           = &p_dispwidget->gfx_widget_fonts.msg_queue;
 
    float scale_factor = p_dispwidget->last_scale_factor;
-
-   // TODO: text size too? or does it scale automatically?
 
    /* Messages layout */
    state->layout.display_width       = p_dispwidget->last_video_width;
    state->layout.display_height      = p_dispwidget->last_video_height;
-   state->layout.message_width       = (unsigned) roundf(300.0f * scale_factor);
-   state->layout.glyph_width_regular = font_driver_get_message_width(font_regular->font, "a", 1, 1.0f);
-   state->layout.line_height         = font_regular->line_height;
-   state->layout.padding_y           = (unsigned) roundf(10.0f * scale_factor);
-   state->layout.title_padding_x     = (unsigned) roundf(30.0f * scale_factor);
-   state->layout.message_padding_x   = (unsigned) roundf(10.0f * scale_factor);
-   state->layout.header_height       = font_regular->line_height + 2 * state->layout.padding_y;
+   state->layout.message_width       = (unsigned) roundf(325.0f * scale_factor);
+   state->layout.glyph_width         = font_driver_get_message_width(font->font, "a", 1, 1.0f);
+   state->layout.line_height         = font->line_height;
+   state->layout.title_padding_x     = (unsigned) roundf(35.0f * scale_factor);
+   state->layout.message_padding_x   = (unsigned) roundf(22.5f * scale_factor);
+   state->layout.padding_y           = (unsigned) roundf(15.0f * scale_factor);
+   state->layout.header_height       = font->line_height + 2 * state->layout.padding_y;
    state->layout.pellet_size         = (unsigned) roundf(15.0f * scale_factor);
-   state->layout.pellet_y_offset     = state->layout.header_height / 2 - state->layout.pellet_size / 2;
-   state->layout.title_x_offset      = state->layout.title_padding_x * 2 + state->layout.pellet_size;
+   state->layout.pellet_offset_y     = state->layout.header_height / 2 - state->layout.pellet_size / 2;
+   state->layout.title_offset_x      = state->layout.title_padding_x * 2 + state->layout.pellet_size;
 
    for (i = 0; i < _HELP_MESSAGE_SLOT_MAX; i++)
    {
@@ -276,7 +275,6 @@ static void gfx_widget_help_message_slot_frame(
 {
    static float background_color[16] = COLOR_HEX_TO_FLOAT(0x000000, 0.9f);
    static float pellet_color[16]     = COLOR_HEX_TO_FLOAT(0x1FB318, 1.0f);
-   static float agagougou_color[16]     = COLOR_HEX_TO_FLOAT(0xFF0000, 1.0f);
 
    static uint32_t title_color   = 0x1FB318FF;
    static uint32_t message_color = 0xFFFFFFFF;
@@ -337,24 +335,12 @@ static void gfx_widget_help_message_slot_frame(
       background_color
    );
 
-   /* TODO: remove it */
-   gfx_display_draw_quad(
-      video_info->userdata,
-      video_width, video_height,
-      left_side,
-      top_side,
-      width,
-      state->layout.header_height,
-      video_width, video_height,
-      agagougou_color
-   );
-
    /* Pellet */
    gfx_display_draw_quad(
       video_info->userdata,
       video_width, video_height,
       left_side + state->layout.title_padding_x,
-      top_side + state->layout.pellet_y_offset,
+      top_side + state->layout.pellet_offset_y,
       state->layout.pellet_size,
       state->layout.pellet_size,
       video_width, video_height,
@@ -363,17 +349,27 @@ static void gfx_widget_help_message_slot_frame(
 
    /* Title */
    gfx_widgets_draw_text(
-      &p_dispwidget->gfx_widget_fonts.bold,
+      &p_dispwidget->gfx_widget_fonts.msg_queue,
       slot->truncated_title,
-      left_side + state->layout.title_x_offset,
-      top_side + state->layout.message_padding_x + slot->layout.header_height / 2 + p_dispwidget->gfx_widget_fonts.bold.line_descender, /* TODO: properly center it */
+      left_side + state->layout.title_offset_x,
+      top_side + slot->layout.header_height / 2 + p_dispwidget->gfx_widget_fonts.msg_queue.line_centre_offset,
       video_width, video_height,
       title_color,
       TEXT_ALIGN_LEFT,
       true
    );
 
-   /* TODO: text */
+   /* Message */
+   gfx_widgets_draw_text(
+      &p_dispwidget->gfx_widget_fonts.msg_queue,
+      slot->wrapped_message,
+      left_side + state->layout.message_padding_x,
+      top_side + slot->layout.header_height + state->layout.padding_y + p_dispwidget->gfx_widget_fonts.msg_queue.line_centre_offset,
+      video_width, video_height,
+      message_color,
+      TEXT_ALIGN_LEFT,
+      true
+   );
 }
 
 static void gfx_widget_help_message_frame(void* data, void* userdata)
