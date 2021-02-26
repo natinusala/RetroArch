@@ -83,7 +83,6 @@ struct gfx_widget_help_message_state
    int messages_count; /* used to know if we should draw anything */
 
    struct {
-      unsigned message_width;
       unsigned header_height;
       unsigned glyph_width;
       unsigned line_height;
@@ -157,19 +156,39 @@ static bool gfx_widget_help_message_init(bool video_is_threaded, bool fullscreen
    return true;
 }
 
-static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* slot)
+static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* slot, float scale_factor)
 {
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
 
    unsigned lines;
    unsigned available_message_width;
    size_t i;
+   unsigned width;
 
-   /* Universal layout */
-   slot->layout.width         = state->layout.message_width;
+   /* Width depends on slot */
+   switch (slot->slot)
+   {
+      case HELP_MESSAGE_SLOT_TOP_LEFT:
+      case HELP_MESSAGE_SLOT_TOP_RIGHT:
+      case HELP_MESSAGE_SLOT_MIDDLE_RIGHT:
+      case HELP_MESSAGE_SLOT_BOTTOM_RIGHT:
+      case HELP_MESSAGE_SLOT_BOTTOM_LEFT:
+      case HELP_MESSAGE_SLOT_MIDDLE_LEFT:
+      default:
+         width = 325;
+         break;
+      case HELP_MESSAGE_SLOT_TOP_MIDDLE:
+      case HELP_MESSAGE_SLOT_BOTTOM_MIDDLE:
+         width = 550;
+         break;
+   }
+
+   slot->layout.width = (unsigned) roundf((float) width * scale_factor);
+
+   /* Generic layout */
    slot->layout.header_height = state->layout.header_height;
 
-   /* Only count letft padding, the wrapping uncertainty counts as the right padding */
+   /* Only count left padding, the wrapping uncertainty counts as the right padding */
    available_message_width = slot->layout.width - state->layout.message_padding_x;
 
    /* TODO: Truncate title */
@@ -248,7 +267,6 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    /* Messages layout */
    state->layout.display_width       = p_dispwidget->last_video_width;
    state->layout.display_height      = p_dispwidget->last_video_height;
-   state->layout.message_width       = (unsigned) roundf(325.0f * scale_factor); /* TODO: adjust width depending on slot */
    state->layout.glyph_width         = font_driver_get_message_width(font->font, "a", 1, 1.0f);
    state->layout.line_height         = font->line_height;
    state->layout.title_padding_x     = (unsigned) roundf(35.0f * scale_factor);
@@ -264,7 +282,7 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
       gfx_widget_help_message_slot_t* slot = state->slots[i];
 
       if (slot)
-         gfx_widget_help_message_slot_layout(slot);
+         gfx_widget_help_message_slot_layout(slot, scale_factor);
    }
 }
 
@@ -406,6 +424,7 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
 {
    gfx_widget_help_message_state_t* state   = &p_w_help_message_st;
    gfx_widget_help_message_slot_t* slot_ptr = gfx_widget_help_message_slot_prepare(slot);
+   dispgfx_widget_t* p_dispwidget           = dispwidget_get_ptr();
 
    /* Ensure we are pushing a valid help message */
    if (string_is_empty(title) || string_is_empty(message))
@@ -423,7 +442,7 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
       snprintf(slot_ptr->original_message, MESSAGE_MAX_LENGTH, "%s", message);
 
       /* Layout */
-      gfx_widget_help_message_slot_layout(slot_ptr);
+      gfx_widget_help_message_slot_layout(slot_ptr, p_dispwidget->last_scale_factor);
 
       /* Reset slot state */
       slot_ptr->slide_animation = 1.0f;
