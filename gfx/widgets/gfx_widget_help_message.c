@@ -308,11 +308,10 @@ static void gfx_widget_help_message_slot_frame(
    if (!slot)
       return;
 
-   width  = slot->layout.width;
-   height = slot->layout.header_height + slot->layout.message_height;
-
-   left_side = slot->layout.x;
-   top_side  = slot->layout.y;
+   width       = slot->layout.width;
+   height      = slot->layout.header_height + slot->layout.message_height;
+   left_side   = slot->layout.x;
+   top_side    = slot->layout.y;
 
    /* Positioning */
    switch(slot->slot)
@@ -321,21 +320,21 @@ static void gfx_widget_help_message_slot_frame(
       case HELP_MESSAGE_SLOT_TOP_LEFT:
       case HELP_MESSAGE_SLOT_BOTTOM_LEFT:
       case HELP_MESSAGE_SLOT_MIDDLE_LEFT:
-         left_side -= width * (int) roundf(slot->slide_animation);
+         left_side -= roundf((float) width * slot->slide_animation);
          break;
       /* Sliding from top side */
       case HELP_MESSAGE_SLOT_TOP_MIDDLE:
-         top_side -= height * (int) roundf(slot->slide_animation);
+         top_side -= roundf((float) height * slot->slide_animation);
          break;
       /* Sliding from right side */
       case HELP_MESSAGE_SLOT_TOP_RIGHT:
       case HELP_MESSAGE_SLOT_MIDDLE_RIGHT:
       case HELP_MESSAGE_SLOT_BOTTOM_RIGHT:
-         left_side += width * (int) roundf(slot->slide_animation);
+         left_side += roundf((float) width * slot->slide_animation);
          break;
       /* Sliding from bottom side */
       case HELP_MESSAGE_SLOT_BOTTOM_MIDDLE:
-         top_side += height * (int) roundf(slot->slide_animation);
+         top_side += roundf((float) height * slot->slide_animation);
          break;
       default:
          break;
@@ -426,6 +425,8 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
    gfx_widget_help_message_slot_t* slot_ptr = gfx_widget_help_message_slot_prepare(slot);
    dispgfx_widget_t* p_dispwidget           = dispwidget_get_ptr();
 
+   gfx_animation_ctx_entry_t entry;
+
    /* Ensure we are pushing a valid help message */
    if (string_is_empty(title) || string_is_empty(message))
       return;
@@ -447,8 +448,16 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
       /* Reset slot state */
       slot_ptr->slide_animation = 1.0f;
 
-      // TODO: Start animation
-      slot_ptr->slide_animation = 0.0f; /* TODO: remove after animation is done */
+      // Start animation
+      entry.subject        = &slot_ptr->slide_animation;
+      entry.userdata       = NULL;
+      entry.cb             = NULL;
+      entry.tag            = (uintptr_t) entry.subject;
+      entry.duration       = MSG_QUEUE_ANIMATION_DURATION * 10;
+      entry.target_value   = 0.0f;
+      entry.easing_enum    = EASING_OUT_QUAD;
+
+      gfx_animation_push(&entry);
 
       /* Increment counter */
       state->messages_count++;
