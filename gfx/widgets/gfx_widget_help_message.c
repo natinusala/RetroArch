@@ -19,6 +19,8 @@
 #include <string/stdstring.h>
 
 // TODO: handle threading
+// TODO: make sure it's C89 compliant
+// TODO: ensure counter wors
 
 /* Max title length (before truncating!) */
 #define TITLE_MAX_LENGTH 64 // TODO: ensure creating a widget with a longer title truncates it and doesn't corrupt anything
@@ -28,11 +30,11 @@
 
 enum gfx_widget_help_message_slot_state
 {
-   GFX_WIDGET_HELP_MESSAGE_STATE_NONE = 0, // default state
-   GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_IN, // a message is currently sliding in
-   GFX_WIDGET_HELP_MESSAGE_STATE_IDLE, // a message is visible and waiting to disappear or change its text
-   GFX_WIDGET_HELP_MESSAGE_STATE_TEXT_CHANGING, // a message is visible and its text is currently changing
-   GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_OUT, // a message is currently sliding out
+   GFX_WIDGET_HELP_MESSAGE_STATE_NONE = 0, /* default state */
+   GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_IN, /* a message is currently sliding in */
+   GFX_WIDGET_HELP_MESSAGE_STATE_IDLE, /* a message is visible and waiting for timeout or change its text */
+   GFX_WIDGET_HELP_MESSAGE_STATE_TEXT_CHANGING, /* a message is visible and its text is currently changing */
+   GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_OUT, /* a message is currently sliding out */
 };
 
 /* Single help message slot state */
@@ -45,6 +47,8 @@ typedef struct gfx_widget_help_message_slot
    /* Goes from 1.0f to 0.0f, represents the slide in / out animation.
       Formula is x = x - (width * slide_animation) */
    float slide_animation;
+
+   gfx_timer_t timeout_timer;
 
    /* Currently displayed message data */
    char original_title[TITLE_MAX_LENGTH]; /* original title, truncated into truncated_title */
@@ -414,6 +418,39 @@ static void gfx_widget_help_message_free()
       gfx_widget_help_message_slot_release(i);
 }
 
+static void gfx_widget_help_message_on_slide_in(void* userdata)
+{
+   gfx_widget_help_message_slot_t* slot_ptr = (gfx_widget_help_message_slot_t*) userdata;
+
+   slot_ptr->state = GFX_WIDGET_HELP_MESSAGE_STATE_IDLE;
+}
+
+static void gfx_widget_help_message_on_slide_out(void* userdata)
+{
+   gfx_widget_help_message_slot_t* slot_ptr = (gfx_widget_help_message_slot_t*) userdata;
+
+   /* TODO: call the dtor, which will decrement counter */
+}
+
+static void gfx_widget_help_message_on_timeout(void* userdata)
+{
+   gfx_widget_help_message_slot_t* slot_ptr = (gfx_widget_help_message_slot_t*) userdata;
+
+   gfx_animation_ctx_entry_t entry;
+
+   entry.subject        = &slot_ptr->slide_animation;
+   entry.cb             = gfx_widget_help_message_on_slide_out;
+   entry.userdata       = slot_ptr;
+   entry.tag            = (uintptr_t) entry.subject;
+   entry.duration       = MSG_QUEUE_ANIMATION_DURATION;
+   entry.target_value   = 1.0f;
+   entry.easing_enum    = EASING_OUT_QUAD;
+
+   gfx_animation_push(&entry);
+
+   slot_ptr->state = GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_OUT;
+}
+
 /* Public functions */
 
 void gfx_widget_help_message_push(enum help_message_slot slot, const char* title, const char* message, bool animated, retro_time_t timeout)
@@ -421,8 +458,6 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
    gfx_widget_help_message_state_t* state   = &p_w_help_message_st;
    gfx_widget_help_message_slot_t* slot_ptr = gfx_widget_help_message_slot_prepare(slot);
    dispgfx_widget_t* p_dispwidget           = dispwidget_get_ptr();
-
-   gfx_animation_ctx_entry_t entry;
 
    /* Ensure we are pushing a valid help message */
    if (string_is_empty(title) || string_is_empty(message))
@@ -432,6 +467,8 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
    /* TODO: turn into a switch case to ensure every case is handled */
    if (slot_ptr->state == GFX_WIDGET_HELP_MESSAGE_STATE_NONE)
    {
+      gfx_animation_ctx_entry_t entry;
+
       /* Generic attrs */
       slot_ptr->slot = slot;
 
@@ -447,14 +484,31 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
 
       // Start animation
       entry.subject        = &slot_ptr->slide_animation;
-      entry.userdata       = NULL;
-      entry.cb             = NULL;
+      entry.cb             = gfx_widget_help_message_on_slide_in;
+      entry.userdata       = slot_ptr;
       entry.tag            = (uintptr_t) entry.subject;
-      entry.duration       = MSG_QUEUE_ANIMATION_DURATION * 10;
+      entry.duration       = MSG_QUEUE_ANIMATION_DURATION;
       entry.target_value   = 0.0f;
       entry.easing_enum    = EASING_OUT_QUAD;
 
       gfx_animation_push(&entry);
+
+      /* Start timeout if necessary */
+      if (timeout)
+      {
+         gfx_timer_ctx_entry_t timer_entry;
+
+         timer_entry.duration = timeout;
+         timer_entry.cb       = gfx_widget_help_message_on_timeout;
+         timer_entry.userdata = slot_ptr;
+
+         gfx_animation_timer_start(&slot_ptr->timeout_timer, &timer_entry);
+      }
+
+      /* TODO: stop all animations and timers in dtor */
+
+      /* Change state */
+      slot_ptr->state = GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_IN;
 
       /* Increment counter */
       state->messages_count++;
