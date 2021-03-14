@@ -68,10 +68,10 @@ typedef struct gfx_widget_help_message_slot
    {
       int x;
       int y;
-      unsigned width;
+      int width;
 
-      unsigned header_height;
-      unsigned message_height;
+      int header_height;
+      int message_height;
    } layout;
 } gfx_widget_help_message_slot_t;
 
@@ -83,17 +83,17 @@ struct gfx_widget_help_message_state
    int messages_count; /* used to know if we should draw anything */
 
    struct {
-      unsigned header_height;
-      unsigned glyph_width;
-      unsigned line_height;
-      unsigned display_width;
-      unsigned display_height;
-      unsigned pellet_offset_y;
-      unsigned title_offset_x;
-      unsigned title_padding_x;
-      unsigned message_padding_x;
-      unsigned padding_y;
-      unsigned pellet_size;
+      int header_height;
+      int glyph_width;
+      int line_height;
+      int display_width;
+      int display_height;
+      int pellet_offset_y;
+      int title_offset_x;
+      int title_padding_x;
+      int message_padding_x;
+      int padding_y;
+      int pellet_size;
    } layout;
 };
 
@@ -160,10 +160,8 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
 {
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
 
-   unsigned lines;
-   unsigned available_message_width;
+   int lines, available_message_width, width;
    size_t i;
-   unsigned width;
 
    /* Width depends on slot */
    switch (slot->slot)
@@ -183,7 +181,7 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
          break;
    }
 
-   slot->layout.width = (unsigned) roundf((float) width * scale_factor);
+   slot->layout.width = (int) roundf((float) width * scale_factor);
 
    /* Generic layout */
    slot->layout.header_height = state->layout.header_height;
@@ -269,11 +267,11 @@ static void gfx_widget_help_message_layout(void *data, bool is_threaded, const c
    state->layout.display_height      = p_dispwidget->last_video_height;
    state->layout.glyph_width         = font_driver_get_message_width(font->font, "a", 1, 1.0f);
    state->layout.line_height         = font->line_height;
-   state->layout.title_padding_x     = (unsigned) roundf(35.0f * scale_factor);
-   state->layout.message_padding_x   = (unsigned) roundf(22.5f * scale_factor);
-   state->layout.padding_y           = (unsigned) roundf(15.0f * scale_factor);
+   state->layout.title_padding_x     = (int) roundf(35.0f * scale_factor);
+   state->layout.message_padding_x   = (int) roundf(22.5f * scale_factor);
+   state->layout.padding_y           = (int) roundf(15.0f * scale_factor);
    state->layout.header_height       = font->line_height + 2 * state->layout.padding_y;
-   state->layout.pellet_size         = (unsigned) roundf(15.0f * scale_factor);
+   state->layout.pellet_size         = (int) roundf(15.0f * scale_factor);
    state->layout.pellet_offset_y     = state->layout.header_height / 2 - state->layout.pellet_size / 2;
    state->layout.title_offset_x      = state->layout.title_padding_x * 2 + state->layout.pellet_size;
 
@@ -302,8 +300,7 @@ static void gfx_widget_help_message_slot_frame(
    const unsigned video_width  = video_info->width;
    const unsigned video_height = video_info->height;
 
-   int left_side, top_side;
-   unsigned width, height;
+   int left_side, top_side, width, height;
 
    if (!slot)
       return;
