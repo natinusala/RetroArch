@@ -20,7 +20,7 @@
 
 // TODO: handle threading
 // TODO: make sure it's C89 compliant
-// TODO: ensure counter wors
+// TODO: ensure counter works
 
 /* Max title length (before truncating!) */
 #define TITLE_MAX_LENGTH 64 // TODO: ensure creating a widget with a longer title truncates it and doesn't corrupt anything
@@ -84,7 +84,7 @@ struct gfx_widget_help_message_state
 {
    gfx_widget_help_message_slot_t* slots[_HELP_MESSAGE_SLOT_MAX];
 
-   int messages_count; /* used to know if we should draw anything */
+   int active_slots; /* used to know if we should draw anything */
 
    struct {
       int header_height;
@@ -132,10 +132,17 @@ void gfx_widget_help_message_slot_release(enum help_message_slot slot)
    gfx_widget_help_message_state_t* state   = &p_w_help_message_st;
    gfx_widget_help_message_slot_t* slot_ptr = state->slots[(size_t) slot];
 
+   uintptr_t tag, timer_tag;
+
    if (!slot_ptr)
       return;
 
-   // TODO: kill all animations and timers
+   tag        = (uintptr_t) slot_ptr;
+   timer_tag  = (uintptr_t) &slot_ptr->timeout_timer;
+
+   // Kill all animations and timers
+   gfx_animation_kill_by_tag(&tag);
+   gfx_animation_kill_by_tag(&timer_tag);
 
    /* Free next message strings, if any */
    if (slot_ptr->next.title)
@@ -146,6 +153,9 @@ void gfx_widget_help_message_slot_release(enum help_message_slot slot)
 
    free(slot_ptr);
    state->slots[(size_t) slot] = NULL;
+
+   /* Decrement counter */
+   state->active_slots--;
 }
 
 static bool gfx_widget_help_message_init(bool video_is_threaded, bool fullscreen)
@@ -163,9 +173,11 @@ static bool gfx_widget_help_message_init(bool video_is_threaded, bool fullscreen
 static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* slot, float scale_factor)
 {
    gfx_widget_help_message_state_t* state = &p_w_help_message_st;
+   dispgfx_widget_t* p_dispwidget         = dispwidget_get_ptr();
+   gfx_widget_font_data_t *font           = &p_dispwidget->gfx_widget_fonts.msg_queue;
 
-   int lines, available_message_width, width;
-   size_t i;
+   int lines, available_message_width, available_title_width, width, title_width;
+   size_t i, title_chars_count, original_title_len;
 
    /* Width depends on slot */
    switch (slot->slot)
@@ -190,11 +202,23 @@ static void gfx_widget_help_message_slot_layout(gfx_widget_help_message_slot_t* 
    /* Generic layout */
    slot->layout.header_height = state->layout.header_height;
 
-   /* Only count left padding, the wrapping uncertainty counts as the right padding */
+   /* Only count left padding for message, the wrapping uncertainty counts as the right padding */
    available_message_width = slot->layout.width - state->layout.message_padding_x;
+   available_title_width   = slot->layout.width - state->layout.message_padding_x * 4 - state->layout.pellet_size;
 
-   /* TODO: Truncate title */
-   strncpy(slot->truncated_title, slot->original_title, TITLE_MAX_LENGTH);
+   /* Truncate title */
+   original_title_len   = strlen(slot->original_title);
+   title_chars_count    = TITLE_MAX_LENGTH;
+   title_width          = font_driver_get_message_width(font->font, slot->original_title, original_title_len, 1.0f);
+
+   if (title_width > available_title_width)
+   {
+      /* Naive truncate using width / chars count ratio */
+      float to_truncate = ((float) available_title_width) / ((float) title_width);
+      title_chars_count = (size_t) roundf((float) original_title_len * to_truncate) - 1; /* -1 to account for uncertainty */
+   }
+
+   strncpy(slot->truncated_title, slot->original_title, MIN(TITLE_MAX_LENGTH, title_chars_count));
 
    /* Perform word wrapping */
    word_wrap(
@@ -398,7 +422,7 @@ static void gfx_widget_help_message_frame(void* data, void* userdata)
    const video_frame_info_t* video_info   = (const video_frame_info_t*)data;
    dispgfx_widget_t* p_dispwidget         = (dispgfx_widget_t*)userdata;
 
-   if (state->messages_count == 0)
+   if (state->active_slots == 0)
       return;
 
    for (i = 0; i < _HELP_MESSAGE_SLOT_MAX; i++)
@@ -429,7 +453,7 @@ static void gfx_widget_help_message_on_slide_out(void* userdata)
 {
    gfx_widget_help_message_slot_t* slot_ptr = (gfx_widget_help_message_slot_t*) userdata;
 
-   /* TODO: call the dtor, which will decrement counter */
+   gfx_widget_help_message_slot_release(slot_ptr->slot);
 }
 
 static void gfx_widget_help_message_on_timeout(void* userdata)
@@ -441,7 +465,7 @@ static void gfx_widget_help_message_on_timeout(void* userdata)
    entry.subject        = &slot_ptr->slide_animation;
    entry.cb             = gfx_widget_help_message_on_slide_out;
    entry.userdata       = slot_ptr;
-   entry.tag            = (uintptr_t) entry.subject;
+   entry.tag            = (uintptr_t) slot_ptr;
    entry.duration       = MSG_QUEUE_ANIMATION_DURATION;
    entry.target_value   = 1.0f;
    entry.easing_enum    = EASING_OUT_QUAD;
@@ -486,7 +510,7 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
       entry.subject        = &slot_ptr->slide_animation;
       entry.cb             = gfx_widget_help_message_on_slide_in;
       entry.userdata       = slot_ptr;
-      entry.tag            = (uintptr_t) entry.subject;
+      entry.tag            = (uintptr_t) slot_ptr;
       entry.duration       = MSG_QUEUE_ANIMATION_DURATION;
       entry.target_value   = 0.0f;
       entry.easing_enum    = EASING_OUT_QUAD;
@@ -505,13 +529,11 @@ void gfx_widget_help_message_push(enum help_message_slot slot, const char* title
          gfx_animation_timer_start(&slot_ptr->timeout_timer, &timer_entry);
       }
 
-      /* TODO: stop all animations and timers in dtor */
-
       /* Change state */
       slot_ptr->state = GFX_WIDGET_HELP_MESSAGE_STATE_SLIDING_IN;
 
       /* Increment counter */
-      state->messages_count++;
+      state->active_slots++;
    }
 }
 
@@ -526,7 +548,7 @@ void gfx_widget_help_message_dismiss_all(bool animated)
 
    size_t i;
 
-   if (state->messages_count == 0)
+   if (state->active_slots == 0)
       return;
 
    for (i = 0; i < _HELP_MESSAGE_SLOT_MAX; i++)

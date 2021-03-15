@@ -385,7 +385,7 @@ static enum menu_action ozone_parse_menu_entry_action(
          }
          break;
       case MENU_ACTION_DOWN:
-         gfx_widget_help_message_push(HELP_MESSAGE_SLOT_MIDDLE_LEFT, "Need help?", "Press ESCAPE twice to quit RetroArch.\n\nThis is a longer text to showcase word wrapping.\n\nYou can load a core then load content to play retro games.", true, 1000);
+         gfx_widget_help_message_push(HELP_MESSAGE_SLOT_MIDDLE_LEFT, "Need help? That title is too long", "Press ESCAPE twice to quit RetroArch.\n\nThis is a longer text to showcase word wrapping.\n\nYou can load a core then load content to play retro games.", true, 5000);
 
          if (ozone->cursor_in_sidebar)
          {
